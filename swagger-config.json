@@ -1,0 +1,14 @@
+{
+  "modelPackage": "com.strandls.cca.pojo",
+  "apiPackage": "com.strandls.cca.controllers",
+  "invokerPackage": "com.strandls.cca",
+  "groupId": "com.strandls.cca",
+  "artifactId": "cca-client",
+  "artifactVersion": "1.0.0",
+  "fullJavaUtil": true,
+  "dateLibrary": "legacy",
+  "library": "jersey2",
+  "developerName": "Vilay Kandi",
+  "developerEmail": "vilayk@strandls.com",
+  "java8": true
+}
