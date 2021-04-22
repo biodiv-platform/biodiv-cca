@@ -1,25 +1,35 @@
 package com.strandls.cca.service.impl;
 
 import com.google.inject.Inject;
-import com.strandls.cca.pojo.CCAData;
+import com.mongodb.DB;
+import com.strandls.cca.pojo.CCAMetaData;
 import com.strandls.cca.service.CCAMetaDataService;
 import com.strandls.cca.util.AbstractService;
+
+import net.vz.mongodb.jackson.JacksonDBCollection;
 
 /**
  * 
  * @author vilay
  *
  */
-public class CCAMetaDataServiceImpl extends AbstractService<CCAData> implements CCAMetaDataService {
+public class CCAMetaDataServiceImpl extends AbstractService<CCAMetaData> implements CCAMetaDataService {
 	
 	@Inject
-	public CCAMetaDataServiceImpl() {
-		super(CCAData.class);
+	public CCAMetaDataServiceImpl(DB db) {
+		super(CCAMetaData.class, db);
 	}
 
 	@Override
-	public CCAData getCCAMetaDataById(Long ccaId) {
-		CCAData cca = new CCAData();
-		return getJacksonDBCollection().findOne(cca);
+	public CCAMetaData getCCAMetaDataById(Long ccaId) {
+		CCAMetaData ccaMetaData = new CCAMetaData();
+		return getJacksonDBCollection().findOne(ccaMetaData);
+	}
+
+	@Override
+	public CCAMetaData saveCCAMetaData(CCAMetaData ccaMetaData) {
+		JacksonDBCollection<CCAMetaData, String> collection = getJacksonDBCollection();
+		return collection.insert(ccaMetaData).getSavedObject();
+		//return collection.save(ccaMetaData).getSavedObject();
 	}
 }

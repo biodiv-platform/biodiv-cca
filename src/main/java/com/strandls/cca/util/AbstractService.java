@@ -7,15 +7,15 @@ import net.vz.mongodb.jackson.JacksonDBCollection;
 
 public abstract class AbstractService<T> {
 	
-	@Inject
 	private DB db;
 	
 	private Class<T> collectionType;
 	private JacksonDBCollection<T, String> jacksonDBCollection;
 	
 	@Inject
-	public AbstractService(Class<T> collection) {
-		this.collectionType = collection;
+	public AbstractService(Class<T> collectionType, DB db) {
+		this.collectionType = collectionType;
+		this.db = db;
 		this.jacksonDBCollection = getJacksonDBCollection();
 	}
 	

@@ -16,5 +16,6 @@ public class CCAControllerModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		bind(CCADataController.class).in(Scopes.SINGLETON);
+		bind(CCAMetaDataController.class).in(Scopes.SINGLETON);
 	}
 }

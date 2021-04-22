@@ -1,6 +1,7 @@
 package com.strandls.cca.service.impl;
 
 import com.google.inject.Inject;
+import com.mongodb.DB;
 import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.service.CCADataService;
 import com.strandls.cca.util.AbstractService;
@@ -13,8 +14,8 @@ import com.strandls.cca.util.AbstractService;
 public class CCADataServiceImpl extends AbstractService<CCAData> implements CCADataService {
 	
 	@Inject
-	public CCADataServiceImpl() {
-		super(CCAData.class);
+	public CCADataServiceImpl(DB db) {
+		super(CCAData.class, db);
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package com.strandls.cca.service;
 
-import com.strandls.cca.pojo.CCAData;
+import com.strandls.cca.pojo.CCAMetaData;
 
 /**
  * 
@@ -9,6 +9,8 @@ import com.strandls.cca.pojo.CCAData;
  */
 public interface CCAMetaDataService {
 
-	public CCAData getCCAMetaDataById(Long ccaId);
+	public CCAMetaData getCCAMetaDataById(Long ccaId);
+	
+	public CCAMetaData saveCCAMetaData(CCAMetaData ccaMetaData);
 	
 }
