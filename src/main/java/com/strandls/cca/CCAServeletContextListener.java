@@ -48,7 +48,7 @@ public class CCAServeletContextListener extends GuiceServletContextListener {
 					logger.error(e.getMessage());
 				}
 				
-				Map<String, String> props = new HashMap<String, String>();
+				Map<String, String> props = new HashMap<>();
 				props.put("javax.ws.rs.Application", ApplicationConfig.class.getName());
 				props.put("jersey.config.server.provider.packages", "com");
 				props.put("jersey.config.server.wadl.disableWadl", "true");

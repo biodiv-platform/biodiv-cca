@@ -73,7 +73,7 @@ public class ApplicationConfig extends Application {
 	@Override
 	public Set<Object> getSingletons() {
 
-		Set<Object> singletons = new HashSet<Object>();
+		Set<Object> singletons = new HashSet<>();
 		singletons.add(new ContainerLifecycleListener() {
 
 			@Override
@@ -90,12 +90,16 @@ public class ApplicationConfig extends Application {
 
 			@Override
 			public void onShutdown(Container container) {
-
+				/*
+				 * 
+				 */
 			}
 
 			@Override
 			public void onReload(Container container) {
-				
+				/*
+				 * 
+				 */
 			}
 		});
 		singletons.add(new InterceptorModule());
@@ -105,7 +109,7 @@ public class ApplicationConfig extends Application {
 
 	@Override
 	public Set<Class<?>> getClasses() {
-		Set<Class<?>> resource = new HashSet<Class<?>>();
+		Set<Class<?>> resource = new HashSet<>();
 
 		try {
 			List<Class<?>> swaggerClass = getSwaggerAnnotationClassesFromPackage("com");
@@ -126,7 +130,7 @@ public class ApplicationConfig extends Application {
 			throws URISyntaxException, IOException, ClassNotFoundException {
 
 		List<String> classNames = getClassNamesFromPackage(packageName);
-		List<Class<?>> classes = new ArrayList<Class<?>>();
+		List<Class<?>> classes = new ArrayList<>();
 		for (String className : classNames) {
 			Class<?> cls = Class.forName(className);
 			Annotation[] annotations = cls.getAnnotations();
@@ -145,7 +149,7 @@ public class ApplicationConfig extends Application {
 			throws URISyntaxException, IOException {
 
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-		ArrayList<String> names = new ArrayList<String>();
+		ArrayList<String> names = new ArrayList<>();
 		URL packageURL = classLoader.getResource(packageName);
 
 		URI uri = new URI(packageURL.toString());
