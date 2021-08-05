@@ -2,27 +2,29 @@ package com.strandls.cca.pojo;
 
 import java.util.List;
 
+import net.vz.mongodb.jackson.Id;
 import net.vz.mongodb.jackson.ObjectId;
 
-public class CCAContext {
+public class CCATemplate {
 
+	@Id
 	@ObjectId
-	private String _id;
+	private String id;
 
 	private String name;
 
 	private String description;
 
-	private String contextId;
+	private String templateId;
 
 	private List<CCAField> fields;
 
-	public String get_id() {
-		return _id;
+	public String getId() {
+		return id;
 	}
 
-	public void set_id(String _id) {
-		this._id = _id;
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public String getName() {
@@ -41,12 +43,12 @@ public class CCAContext {
 		this.description = description;
 	}
 
-	public String getContextId() {
-		return contextId;
+	public String getTemplateId() {
+		return templateId;
 	}
 
-	public void setContextId(String contextId) {
-		this.contextId = contextId;
+	public void setTemplateId(String templateId) {
+		this.templateId = templateId;
 	}
 
 	public List<CCAField> getFields() {

@@ -2,15 +2,27 @@ package com.strandls.cca.pojo;
 
 import java.util.List;
 
+//@MongoCollection(name = "cca_field")
 public class CCAField {
 
+	//@Id
+	//@ObjectId
+	private String fieldId;
+
 	private String name;
-	private Integer displayOrder;
 	private Boolean isRequired;
 	private String question;
 	private String type;
 	private List<String> values;
 	private List<CCAField> childrens;
+
+	public String getFieldId() {
+		return fieldId;
+	}
+
+	public void setFieldId(String fieldId) {
+		this.fieldId = fieldId;
+	}
 
 	public String getName() {
 		return name;
@@ -18,14 +30,6 @@ public class CCAField {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public Integer getDisplayOrder() {
-		return displayOrder;
-	}
-
-	public void setDisplayOrder(Integer displayOrder) {
-		this.displayOrder = displayOrder;
 	}
 
 	public Boolean getIsRequired() {

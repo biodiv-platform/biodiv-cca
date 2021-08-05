@@ -5,7 +5,7 @@ package com.strandls.cca.service.impl;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
-import com.strandls.cca.service.CCAContextService;
+import com.strandls.cca.service.CCAService;
 
 /**
  * 
@@ -16,6 +16,6 @@ public class CCAServiceModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(CCAContextService.class).to(CCAContextServiceImpl.class).in(Scopes.SINGLETON);
+		bind(CCAService.class).to(CCAServiceImpl.class).in(Scopes.SINGLETON);
 	}
 }
