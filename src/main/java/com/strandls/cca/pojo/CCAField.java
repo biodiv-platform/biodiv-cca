@@ -5,15 +5,15 @@ import java.util.List;
 //@MongoCollection(name = "cca_field")
 public class CCAField {
 
-	//@Id
-	//@ObjectId
+	// @Id
+	// @ObjectId
 	private String fieldId;
 
 	private String name;
 	private Boolean isRequired;
 	private String question;
 	private String type;
-	private List<String> values;
+	private List<String> valueOptions;
 	private List<CCAField> childrens;
 
 	public String getFieldId() {
@@ -56,12 +56,12 @@ public class CCAField {
 		this.type = type;
 	}
 
-	public List<String> getValues() {
-		return values;
+	public List<String> getValueOptions() {
+		return valueOptions;
 	}
 
-	public void setValues(List<String> values) {
-		this.values = values;
+	public void setValueOptions(List<String> valueOptions) {
+		this.valueOptions = valueOptions;
 	}
 
 	public List<CCAField> getChildrens() {
@@ -71,4 +71,5 @@ public class CCAField {
 	public void setChildrens(List<CCAField> childrens) {
 		this.childrens = childrens;
 	}
+
 }

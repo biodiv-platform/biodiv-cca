@@ -45,24 +45,24 @@ public class CCAController {
 	}
 
 	@GET
-	@Path(ApiConstants.CONTEXT + "/{contextId}")
+	@Path(ApiConstants.TEMPLATE + "/{templateId}")
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 
 	@ApiOperation(value = "Find CCA METADATA by ID", notes = "Returns CCA field details", response = Long.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "CCA field not found", response = String.class) })
 
-	public Response getCCAContextById(@PathParam("contextId") String contextId) {
+	public Response getCCATemplateById(@PathParam("templateId") String templateId) {
 		try {
-			CCATemplate ccaContext = ccaContextService.getCCAByTemplateId(contextId);
-			return Response.status(Status.OK).entity(ccaContext).build();
+			CCATemplate ccaTemplate = ccaContextService.getCCAByTemplateId(templateId);
+			return Response.status(Status.OK).entity(ccaTemplate).build();
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).build();
 		}
 	}
 
 	@POST
-	@Path(ApiConstants.CONTEXT)
+	@Path(ApiConstants.TEMPLATE)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 
@@ -70,7 +70,7 @@ public class CCAController {
 	@ApiResponses(value = {
 			@ApiResponse(code = 404, message = "Could not save the metadata", response = CCATemplate.class) })
 
-	public Response saveCCAContext(@ApiParam("ccaMetaData") CCATemplate ccaMasterField) {
+	public Response saveCCATemplate(@ApiParam("ccaMetaData") CCATemplate ccaMasterField) {
 		try {
 			ccaMasterField = ccaContextService.saveOrUpdate(ccaMasterField);
 			return Response.status(Status.OK).entity(ccaMasterField).build();

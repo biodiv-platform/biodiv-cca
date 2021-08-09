@@ -15,5 +15,5 @@ public class ApiConstants {
 	public static final String V1 = "/v1";
 	public static final String CCA = "/cca";
 	public static final String DATA = "/data";
-	public static final String CONTEXT = "/context";
+	public static final String TEMPLATE = "/template";
 }
