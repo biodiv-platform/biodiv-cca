@@ -49,7 +49,7 @@ public class CCAController {
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 
-	@ApiOperation(value = "Find CCA METADATA by ID", notes = "Returns CCA field details", response = Long.class)
+	@ApiOperation(value = "Find CCA METADATA by ID", notes = "Returns CCA field details", response = CCATemplate.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "CCA field not found", response = String.class) })
 
 	public Response getCCATemplateById(@PathParam("templateId") String templateId) {
@@ -68,7 +68,7 @@ public class CCAController {
 
 	@ApiOperation(value = "Save the cca metadata", notes = "Returns CCA Metadata fields", response = CCATemplate.class)
 	@ApiResponses(value = {
-			@ApiResponse(code = 404, message = "Could not save the metadata", response = CCATemplate.class) })
+			@ApiResponse(code = 404, message = "Could not save the metadata", response = String.class) })
 
 	public Response saveCCATemplate(@ApiParam("ccaMetaData") CCATemplate ccaMasterField) {
 		try {
