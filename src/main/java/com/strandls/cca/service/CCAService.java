@@ -18,6 +18,8 @@ public interface CCAService {
 	public List<CCATemplate> getAll();
 
 	public CCATemplate update(CCATemplate ccaMetaData);
+
+	public List<CCATemplate> getAllCCATemplate();
 	
 	
 }

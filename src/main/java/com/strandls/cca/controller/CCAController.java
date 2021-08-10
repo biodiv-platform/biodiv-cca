@@ -1,5 +1,7 @@
 package com.strandls.cca.controller;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -44,6 +46,23 @@ public class CCAController {
 		}
 	}
 
+	@GET
+	@Path(ApiConstants.TEMPLATE + "/all")
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ApiOperation(value = "Find CCA METADATA by ID", notes = "Returns CCA field details", response = CCATemplate.class)
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "CCA field not found", response = String.class) })
+
+	public Response getAllCCATemplate() {
+		try {
+			List<CCATemplate> ccaTemplate = ccaContextService.getAllCCATemplate();
+			return Response.status(Status.OK).entity(ccaTemplate).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).build();
+		}
+	}
+	
 	@GET
 	@Path(ApiConstants.TEMPLATE + "/{templateId}")
 	@Consumes(MediaType.TEXT_PLAIN)

@@ -10,22 +10,40 @@ public enum DataType {
 
 	@XmlEnumValue("TEXT")
 	TEXT("TEXT"),
-	@XmlEnumValue("GEOMETRY")
-	GEOMETRY("GEOMETRY"),
+	@XmlEnumValue("RICHTEXT")
+	RICHTEXT("RICHTEXT"),
+	
 	@XmlEnumValue("NUMBER")
 	NUMBER("NUMBER"),
+	@XmlEnumValue("NUMBER_RANGE")
+	NUMBER_RANGE("NUMBER_RANGE"),
+	
+	@XmlEnumValue("DATE")
+	DATE("DATE"),
+	@XmlEnumValue("DATE_RANGE")
+	DATE_RANGE("DATE_RANGE"),
+
 	@XmlEnumValue("RADIO")
 	RADIO("RADIO"),
 	@XmlEnumValue("CHECKBOX")
 	CHECKBOX("CHECKBOX"),
-	@XmlEnumValue("DATE")
-	DATE("DATE"),
+	
+	@XmlEnumValue("SELECT")
+	SELECT("SELECT"),
+	@XmlEnumValue("MULTI_SELECT")
+	MULTI_SELECT("MULTI_SELECT"),
+	
+	@XmlEnumValue("GEOMETRY")
+	GEOMETRY("GEOMETRY"),
+	
+	@XmlEnumValue("FILE")
+	FILE("FILE"),
+	
 	@XmlEnumValue("EMBEDDED")
 	EMBEDDED("EMBEDDED"),
-	@XmlEnumValue("UPLOAD")
-	UPLOAD("UPLOAD"),
-	@XmlEnumValue("LINK")
-	LINK("LINK");
+
+	@XmlEnumValue("NODE")
+	NODE("NODE");
 	
 	private String value;
 	
@@ -39,5 +57,9 @@ public enum DataType {
 				return dataType;
 		}
 		throw new IllegalArgumentException(value);
+	}
+	
+	public String getValue() {
+		return value;
 	}
 }

@@ -6,8 +6,9 @@ import java.util.UUID;
 import com.google.inject.Inject;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
-import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.cca.pojo.CCAField;
+import com.strandls.cca.pojo.CCATemplate;
+import com.strandls.cca.pojo.DataType;
 import com.strandls.cca.service.CCAService;
 import com.strandls.cca.util.AbstractService;
 
@@ -19,7 +20,7 @@ import net.vz.mongodb.jackson.JacksonDBCollection;
  *
  */
 public class CCAServiceImpl extends AbstractService<CCATemplate> implements CCAService {
-	
+
 	private static final String TEMPLATE_ID = "templateId";
 
 	@Inject
@@ -60,8 +61,53 @@ public class CCAServiceImpl extends AbstractService<CCATemplate> implements CCAS
 			if (ccaField.getFieldId() == null) {
 				ccaField.setFieldId(UUID.randomUUID().toString());
 			}
+			//validateField(ccaField);
 			addFieldId(ccaField.getChildrens());
 		}
+	}
+
+	private void validateField(CCAField ccaField) {
+		String type = ccaField.getType();
+		DataType dataType = DataType.fromValue(type);
+		
+		List<String> valueOptions = ccaField.getValueOptions();
+		
+		switch (dataType) {
+		case SELECT:
+		case MULTI_SELECT:
+		case CHECKBOX:
+		case RADIO:
+			if(valueOptions == null || valueOptions.isEmpty()) {
+				throw new IllegalArgumentException("Value options not provided");
+			}
+			break;
+
+		case DATE:
+		case DATE_RANGE:
+
+			break;
+
+		case EMBEDDED:
+		case GEOMETRY:
+		case NUMBER:
+		case NUMBER_RANGE:
+		case TEXT:
+		case NODE:
+		case RICHTEXT:
+		case FILE:
+
+			break;
+
+		default:
+			throw new IllegalArgumentException("Invalid data type");
+		}
+		
+	}
+	
+	@Override
+	public List<CCATemplate> getAllCCATemplate() {
+		JacksonDBCollection<CCATemplate, String> collection = getJacksonDBCollection();
+		return collection.find().toArray();
 	}
 
 }
