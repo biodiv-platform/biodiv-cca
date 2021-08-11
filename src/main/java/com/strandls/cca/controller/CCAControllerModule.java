@@ -15,6 +15,6 @@ public class CCAControllerModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(CCAController.class).in(Scopes.SINGLETON);
+		bind(CCATemplateController.class).in(Scopes.SINGLETON);
 	}
 }

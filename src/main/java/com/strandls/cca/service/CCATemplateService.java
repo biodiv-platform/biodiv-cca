@@ -9,7 +9,7 @@ import com.strandls.cca.pojo.CCATemplate;
  * @author vilay
  *
  */
-public interface CCAService {
+public interface CCATemplateService {
 
 	public CCATemplate getCCAByTemplateId(String ccaId);
 

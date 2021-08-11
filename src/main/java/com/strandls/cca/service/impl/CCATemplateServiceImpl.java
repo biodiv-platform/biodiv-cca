@@ -9,7 +9,7 @@ import com.mongodb.DB;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.cca.pojo.DataType;
-import com.strandls.cca.service.CCAService;
+import com.strandls.cca.service.CCATemplateService;
 import com.strandls.cca.util.AbstractService;
 
 import net.vz.mongodb.jackson.JacksonDBCollection;
@@ -19,12 +19,12 @@ import net.vz.mongodb.jackson.JacksonDBCollection;
  * @author vilay
  *
  */
-public class CCAServiceImpl extends AbstractService<CCATemplate> implements CCAService {
+public class CCATemplateServiceImpl extends AbstractService<CCATemplate> implements CCATemplateService {
 
 	private static final String TEMPLATE_ID = "templateId";
 
 	@Inject
-	public CCAServiceImpl(DB db) {
+	public CCATemplateServiceImpl(DB db) {
 		super(CCATemplate.class, db);
 	}
 
@@ -61,7 +61,7 @@ public class CCAServiceImpl extends AbstractService<CCATemplate> implements CCAS
 			if (ccaField.getFieldId() == null) {
 				ccaField.setFieldId(UUID.randomUUID().toString());
 			}
-			//validateField(ccaField);
+			validateField(ccaField);
 			addFieldId(ccaField.getChildrens());
 		}
 	}
@@ -81,12 +81,8 @@ public class CCAServiceImpl extends AbstractService<CCATemplate> implements CCAS
 				throw new IllegalArgumentException("Value options not provided");
 			}
 			break;
-
 		case DATE:
 		case DATE_RANGE:
-
-			break;
-
 		case EMBEDDED:
 		case GEOMETRY:
 		case NUMBER:
@@ -95,9 +91,7 @@ public class CCAServiceImpl extends AbstractService<CCATemplate> implements CCAS
 		case NODE:
 		case RICHTEXT:
 		case FILE:
-
 			break;
-
 		default:
 			throw new IllegalArgumentException("Invalid data type");
 		}

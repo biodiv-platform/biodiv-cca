@@ -15,7 +15,7 @@ import javax.ws.rs.core.Response.Status;
 
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.pojo.CCATemplate;
-import com.strandls.cca.service.CCAService;
+import com.strandls.cca.service.CCATemplateService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -24,11 +24,11 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 @Api("CCA Services")
-@Path(ApiConstants.V1 + ApiConstants.CCA)
-public class CCAController {
+@Path(ApiConstants.V1 + ApiConstants.TEMPLATE)
+public class CCATemplateController {
 
 	@Inject
-	private CCAService ccaContextService;
+	private CCATemplateService ccaContextService;
 
 	@GET
 	@Path("/ping")
@@ -47,7 +47,7 @@ public class CCAController {
 	}
 
 	@GET
-	@Path(ApiConstants.TEMPLATE + "/all")
+	@Path("/all")
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 
@@ -62,9 +62,9 @@ public class CCAController {
 			return Response.status(Status.BAD_REQUEST).build();
 		}
 	}
-	
+
 	@GET
-	@Path(ApiConstants.TEMPLATE + "/{templateId}")
+	@Path("/{templateId}")
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 
@@ -81,7 +81,6 @@ public class CCAController {
 	}
 
 	@POST
-	@Path(ApiConstants.TEMPLATE)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 
