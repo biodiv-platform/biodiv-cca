@@ -1,14 +1,19 @@
 package com.strandls.cca.service.impl;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 import com.google.inject.Inject;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.cca.pojo.DataType;
+import com.strandls.cca.pojo.response.CCATemplateShow;
 import com.strandls.cca.service.CCATemplateService;
 import com.strandls.cca.util.AbstractService;
 
@@ -60,6 +65,10 @@ public class CCATemplateServiceImpl extends AbstractService<CCATemplate> impleme
 		for (CCAField ccaField : ccaFields) {
 			if (ccaField.getFieldId() == null) {
 				ccaField.setFieldId(UUID.randomUUID().toString());
+				ccaField.setCreateOn(new Timestamp(new Date().getTime()));
+				ccaField.setUpdatedOn(new Timestamp(new Date().getTime()));
+			} else {
+				// TODO : update timestamp work need to be done
 			}
 			validateField(ccaField);
 			addFieldId(ccaField.getChildrens());
@@ -69,15 +78,15 @@ public class CCATemplateServiceImpl extends AbstractService<CCATemplate> impleme
 	private void validateField(CCAField ccaField) {
 		String type = ccaField.getType();
 		DataType dataType = DataType.fromValue(type);
-		
+
 		List<String> valueOptions = ccaField.getValueOptions();
-		
+
 		switch (dataType) {
 		case SELECT:
 		case MULTI_SELECT:
 		case CHECKBOX:
 		case RADIO:
-			if(valueOptions == null || valueOptions.isEmpty()) {
+			if (valueOptions == null || valueOptions.isEmpty()) {
 				throw new IllegalArgumentException("Value options not provided");
 			}
 			break;
@@ -95,13 +104,22 @@ public class CCATemplateServiceImpl extends AbstractService<CCATemplate> impleme
 		default:
 			throw new IllegalArgumentException("Invalid data type");
 		}
-		
+
 	}
-	
+
 	@Override
-	public List<CCATemplate> getAllCCATemplate() {
-		JacksonDBCollection<CCATemplate, String> collection = getJacksonDBCollection();
-		return collection.find().toArray();
+	public List<CCATemplateShow> getAllCCATemplate() {
+		DBCollection dbCollection = getDBCollection();
+		JacksonDBCollection<CCATemplateShow, String> jacksonCollection = JacksonDBCollection.wrap(dbCollection,
+				CCATemplateShow.class, String.class);
+		DBObject keys = new BasicDBObject();
+		keys.put("id", 1);
+		keys.put("name", 1);
+		keys.put("description", 1);
+		keys.put(TEMPLATE_ID, 1);
+		keys.put("createOn", 1);
+		keys.put("updatedOn", 1);
+		return jacksonCollection.find(new BasicDBObject(), keys).toArray();
 	}
 
 }

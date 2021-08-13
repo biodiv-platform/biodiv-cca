@@ -1,35 +1,22 @@
-package com.strandls.cca.pojo;
+package com.strandls.cca.pojo.response;
 
 import java.sql.Timestamp;
-import java.util.List;
 
-import net.vz.mongodb.jackson.Id;
-import net.vz.mongodb.jackson.ObjectId;
+public class CCATemplateShow {
 
-public class CCATemplate {
-
-	@Id
-	@ObjectId
-	private String id;
-
+	private String _id;
 	private String name;
-
 	private String description;
-
 	private String templateId;
-
 	private Timestamp createOn;
-
 	private Timestamp updatedOn;
 
-	private List<CCAField> fields;
-
-	public String getId() {
-		return id;
+	public String get_id() {
+		return _id;
 	}
 
-	public void setId(String id) {
-		this.id = id;
+	public void set_id(String _id) {
+		this._id = _id;
 	}
 
 	public String getName() {
@@ -72,11 +59,4 @@ public class CCATemplate {
 		this.updatedOn = updatedOn;
 	}
 
-	public List<CCAField> getFields() {
-		return fields;
-	}
-
-	public void setFields(List<CCAField> fields) {
-		this.fields = fields;
-	}
 }

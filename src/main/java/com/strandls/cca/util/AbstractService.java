@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.google.inject.Inject;
 import com.mongodb.DB;
+import com.mongodb.DBCollection;
 
 import net.vz.mongodb.jackson.JacksonDBCollection;
 
@@ -19,6 +20,10 @@ public abstract class AbstractService<T> {
 		this.collectionType = collectionType;
 		this.db = db;
 		this.jacksonDBCollection = getJacksonDBCollection();
+	}
+	
+	protected DBCollection getDBCollection() {
+		return db.getCollection(collectionType.getSimpleName().toLowerCase());
 	}
 	
 	protected JacksonDBCollection<T, String> getJacksonDBCollection() {

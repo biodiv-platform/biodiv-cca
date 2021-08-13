@@ -15,6 +15,7 @@ import javax.ws.rs.core.Response.Status;
 
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.pojo.CCATemplate;
+import com.strandls.cca.pojo.response.CCATemplateShow;
 import com.strandls.cca.service.CCATemplateService;
 
 import io.swagger.annotations.Api;
@@ -23,7 +24,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
-@Api("CCA Services")
+@Api("CCA Template Services")
 @Path(ApiConstants.V1 + ApiConstants.TEMPLATE)
 public class CCATemplateController {
 
@@ -51,12 +52,12 @@ public class CCATemplateController {
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 
-	@ApiOperation(value = "Find CCA METADATA by ID", notes = "Returns CCA field details", response = CCATemplate.class)
+	@ApiOperation(value = "Find CCA METADATA by ID", notes = "Returns CCA field details", response = CCATemplateShow.class, responseContainer = "List")
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "CCA field not found", response = String.class) })
 
 	public Response getAllCCATemplate() {
 		try {
-			List<CCATemplate> ccaTemplate = ccaContextService.getAllCCATemplate();
+			List<CCATemplateShow> ccaTemplate = ccaContextService.getAllCCATemplate();
 			return Response.status(Status.OK).entity(ccaTemplate).build();
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).build();

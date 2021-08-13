@@ -3,6 +3,7 @@ package com.strandls.cca.service;
 import java.util.List;
 
 import com.strandls.cca.pojo.CCATemplate;
+import com.strandls.cca.pojo.response.CCATemplateShow;
 
 /**
  * 
@@ -19,7 +20,7 @@ public interface CCATemplateService {
 
 	public CCATemplate update(CCATemplate ccaMetaData);
 
-	public List<CCATemplate> getAllCCATemplate();
+	public List<CCATemplateShow> getAllCCATemplate();
 	
 	
 }

@@ -1,5 +1,6 @@
 package com.strandls.cca.pojo;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 //@MongoCollection(name = "cca_field")
@@ -10,10 +11,12 @@ public class CCAField {
 	private String fieldId;
 
 	private String name;
-	private Boolean isRequired;
+	private CCAFieldDataValidation validation;
 	private String question;
 	private String type;
 	private List<String> valueOptions;
+	private Timestamp createOn;
+	private Timestamp updatedOn;
 	private List<CCAField> childrens;
 
 	public String getFieldId() {
@@ -32,12 +35,12 @@ public class CCAField {
 		this.name = name;
 	}
 
-	public Boolean getIsRequired() {
-		return isRequired;
+	public CCAFieldDataValidation getValidation() {
+		return validation;
 	}
 
-	public void setIsRequired(Boolean isRequired) {
-		this.isRequired = isRequired;
+	public void setValidation(CCAFieldDataValidation validation) {
+		this.validation = validation;
 	}
 
 	public String getQuestion() {
@@ -62,6 +65,22 @@ public class CCAField {
 
 	public void setValueOptions(List<String> valueOptions) {
 		this.valueOptions = valueOptions;
+	}
+
+	public Timestamp getCreateOn() {
+		return createOn;
+	}
+
+	public void setCreateOn(Timestamp createOn) {
+		this.createOn = createOn;
+	}
+
+	public Timestamp getUpdatedOn() {
+		return updatedOn;
+	}
+
+	public void setUpdatedOn(Timestamp updatedOn) {
+		this.updatedOn = updatedOn;
 	}
 
 	public List<CCAField> getChildrens() {
