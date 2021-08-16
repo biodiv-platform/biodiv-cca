@@ -17,7 +17,7 @@ public class CCAField {
 	private List<String> valueOptions;
 	private Timestamp createOn;
 	private Timestamp updatedOn;
-	private List<CCAField> childrens;
+	private List<CCAField> children;
 
 	public String getFieldId() {
 		return fieldId;
@@ -83,12 +83,12 @@ public class CCAField {
 		this.updatedOn = updatedOn;
 	}
 
-	public List<CCAField> getChildrens() {
-		return childrens;
+	public List<CCAField> getChildren() {
+		return children;
 	}
 
-	public void setChildrens(List<CCAField> childrens) {
-		this.childrens = childrens;
+	public void setChildren(List<CCAField> children) {
+		this.children = children;
 	}
 
 }

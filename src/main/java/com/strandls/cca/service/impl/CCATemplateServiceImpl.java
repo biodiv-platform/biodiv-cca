@@ -71,7 +71,7 @@ public class CCATemplateServiceImpl extends AbstractService<CCATemplate> impleme
 				// TODO : update timestamp work need to be done
 			}
 			validateField(ccaField);
-			addFieldId(ccaField.getChildrens());
+			addFieldId(ccaField.getChildren());
 		}
 	}
 
