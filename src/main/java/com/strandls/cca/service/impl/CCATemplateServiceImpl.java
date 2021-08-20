@@ -26,7 +26,7 @@ import net.vz.mongodb.jackson.JacksonDBCollection;
  */
 public class CCATemplateServiceImpl extends AbstractService<CCATemplate> implements CCATemplateService {
 
-	private static final String TEMPLATE_ID = "templateId";
+	private static final String SHORT_NAME = "shortName";
 
 	@Inject
 	public CCATemplateServiceImpl(DB db) {
@@ -34,28 +34,43 @@ public class CCATemplateServiceImpl extends AbstractService<CCATemplate> impleme
 	}
 
 	@Override
-	public CCATemplate getCCAByTemplateId(String ccaTemplate) {
+	public CCATemplate getCCAByShortName(String ccaTemplate) {
 		JacksonDBCollection<CCATemplate, String> collection = getJacksonDBCollection();
-		return collection.findOne(new BasicDBObject(TEMPLATE_ID, ccaTemplate));
+		return collection.findOne(new BasicDBObject(SHORT_NAME, ccaTemplate));
 	}
 
 	public void createUniqueIndexOnConextId() {
 		JacksonDBCollection<CCATemplate, String> collection = getJacksonDBCollection();
-		collection.ensureIndex(new BasicDBObject(TEMPLATE_ID, 1), new BasicDBObject("unique", true));
+		collection.ensureIndex(new BasicDBObject(SHORT_NAME, 1), new BasicDBObject("unique", true));
 	}
 
 	@Override
-	public CCATemplate saveOrUpdate(CCATemplate context) {
+	public CCATemplate save(CCATemplate context) {
 		JacksonDBCollection<CCATemplate, String> collection = getJacksonDBCollection();
 
-		CCATemplate contextToUpdate = collection.findOne(new BasicDBObject(TEMPLATE_ID, context.getTemplateId()));
+		CCATemplate contextToUpdate = collection.findOne(new BasicDBObject(SHORT_NAME, context.getShortName()));
+		if(contextToUpdate != null)
+			throw new IllegalArgumentException("Can't create new with same short name. Either update or create new one");
+		
 		addFieldId(context.getFields());
-		if (contextToUpdate == null)
-			context = super.save(context);
-		else
-			collection.update(contextToUpdate, context);
+		context = super.save(context);
 
-		return collection.findOne(new BasicDBObject(TEMPLATE_ID, context.getTemplateId()));
+		return collection.findOne(new BasicDBObject(SHORT_NAME, context.getShortName()));
+	}
+	
+	@Override
+	public CCATemplate update(CCATemplate context) {
+		JacksonDBCollection<CCATemplate, String> collection = getJacksonDBCollection();
+
+		CCATemplate contextToUpdate = collection.findOne(new BasicDBObject(SHORT_NAME, context.getShortName()));
+		
+		if(contextToUpdate != null)
+			throw new IllegalArgumentException("Can't update the template, template doesnot exit");
+		
+		addFieldId(context.getFields());
+		collection.update(contextToUpdate, context);
+
+		return collection.findOne(new BasicDBObject(SHORT_NAME, context.getShortName()));
 	}
 
 	private void addFieldId(List<CCAField> ccaFields) {
@@ -82,7 +97,7 @@ public class CCATemplateServiceImpl extends AbstractService<CCATemplate> impleme
 		List<String> valueOptions = ccaField.getValueOptions();
 
 		switch (dataType) {
-		case SELECT:
+		case SINGLE_SELECT:
 		case MULTI_SELECT:
 		case CHECKBOX:
 		case RADIO:
@@ -97,7 +112,7 @@ public class CCATemplateServiceImpl extends AbstractService<CCATemplate> impleme
 		case NUMBER:
 		case NUMBER_RANGE:
 		case TEXT:
-		case NODE:
+		case HEADING:
 		case RICHTEXT:
 		case FILE:
 			break;
@@ -116,7 +131,7 @@ public class CCATemplateServiceImpl extends AbstractService<CCATemplate> impleme
 		keys.put("id", 1);
 		keys.put("name", 1);
 		keys.put("description", 1);
-		keys.put(TEMPLATE_ID, 1);
+		keys.put(SHORT_NAME, 1);
 		keys.put("createOn", 1);
 		keys.put("updatedOn", 1);
 		return jacksonCollection.find(new BasicDBObject(), keys).toArray();

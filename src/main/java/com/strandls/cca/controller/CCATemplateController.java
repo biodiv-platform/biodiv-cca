@@ -6,6 +6,7 @@ import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -74,7 +75,7 @@ public class CCATemplateController {
 
 	public Response getCCATemplateById(@PathParam("templateId") String templateId) {
 		try {
-			CCATemplate ccaTemplate = ccaContextService.getCCAByTemplateId(templateId);
+			CCATemplate ccaTemplate = ccaContextService.getCCAByShortName(templateId);
 			return Response.status(Status.OK).entity(ccaTemplate).build();
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).build();
@@ -82,16 +83,35 @@ public class CCATemplateController {
 	}
 
 	@POST
+	@Path("/save")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 
-	@ApiOperation(value = "Save the cca metadata", notes = "Returns CCA Metadata fields", response = CCATemplate.class)
+	@ApiOperation(value = "Create the cca template", notes = "Returns CCA template created fields", response = CCATemplate.class)
 	@ApiResponses(value = {
-			@ApiResponse(code = 404, message = "Could not save the metadata", response = String.class) })
+			@ApiResponse(code = 404, message = "Could not create the CCA template", response = String.class) })
 
-	public Response saveCCATemplate(@ApiParam("ccaMetaData") CCATemplate ccaMasterField) {
+	public Response createCCATemplate(@ApiParam("ccaTemplate") CCATemplate ccaMasterField) {
 		try {
-			ccaMasterField = ccaContextService.saveOrUpdate(ccaMasterField);
+			ccaMasterField = ccaContextService.save(ccaMasterField);
+			return Response.status(Status.OK).entity(ccaMasterField).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).build();
+		}
+	}
+	
+	@PUT
+	@Path("/update")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ApiOperation(value = "Update the cca template", notes = "Returns CCA Template and its fields", response = CCATemplate.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 404, message = "Could not save the CCA Template", response = String.class) })
+
+	public Response updateCCATemplate(@ApiParam("ccaTemplate") CCATemplate ccaMasterField) {
+		try {
+			ccaMasterField = ccaContextService.update(ccaMasterField);
 			return Response.status(Status.OK).entity(ccaMasterField).build();
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).build();

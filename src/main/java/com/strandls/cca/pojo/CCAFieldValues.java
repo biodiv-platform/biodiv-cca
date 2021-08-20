@@ -8,7 +8,7 @@ public class CCAFieldValues {
 	private String name;
 	private List<String> value;
 
-	private List<CCAFieldValues> ccaFieldValues;
+	private List<CCAFieldValues> children;
 
 	public String getFieldId() {
 		return fieldId;
@@ -34,12 +34,12 @@ public class CCAFieldValues {
 		this.value = value;
 	}
 
-	public List<CCAFieldValues> getCcaFieldValues() {
-		return ccaFieldValues;
+	public List<CCAFieldValues> getChildren() {
+		return children;
 	}
 
-	public void setCcaFieldValues(List<CCAFieldValues> ccaFieldValues) {
-		this.ccaFieldValues = ccaFieldValues;
+	public void setChildren(List<CCAFieldValues> children) {
+		this.children = children;
 	}
 
 }

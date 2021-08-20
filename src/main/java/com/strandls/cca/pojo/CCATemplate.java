@@ -1,6 +1,6 @@
 package com.strandls.cca.pojo;
 
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 import net.vz.mongodb.jackson.Id;
@@ -16,11 +16,11 @@ public class CCATemplate {
 
 	private String description;
 
-	private String templateId;
+	private String shortName;
 
-	private Timestamp createOn;
+	private Date createOn;
 
-	private Timestamp updatedOn;
+	private Date updatedOn;
 
 	private List<CCAField> fields;
 
@@ -48,27 +48,27 @@ public class CCATemplate {
 		this.description = description;
 	}
 
-	public String getTemplateId() {
-		return templateId;
+	public String getShortName() {
+		return shortName;
 	}
 
-	public void setTemplateId(String templateId) {
-		this.templateId = templateId;
+	public void setShortName(String shortName) {
+		this.shortName = shortName;
 	}
 
-	public Timestamp getCreateOn() {
+	public Date getCreateOn() {
 		return createOn;
 	}
 
-	public void setCreateOn(Timestamp createOn) {
+	public void setCreateOn(Date createOn) {
 		this.createOn = createOn;
 	}
 
-	public Timestamp getUpdatedOn() {
+	public Date getUpdatedOn() {
 		return updatedOn;
 	}
 
-	public void setUpdatedOn(Timestamp updatedOn) {
+	public void setUpdatedOn(Date updatedOn) {
 		this.updatedOn = updatedOn;
 	}
 

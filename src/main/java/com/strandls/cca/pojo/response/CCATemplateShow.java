@@ -1,6 +1,6 @@
 package com.strandls.cca.pojo.response;
 
-import java.sql.Timestamp;
+import java.util.Date;
 
 public class CCATemplateShow {
 
@@ -8,8 +8,8 @@ public class CCATemplateShow {
 	private String name;
 	private String description;
 	private String templateId;
-	private Timestamp createOn;
-	private Timestamp updatedOn;
+	private Date createOn;
+	private Date updatedOn;
 
 	public String get_id() {
 		return _id;
@@ -43,19 +43,19 @@ public class CCATemplateShow {
 		this.templateId = templateId;
 	}
 
-	public Timestamp getCreateOn() {
+	public Date getCreateOn() {
 		return createOn;
 	}
 
-	public void setCreateOn(Timestamp createOn) {
+	public void setCreateOn(Date createOn) {
 		this.createOn = createOn;
 	}
 
-	public Timestamp getUpdatedOn() {
+	public Date getUpdatedOn() {
 		return updatedOn;
 	}
 
-	public void setUpdatedOn(Timestamp updatedOn) {
+	public void setUpdatedOn(Date updatedOn) {
 		this.updatedOn = updatedOn;
 	}
 

@@ -1,6 +1,6 @@
 package com.strandls.cca.pojo;
 
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 //@MongoCollection(name = "cca_field")
@@ -15,8 +15,8 @@ public class CCAField {
 	private String question;
 	private String type;
 	private List<String> valueOptions;
-	private Timestamp createOn;
-	private Timestamp updatedOn;
+	private Date createOn;
+	private Date updatedOn;
 	private List<CCAField> children;
 
 	public String getFieldId() {
@@ -67,19 +67,19 @@ public class CCAField {
 		this.valueOptions = valueOptions;
 	}
 
-	public Timestamp getCreateOn() {
+	public Date getCreateOn() {
 		return createOn;
 	}
 
-	public void setCreateOn(Timestamp createOn) {
+	public void setCreateOn(Date createOn) {
 		this.createOn = createOn;
 	}
 
-	public Timestamp getUpdatedOn() {
+	public Date getUpdatedOn() {
 		return updatedOn;
 	}
 
-	public void setUpdatedOn(Timestamp updatedOn) {
+	public void setUpdatedOn(Date updatedOn) {
 		this.updatedOn = updatedOn;
 	}
 

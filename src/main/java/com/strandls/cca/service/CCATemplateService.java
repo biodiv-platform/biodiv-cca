@@ -12,15 +12,12 @@ import com.strandls.cca.pojo.response.CCATemplateShow;
  */
 public interface CCATemplateService {
 
-	public CCATemplate getCCAByTemplateId(String ccaId);
-
-	public CCATemplate saveOrUpdate(CCATemplate ccaMetaData);
-
-	public List<CCATemplate> getAll();
+	public CCATemplate getCCAByShortName(String ccaId);
 
 	public CCATemplate update(CCATemplate ccaMetaData);
 
+	public CCATemplate save(CCATemplate ccaMasterField);
+
 	public List<CCATemplateShow> getAllCCATemplate();
-	
-	
+
 }

@@ -29,7 +29,7 @@ public enum DataType {
 	CHECKBOX("CHECKBOX"),
 	
 	@XmlEnumValue("SELECT")
-	SELECT("SELECT"),
+	SINGLE_SELECT("SELECT"),
 	@XmlEnumValue("MULTI_SELECT")
 	MULTI_SELECT("MULTI_SELECT"),
 	
@@ -42,8 +42,8 @@ public enum DataType {
 	@XmlEnumValue("EMBEDDED")
 	EMBEDDED("EMBEDDED"),
 
-	@XmlEnumValue("NODE")
-	NODE("NODE");
+	@XmlEnumValue("Heading")
+	HEADING("HEADING");
 	
 	private String value;
 	
