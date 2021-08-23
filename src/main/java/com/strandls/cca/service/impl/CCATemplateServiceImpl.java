@@ -64,7 +64,7 @@ public class CCATemplateServiceImpl extends AbstractService<CCATemplate> impleme
 
 		CCATemplate contextToUpdate = collection.findOne(new BasicDBObject(SHORT_NAME, context.getShortName()));
 		
-		if(contextToUpdate != null)
+		if(contextToUpdate == null)
 			throw new IllegalArgumentException("Can't update the template, template doesnot exit");
 		
 		addFieldId(context.getFields());
