@@ -12,7 +12,7 @@ public class CCAData {
 	@ObjectId
 	private String id;
 
-	private String templateId;
+	private String shortName;
 	private String userId;
 	private Date createdOn;
 	private Date updatedOn;
@@ -27,12 +27,12 @@ public class CCAData {
 		this.id = id;
 	}
 
-	public String getTemplateId() {
-		return templateId;
+	public String getShortName() {
+		return shortName;
 	}
 
-	public void setTemplateId(String templateId) {
-		this.templateId = templateId;
+	public void setShortName(String shortName) {
+		this.shortName = shortName;
 	}
 
 	public String getUserId() {

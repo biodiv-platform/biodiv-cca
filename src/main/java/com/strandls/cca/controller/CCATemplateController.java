@@ -66,16 +66,16 @@ public class CCATemplateController {
 	}
 
 	@GET
-	@Path("/{templateId}")
+	@Path("/{shortName}")
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 
 	@ApiOperation(value = "Find CCA METADATA by ID", notes = "Returns CCA field details", response = CCATemplate.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "CCA field not found", response = String.class) })
 
-	public Response getCCATemplateById(@PathParam("templateId") String templateId) {
+	public Response getCCATemplateById(@PathParam("shortName") String shortName) {
 		try {
-			CCATemplate ccaTemplate = ccaContextService.getCCAByShortName(templateId);
+			CCATemplate ccaTemplate = ccaContextService.getCCAByShortName(shortName);
 			return Response.status(Status.OK).entity(ccaTemplate).build();
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).build();

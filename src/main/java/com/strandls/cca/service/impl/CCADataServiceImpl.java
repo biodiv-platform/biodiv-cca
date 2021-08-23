@@ -25,8 +25,8 @@ public class CCADataServiceImpl extends AbstractService<CCAData> implements CCAD
 
 	@Override
 	public CCAData saveOrUpdate(CCAData ccaData) {
-		String templateId = ccaData.getTemplateId();
-		CCATemplate ccaTemplate = ccaTemplateService.getCCAByShortName(templateId);
+		String shortName = ccaData.getShortName();
+		CCATemplate ccaTemplate = ccaTemplateService.getCCAByShortName(shortName);
 
 		validateData(ccaData, ccaTemplate);
 
