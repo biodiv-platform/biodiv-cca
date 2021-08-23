@@ -7,7 +7,7 @@ public class CCATemplateShow {
 	private String _id;
 	private String name;
 	private String description;
-	private String templateId;
+	private String shortName;
 	private Date createOn;
 	private Date updatedOn;
 
@@ -35,12 +35,12 @@ public class CCATemplateShow {
 		this.description = description;
 	}
 
-	public String getTemplateId() {
-		return templateId;
+	public String getShortName() {
+		return shortName;
 	}
 
-	public void setTemplateId(String templateId) {
-		this.templateId = templateId;
+	public void setShortName(String shortName) {
+		this.shortName = shortName;
 	}
 
 	public Date getCreateOn() {
