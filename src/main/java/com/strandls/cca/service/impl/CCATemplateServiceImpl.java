@@ -13,6 +13,7 @@ import com.mongodb.DBObject;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.cca.pojo.DataType;
+import com.strandls.cca.pojo.ValueWithLabel;
 import com.strandls.cca.pojo.response.CCATemplateShow;
 import com.strandls.cca.service.CCATemplateService;
 import com.strandls.cca.util.AbstractService;
@@ -53,6 +54,8 @@ public class CCATemplateServiceImpl extends AbstractService<CCATemplate> impleme
 			throw new IllegalArgumentException("Can't create new with same short name. Either update or create new one");
 		
 		addFieldId(context.getFields());
+		context.setCreateOn(new Timestamp(new Date().getTime()));
+		context.setUpdatedOn(new Timestamp(new Date().getTime()));
 		context = super.save(context);
 
 		return collection.findOne(new BasicDBObject(SHORT_NAME, context.getShortName()));
@@ -68,6 +71,8 @@ public class CCATemplateServiceImpl extends AbstractService<CCATemplate> impleme
 			throw new IllegalArgumentException("Can't update the template, template doesnot exit");
 		
 		addFieldId(context.getFields());
+		
+		context.setUpdatedOn(new Timestamp(new Date().getTime()));
 		collection.update(contextToUpdate, context);
 
 		return collection.findOne(new BasicDBObject(SHORT_NAME, context.getShortName()));
@@ -94,7 +99,7 @@ public class CCATemplateServiceImpl extends AbstractService<CCATemplate> impleme
 		String type = ccaField.getType();
 		DataType dataType = DataType.fromValue(type);
 
-		List<String> valueOptions = ccaField.getValueOptions();
+		List<ValueWithLabel> valueOptions = ccaField.getValueOptions();
 
 		switch (dataType) {
 		case SINGLE_SELECT:

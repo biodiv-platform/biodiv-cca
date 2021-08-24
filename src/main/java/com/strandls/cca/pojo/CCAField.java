@@ -14,7 +14,7 @@ public class CCAField {
 	private CCAFieldDataValidation validation;
 	private String question;
 	private String type;
-	private List<String> valueOptions;
+	private List<ValueWithLabel> valueOptions;
 	private Date createOn;
 	private Date updatedOn;
 	private List<CCAField> children;
@@ -59,11 +59,11 @@ public class CCAField {
 		this.type = type;
 	}
 
-	public List<String> getValueOptions() {
+	public List<ValueWithLabel> getValueOptions() {
 		return valueOptions;
 	}
 
-	public void setValueOptions(List<String> valueOptions) {
+	public void setValueOptions(List<ValueWithLabel> valueOptions) {
 		this.valueOptions = valueOptions;
 	}
 
