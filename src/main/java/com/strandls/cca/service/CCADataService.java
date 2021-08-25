@@ -8,4 +8,6 @@ public interface CCADataService {
 
 	public CCAData remove(CCAData ccaData);
 
+	public CCAData remove(String id);
+
 }

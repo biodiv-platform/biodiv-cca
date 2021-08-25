@@ -50,4 +50,10 @@ public class CCADataServiceImpl extends AbstractService<CCAData> implements CCAD
 		}
 	}
 
+	@Override
+	public CCAData remove(String id) {
+		CCAData ccaData = getById(id);
+		return remove(ccaData);
+	}
+
 }

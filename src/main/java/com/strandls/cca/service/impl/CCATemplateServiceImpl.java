@@ -50,9 +50,10 @@ public class CCATemplateServiceImpl extends AbstractService<CCATemplate> impleme
 		JacksonDBCollection<CCATemplate, String> collection = getJacksonDBCollection();
 
 		CCATemplate contextToUpdate = collection.findOne(new BasicDBObject(SHORT_NAME, context.getShortName()));
-		if(contextToUpdate != null)
-			throw new IllegalArgumentException("Can't create new with same short name. Either update or create new one");
-		
+		if (contextToUpdate != null)
+			throw new IllegalArgumentException(
+					"Can't create new with same short name. Either update or create new one");
+
 		addFieldId(context.getFields());
 		context.setCreateOn(new Timestamp(new Date().getTime()));
 		context.setUpdatedOn(new Timestamp(new Date().getTime()));
@@ -60,18 +61,18 @@ public class CCATemplateServiceImpl extends AbstractService<CCATemplate> impleme
 
 		return collection.findOne(new BasicDBObject(SHORT_NAME, context.getShortName()));
 	}
-	
+
 	@Override
 	public CCATemplate update(CCATemplate context) {
 		JacksonDBCollection<CCATemplate, String> collection = getJacksonDBCollection();
 
 		CCATemplate contextToUpdate = collection.findOne(new BasicDBObject(SHORT_NAME, context.getShortName()));
-		
-		if(contextToUpdate == null)
+
+		if (contextToUpdate == null)
 			throw new IllegalArgumentException("Can't update the template, template doesnot exit");
-		
+
 		addFieldId(context.getFields());
-		
+
 		context.setUpdatedOn(new Timestamp(new Date().getTime()));
 		collection.update(contextToUpdate, context);
 
@@ -140,6 +141,15 @@ public class CCATemplateServiceImpl extends AbstractService<CCATemplate> impleme
 		keys.put("createOn", 1);
 		keys.put("updatedOn", 1);
 		return jacksonCollection.find(new BasicDBObject(), keys).toArray();
+	}
+
+	@Override
+	public CCATemplate remove(String shortName) {
+		JacksonDBCollection<CCATemplate, String> collection = getJacksonDBCollection();
+
+		CCATemplate template = collection.findOne(new BasicDBObject(SHORT_NAME, shortName));
+		
+		return remove(template);
 	}
 
 }
