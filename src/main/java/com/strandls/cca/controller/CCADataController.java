@@ -7,6 +7,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -40,8 +41,12 @@ public class CCADataController {
 	public Response ping() {
 		try {
 			return Response.status(Status.OK).entity("Pong").build();
+		} catch (IllegalArgumentException e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
 		} catch (Exception e) {
-			return Response.status(Status.BAD_REQUEST).build();
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
 		}
 	}
 	
@@ -57,8 +62,12 @@ public class CCADataController {
 		try {
 			ccaData = ccaDataService.saveOrUpdate(ccaData);
 			return Response.status(Status.OK).entity(ccaData).build();
+		} catch (IllegalArgumentException e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
 		} catch (Exception e) {
-			return Response.status(Status.BAD_REQUEST).build();
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
 		}
 	}
 	
@@ -74,8 +83,12 @@ public class CCADataController {
 		try {
 			ccaData = ccaDataService.remove(ccaData);
 			return Response.status(Status.OK).entity(ccaData).build();
+		} catch (IllegalArgumentException e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
 		} catch (Exception e) {
-			return Response.status(Status.BAD_REQUEST).build();
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
 		}
 	}
 }
