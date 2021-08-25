@@ -50,7 +50,11 @@ public abstract class AbstractService<T> {
 	}
 	
 	public T remove(T t) {
-		return getJacksonDBCollection().remove(t).getSavedObject();
+		if(t == null) {
+			throw new IllegalArgumentException("Can't delete object, it is not existing the system");
+		}
+		getJacksonDBCollection().remove(t);
+		return t;
 	}
 	
 	public T update(T t) {
