@@ -2,6 +2,7 @@ package com.strandls.cca.controller;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -55,6 +56,23 @@ public class CCADataController {
 	public Response saveCCATemplate(@ApiParam("ccaData") CCAData ccaData) {
 		try {
 			ccaData = ccaDataService.saveOrUpdate(ccaData);
+			return Response.status(Status.OK).entity(ccaData).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).build();
+		}
+	}
+	
+	@DELETE
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ApiOperation(value = "Delete the cca data", notes = "Returns CCA Deleted cca", response = CCATemplate.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 404, message = "Could not delete the data", response = String.class) })
+
+	public Response removeCCATemplate(@ApiParam("ccaData") CCAData ccaData) {
+		try {
+			ccaData = ccaDataService.remove(ccaData);
 			return Response.status(Status.OK).entity(ccaData).build();
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).build();

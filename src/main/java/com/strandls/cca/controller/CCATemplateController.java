@@ -4,12 +4,14 @@ import java.util.List;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -60,8 +62,12 @@ public class CCATemplateController {
 		try {
 			List<CCATemplateShow> ccaTemplate = ccaContextService.getAllCCATemplate();
 			return Response.status(Status.OK).entity(ccaTemplate).build();
+		} catch (IllegalArgumentException e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
 		} catch (Exception e) {
-			return Response.status(Status.BAD_REQUEST).build();
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
 		}
 	}
 
@@ -77,8 +83,12 @@ public class CCATemplateController {
 		try {
 			CCATemplate ccaTemplate = ccaContextService.getCCAByShortName(shortName);
 			return Response.status(Status.OK).entity(ccaTemplate).build();
+		} catch (IllegalArgumentException e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
 		} catch (Exception e) {
-			return Response.status(Status.BAD_REQUEST).build();
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
 		}
 	}
 
@@ -95,11 +105,15 @@ public class CCATemplateController {
 		try {
 			ccaMasterField = ccaContextService.save(ccaMasterField);
 			return Response.status(Status.OK).entity(ccaMasterField).build();
+		} catch (IllegalArgumentException e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
 		} catch (Exception e) {
-			return Response.status(Status.BAD_REQUEST).build();
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
 		}
 	}
-	
+
 	@PUT
 	@Path("/update")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -113,8 +127,34 @@ public class CCATemplateController {
 		try {
 			ccaMasterField = ccaContextService.update(ccaMasterField);
 			return Response.status(Status.OK).entity(ccaMasterField).build();
+		} catch (IllegalArgumentException e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
 		} catch (Exception e) {
-			return Response.status(Status.BAD_REQUEST).build();
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+		}
+	}
+
+	@DELETE
+	@Path("/delete")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ApiOperation(value = "Delete the cca template", notes = "Returns delelted CCA Template", response = CCATemplate.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 404, message = "Could not delete the CCA Template", response = String.class) })
+
+	public Response removeCCATemplate(@ApiParam("ccaTemplate") CCATemplate ccaMasterField) {
+		try {
+			ccaMasterField = ccaContextService.remove(ccaMasterField);
+			return Response.status(Status.OK).entity(ccaMasterField).build();
+		} catch (IllegalArgumentException e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
+		} catch (Exception e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
 		}
 	}
 

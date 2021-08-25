@@ -20,4 +20,6 @@ public interface CCATemplateService {
 
 	public List<CCATemplateShow> getAllCCATemplate();
 
+	public CCATemplate remove(CCATemplate ccaMasterField);
+
 }

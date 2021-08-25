@@ -6,4 +6,6 @@ public interface CCADataService {
 
 	public CCAData saveOrUpdate(CCAData ccaData);
 
+	public CCAData remove(CCAData ccaData);
+
 }

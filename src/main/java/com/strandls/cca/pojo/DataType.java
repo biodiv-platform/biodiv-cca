@@ -28,8 +28,8 @@ public enum DataType {
 	@XmlEnumValue("CHECKBOX")
 	CHECKBOX("CHECKBOX"),
 	
-	@XmlEnumValue("SELECT")
-	SINGLE_SELECT("SELECT"),
+	@XmlEnumValue("SINGLE_SELECT")
+	SINGLE_SELECT("SINGLE_SELECT"),
 	@XmlEnumValue("MULTI_SELECT")
 	MULTI_SELECT("MULTI_SELECT"),
 	
