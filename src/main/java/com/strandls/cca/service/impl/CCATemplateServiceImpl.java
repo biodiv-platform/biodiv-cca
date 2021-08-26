@@ -14,7 +14,6 @@ import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.cca.pojo.DataType;
 import com.strandls.cca.pojo.ValueWithLabel;
-import com.strandls.cca.pojo.response.CCATemplateShow;
 import com.strandls.cca.service.CCATemplateService;
 import com.strandls.cca.util.AbstractService;
 
@@ -97,8 +96,7 @@ public class CCATemplateServiceImpl extends AbstractService<CCATemplate> impleme
 	}
 
 	private void validateField(CCAField ccaField) {
-		String type = ccaField.getType();
-		DataType dataType = DataType.fromValue(type);
+		DataType dataType = ccaField.getType();
 
 		List<ValueWithLabel> valueOptions = ccaField.getValueOptions();
 
@@ -113,7 +111,6 @@ public class CCATemplateServiceImpl extends AbstractService<CCATemplate> impleme
 			break;
 		case DATE:
 		case DATE_RANGE:
-		case EMBEDDED:
 		case GEOMETRY:
 		case NUMBER:
 		case NUMBER_RANGE:
@@ -129,10 +126,10 @@ public class CCATemplateServiceImpl extends AbstractService<CCATemplate> impleme
 	}
 
 	@Override
-	public List<CCATemplateShow> getAllCCATemplate() {
+	public List<CCATemplate> getAllCCATemplate() {
 		DBCollection dbCollection = getDBCollection();
-		JacksonDBCollection<CCATemplateShow, String> jacksonCollection = JacksonDBCollection.wrap(dbCollection,
-				CCATemplateShow.class, String.class);
+		JacksonDBCollection<CCATemplate, String> jacksonCollection = JacksonDBCollection.wrap(dbCollection,
+				CCATemplate.class, String.class);
 		DBObject keys = new BasicDBObject();
 		keys.put("id", 1);
 		keys.put("name", 1);
@@ -140,6 +137,7 @@ public class CCATemplateServiceImpl extends AbstractService<CCATemplate> impleme
 		keys.put(SHORT_NAME, 1);
 		keys.put("createOn", 1);
 		keys.put("updatedOn", 1);
+		keys.put("platform", 1);
 		return jacksonCollection.find(new BasicDBObject(), keys).toArray();
 	}
 

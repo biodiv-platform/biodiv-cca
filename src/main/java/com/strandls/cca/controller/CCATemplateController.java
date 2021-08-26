@@ -21,7 +21,6 @@ import javax.ws.rs.core.Response.Status;
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.pojo.CCATemplate;
-import com.strandls.cca.pojo.response.CCATemplateShow;
 import com.strandls.cca.service.CCATemplateService;
 
 import io.swagger.annotations.Api;
@@ -61,12 +60,12 @@ public class CCATemplateController {
 	
 	@ValidateUser
 
-	@ApiOperation(value = "Find CCA METADATA by ID", notes = "Returns CCA field details", response = CCATemplateShow.class, responseContainer = "List")
+	@ApiOperation(value = "Find CCA METADATA by ID", notes = "Returns CCA field details", response = CCATemplate.class, responseContainer = "List")
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "CCA field not found", response = String.class) })
 
 	public Response getAllCCATemplate(@Context HttpServletRequest request) {
 		try {
-			List<CCATemplateShow> ccaTemplate = ccaContextService.getAllCCATemplate();
+			List<CCATemplate> ccaTemplate = ccaContextService.getAllCCATemplate();
 			return Response.status(Status.OK).entity(ccaTemplate).build();
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(

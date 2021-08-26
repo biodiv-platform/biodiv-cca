@@ -3,17 +3,16 @@ package com.strandls.cca.pojo;
 import java.util.Date;
 import java.util.List;
 
-//@MongoCollection(name = "cca_field")
 public class CCAField {
 
-	// @Id
-	// @ObjectId
 	private String fieldId;
 
 	private String name;
 	private CCAFieldDataValidation validation;
 	private String question;
-	private String type;
+	private String helpText;
+	private Boolean isMasterField;
+	private DataType type;
 	private List<ValueWithLabel> valueOptions;
 	private Date createOn;
 	private Date updatedOn;
@@ -51,11 +50,27 @@ public class CCAField {
 		this.question = question;
 	}
 
-	public String getType() {
+	public String getHelpText() {
+		return helpText;
+	}
+
+	public void setHelpText(String helpText) {
+		this.helpText = helpText;
+	}
+
+	public Boolean getIsMasterField() {
+		return isMasterField;
+	}
+
+	public void setIsMasterField(Boolean isMasterField) {
+		this.isMasterField = isMasterField;
+	}
+
+	public DataType getType() {
 		return type;
 	}
 
-	public void setType(String type) {
+	public void setType(DataType type) {
 		this.type = type;
 	}
 

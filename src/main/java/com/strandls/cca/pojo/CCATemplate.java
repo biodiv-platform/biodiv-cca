@@ -18,6 +18,8 @@ public class CCATemplate {
 
 	private String shortName;
 
+	private Plateform platform;
+
 	private Date createOn;
 
 	private Date updatedOn;
@@ -56,6 +58,14 @@ public class CCATemplate {
 		this.shortName = shortName;
 	}
 
+	public Plateform getPlatform() {
+		return platform;
+	}
+	
+	public void setPlatform(Plateform platform) {
+		this.platform = platform;
+	}
+	
 	public Date getCreateOn() {
 		return createOn;
 	}
