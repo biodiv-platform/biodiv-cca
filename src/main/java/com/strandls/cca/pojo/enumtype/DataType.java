@@ -1,4 +1,4 @@
-package com.strandls.cca.pojo;
+package com.strandls.cca.pojo.enumtype;
 
 public enum DataType {
 
@@ -22,7 +22,7 @@ public enum DataType {
 		this.value = value;
 	}
 	
-	public static DataType fromValue(String value) {
+	public static DataType fromString(final String value) {
 		for(DataType dataType : DataType.values()) {
 			if(dataType.value.equals(value))
 				return dataType;

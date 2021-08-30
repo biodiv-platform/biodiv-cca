@@ -3,6 +3,8 @@ package com.strandls.cca.pojo;
 import java.util.Date;
 import java.util.List;
 
+import com.strandls.cca.pojo.enumtype.DataType;
+
 public class CCAField {
 
 	private String fieldId;

@@ -12,8 +12,8 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCATemplate;
-import com.strandls.cca.pojo.DataType;
 import com.strandls.cca.pojo.ValueWithLabel;
+import com.strandls.cca.pojo.enumtype.DataType;
 import com.strandls.cca.service.CCATemplateService;
 import com.strandls.cca.util.AbstractService;
 
@@ -88,6 +88,7 @@ public class CCATemplateServiceImpl extends AbstractService<CCATemplate> impleme
 				ccaField.setCreateOn(new Timestamp(new Date().getTime()));
 				ccaField.setUpdatedOn(new Timestamp(new Date().getTime()));
 			} else {
+				
 				// TODO : update timestamp work need to be done
 			}
 			validateField(ccaField);

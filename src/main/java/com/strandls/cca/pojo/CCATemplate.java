@@ -3,6 +3,8 @@ package com.strandls.cca.pojo;
 import java.util.Date;
 import java.util.List;
 
+import com.strandls.cca.pojo.enumtype.Platform;
+
 import net.vz.mongodb.jackson.Id;
 import net.vz.mongodb.jackson.ObjectId;
 
@@ -18,7 +20,7 @@ public class CCATemplate {
 
 	private String shortName;
 
-	private Plateform platform;
+	private Platform platform;
 
 	private Date createOn;
 
@@ -58,11 +60,11 @@ public class CCATemplate {
 		this.shortName = shortName;
 	}
 
-	public Plateform getPlatform() {
+	public Platform getPlatform() {
 		return platform;
 	}
 	
-	public void setPlatform(Plateform platform) {
+	public void setPlatform(Platform platform) {
 		this.platform = platform;
 	}
 	

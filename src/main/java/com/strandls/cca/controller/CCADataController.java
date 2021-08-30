@@ -55,6 +55,8 @@ public class CCADataController {
 	}
 	
 	@POST
+	@Path("/save")
+	
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	

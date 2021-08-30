@@ -12,6 +12,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -21,6 +22,7 @@ import javax.ws.rs.core.Response.Status;
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.pojo.CCATemplate;
+import com.strandls.cca.pojo.enumtype.Platform;
 import com.strandls.cca.service.CCATemplateService;
 
 import io.swagger.annotations.Api;
@@ -63,7 +65,7 @@ public class CCATemplateController {
 	@ApiOperation(value = "Find CCA METADATA by ID", notes = "Returns CCA field details", response = CCATemplate.class, responseContainer = "List")
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "CCA field not found", response = String.class) })
 
-	public Response getAllCCATemplate(@Context HttpServletRequest request) {
+	public Response getAllCCATemplate(@Context HttpServletRequest request, @QueryParam("platform") Platform plateform) {
 		try {
 			List<CCATemplate> ccaTemplate = ccaContextService.getAllCCATemplate();
 			return Response.status(Status.OK).entity(ccaTemplate).build();
