@@ -20,7 +20,7 @@ public class CCATemplate {
 
 	private String shortName;
 
-	private Platform platform;
+	private List<Platform> platform;
 
 	private Date createOn;
 
@@ -60,11 +60,11 @@ public class CCATemplate {
 		this.shortName = shortName;
 	}
 
-	public Platform getPlatform() {
+	public List<Platform> getPlatform() {
 		return platform;
 	}
 	
-	public void setPlatform(Platform platform) {
+	public void setPlatform(List<Platform> platform) {
 		this.platform = platform;
 	}
 	
