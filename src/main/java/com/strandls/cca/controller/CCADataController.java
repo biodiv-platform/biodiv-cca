@@ -1,5 +1,7 @@
 package com.strandls.cca.controller;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -18,7 +20,6 @@ import javax.ws.rs.core.Response.Status;
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.pojo.CCAData;
-import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.cca.service.CCADataService;
 
 import io.swagger.annotations.Api;
@@ -54,6 +55,26 @@ public class CCADataController {
 		}
 	}
 	
+	@GET
+	@Path("/all")
+	
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get the cca data", notes = "Returns CCA data fields", response = CCAData.class, responseContainer = "List")
+	@ApiResponses(value = {
+			@ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
+	public Response getCCAData(@Context HttpServletRequest request) {
+		try {
+			List<CCAData> ccaData = ccaDataService.getAllCCA(request);
+			return Response.status(Status.OK).entity(ccaData).build();
+		} catch (IllegalArgumentException e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
+		} catch (Exception e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+		}
+	}
+	
 	@POST
 	@Path("/save")
 	
@@ -62,13 +83,13 @@ public class CCADataController {
 	
 	@ValidateUser
 
-	@ApiOperation(value = "Save the cca data", notes = "Returns CCA data fields", response = CCATemplate.class)
+	@ApiOperation(value = "Save the cca data", notes = "Returns CCA data fields", response = CCAData.class)
 	@ApiResponses(value = {
 			@ApiResponse(code = 404, message = "Could not save the data", response = String.class) })
 
 	public Response saveCCAData(@Context HttpServletRequest request, @ApiParam("ccaData") CCAData ccaData) {
 		try {
-			ccaData = ccaDataService.saveOrUpdate(ccaData);
+			ccaData = ccaDataService.saveOrUpdate(request, ccaData);
 			return Response.status(Status.OK).entity(ccaData).build();
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(
@@ -87,7 +108,7 @@ public class CCADataController {
 	
 	@ValidateUser
 
-	@ApiOperation(value = "Delete the cca data", notes = "Returns CCA Deleted cca", response = CCATemplate.class)
+	@ApiOperation(value = "Delete the cca data", notes = "Returns CCA Deleted cca", response = CCAData.class)
 	@ApiResponses(value = {
 			@ApiResponse(code = 404, message = "Could not delete the data", response = String.class) })
 
