@@ -1,5 +1,6 @@
 package com.strandls.cca.util;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.google.inject.Inject;
@@ -47,6 +48,10 @@ public abstract class AbstractService<T> {
 	
 	public T save(T t) {
 		return getJacksonDBCollection().save(t).getSavedObject();
+	}
+	
+	public List<T> insertBulk(List<T> ts) {
+		return Arrays.asList(getJacksonDBCollection().insert(ts).getSavedObjects());
 	}
 	
 	public T remove(T t) {

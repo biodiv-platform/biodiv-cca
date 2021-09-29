@@ -17,6 +17,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.pojo.CCAData;
@@ -90,6 +92,31 @@ public class CCADataController {
 	public Response saveCCAData(@Context HttpServletRequest request, @ApiParam("ccaData") CCAData ccaData) {
 		try {
 			ccaData = ccaDataService.saveOrUpdate(request, ccaData);
+			return Response.status(Status.OK).entity(ccaData).build();
+		} catch (IllegalArgumentException e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
+		} catch (Exception e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+		}
+	}
+	
+	@POST
+	@Path("/upload")
+	
+	@Consumes({ MediaType.MULTIPART_FORM_DATA })
+	@Produces(MediaType.APPLICATION_JSON)
+	
+	@ValidateUser
+
+	@ApiOperation(value = "Upload cca data from the file", notes = "Returns CCA data list", response = CCAData.class, responseContainer = "List")
+	@ApiResponses(value = {
+			@ApiResponse(code = 404, message = "Could not save the data", response = String.class) })
+
+	public Response uploadCCADataFromFile(@Context HttpServletRequest request, final FormDataMultiPart multiPart) {
+		try {
+			List<CCAData> ccaData = ccaDataService.uploadCCADataFromFile(request, multiPart);
 			return Response.status(Status.OK).entity(ccaData).build();
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(

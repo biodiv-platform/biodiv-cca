@@ -1,20 +1,26 @@
 package com.strandls.cca.service.impl;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.pac4j.core.profile.CommonProfile;
+
 import com.mongodb.DB;
+import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCAFieldValues;
 import com.strandls.cca.pojo.CCATemplate;
+import com.strandls.cca.pojo.enumtype.DataType;
+import com.strandls.cca.pojo.upload.FileUploadFactory;
+import com.strandls.cca.pojo.upload.IFileUpload;
 import com.strandls.cca.service.CCADataService;
 import com.strandls.cca.service.CCATemplateService;
 import com.strandls.cca.util.AbstractService;
-
-import net.vz.mongodb.jackson.internal.stream.JacksonDBObject;
 
 public class CCADataServiceImpl extends AbstractService<CCAData> implements CCADataService {
 
@@ -32,8 +38,16 @@ public class CCADataServiceImpl extends AbstractService<CCAData> implements CCAD
 	}
 
 	@Override
+	public List<CCAData> uploadCCADataFromFile(HttpServletRequest request, FormDataMultiPart multiPart)
+			throws IOException {
+		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+		IFileUpload fileUpload = FileUploadFactory.getFileUpload(multiPart, "csv", profile.getId());
+		return fileUpload.upload(ccaTemplateService, this);
+	}
+
+	@Override
 	public CCAData saveOrUpdate(HttpServletRequest request, CCAData ccaData) {
-		
+
 		String shortName = ccaData.getShortName();
 		CCATemplate ccaTemplate = ccaTemplateService.getCCAByShortName(shortName);
 
@@ -43,7 +57,8 @@ public class CCADataServiceImpl extends AbstractService<CCAData> implements CCAD
 		return ccaData;
 	}
 
-	private void validateData(CCAData ccaData, CCATemplate ccaTemplate) {
+	@Override
+	public void validateData(CCAData ccaData, CCATemplate ccaTemplate) {
 		validateDataUtil(ccaData.getCcaFieldValues(), ccaTemplate.getFields());
 	}
 
@@ -76,11 +91,10 @@ public class CCADataServiceImpl extends AbstractService<CCAData> implements CCAD
 			throw new IllegalArgumentException("Field is required");
 		}
 
-		JacksonDBObject<Object> min = field.getValidation().getMin();
-		JacksonDBObject<Object> max = field.getValidation().getMax();
-		if(min != null && max != null) {
-			// TODO : Do the min max validation
-		}
+		DataType fieldType = field.getType();
+		
+		fieldType.validate(fieldValue, field);
+		
 	}
 
 	@Override
