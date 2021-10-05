@@ -39,7 +39,7 @@ import com.strandls.cca.pojo.fields.TextField;
 		@JsonSubTypes.Type(value = SingleSelectField.class, name = FieldConstants.SINGLE_SELECT),
 		@JsonSubTypes.Type(value = TextField.class, name = FieldConstants.TEXT) })
 @BsonDiscriminator()
-public abstract class CCAField implements IChildable<CCAField>, IFieldValidator {
+public abstract class CCAField implements IChildable<CCAField> {
 
 	private String fieldId;
 
@@ -48,41 +48,14 @@ public abstract class CCAField implements IChildable<CCAField>, IFieldValidator 
 	private String question;
 	private String helpText;
 	private Boolean isMasterField;
+	private Boolean isSummaryField;
 	private FieldType type;
 	private Date createOn;
 	private Date updatedOn;
 	private List<CCAField> children;
 
-	/*
-	 * Not required and empty. Validation completed with respect to value.
-	 */
-	public boolean isOptional(CCAFieldValue fieldValue) {
-		return !getIsRequired() && (fieldValue.getValue() == null || fieldValue.getValue().isEmpty());
-	}
-
-	@Override
 	public void validate() {
 		// Nothing to do here
-	}
-
-	/**
-	 * Always validating to true. If some validation are required. Then implement it
-	 * in derived classes
-	 */
-	@Override
-	public boolean validate(CCAFieldValue fieldValue) {
-		String fieldValueId = fieldValue.getFieldId();
-		if (fieldValueId == null)
-			throw new IllegalArgumentException("FieldId can't be null");
-
-		if (!fieldValueId.equals(getFieldId()))
-			throw new IllegalArgumentException("Invalid template mapping");
-
-		List<String> value = fieldValue.getValue();
-		if (getIsRequired().booleanValue() && (value == null || value.isEmpty()))
-			throw new IllegalArgumentException("Field is required");
-
-		return true;
 	}
 
 	public String getFieldId() {
@@ -131,6 +104,14 @@ public abstract class CCAField implements IChildable<CCAField>, IFieldValidator 
 
 	public void setIsMasterField(Boolean isMasterField) {
 		this.isMasterField = isMasterField;
+	}
+
+	public Boolean getIsSummaryField() {
+		return isSummaryField;
+	}
+
+	public void setIsSummaryField(Boolean isSummaryField) {
+		this.isSummaryField = isSummaryField;
 	}
 
 	public FieldType getType() {

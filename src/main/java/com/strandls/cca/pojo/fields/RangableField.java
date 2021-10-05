@@ -3,19 +3,24 @@ package com.strandls.cca.pojo.fields;
 import java.util.List;
 
 import com.strandls.cca.pojo.CCAField;
-import com.strandls.cca.pojo.CCAFieldValue;
 
 public abstract class RangableField<T extends Comparable<T>> extends CCAField {
 
 	private T min;
 	private T max;
 
+	public abstract T fetchMaxValue();
+
+	public abstract T fetchMinValue();
+
 	@Override
-	public boolean validate(CCAFieldValue fieldValue) {
-		return super.validate(fieldValue) && (min == null || max == null || min.compareTo(max) <= 0);
+	public void validate() {
+
 	}
 
 	public T getMin() {
+		if (min == null)
+			min = fetchMinValue();
 		return min;
 	}
 
@@ -24,6 +29,8 @@ public abstract class RangableField<T extends Comparable<T>> extends CCAField {
 	}
 
 	public T getMax() {
+		if (max == null)
+			max = fetchMaxValue();
 		return max;
 	}
 

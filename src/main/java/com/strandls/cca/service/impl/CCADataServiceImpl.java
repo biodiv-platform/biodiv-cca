@@ -60,6 +60,7 @@ public class CCADataServiceImpl implements CCADataService {
 		return ccaDataDao.save(ccaData);
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public void validateData(CCAData ccaData, CCATemplate ccaTemplate) {
 		Map<String, CCAFieldValue> ccaFieldValues = ccaData.getCcaFieldValues();
@@ -85,20 +86,9 @@ public class CCADataServiceImpl implements CCADataService {
 
 			validateWithRespectToField(fieldValue, field);
 		}
-
-		/*
-		while (ccaFieldValues.hasNext() && templateIterator.hasNext()) {
-			CCAField field = templateIterator.next();
-			CCAFieldValue fieldValue = ccaFieldValues.next();
-
-			validateWithRespectToField(fieldValue, field);
-		}
-
-		if (ccaFieldValues.hasNext() || templateIterator.hasNext())
-			throw new IllegalArgumentException("Invalid template mapping");
-		*/
 	}
 
+	@SuppressWarnings("rawtypes")
 	private void validateWithRespectToField(CCAFieldValue fieldValue, CCAField field) {
 		if (fieldValue.getFieldId() == null)
 			throw new IllegalArgumentException(field.getName() + " : FieldId can't be null");
@@ -106,12 +96,7 @@ public class CCADataServiceImpl implements CCADataService {
 		if (!fieldValue.getFieldId().equals(field.getFieldId()))
 			throw new IllegalArgumentException(field.getName() + " : Invalid template mapping");
 
-		if (field.getIsRequired().booleanValue()
-				&& (fieldValue.getValue() == null || fieldValue.getValue().isEmpty())) {
-			throw new IllegalArgumentException(field.getName() + " : Field is required");
-		}
-
-		boolean validationWithValue = field.validate(fieldValue);
+		boolean validationWithValue = fieldValue.validate(field);
 
 		if (!validationWithValue) {
 			throw new IllegalArgumentException(

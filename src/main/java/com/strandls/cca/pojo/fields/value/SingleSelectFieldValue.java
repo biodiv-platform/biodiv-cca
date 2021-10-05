@@ -1,0 +1,47 @@
+package com.strandls.cca.pojo.fields.value;
+
+import com.strandls.cca.pojo.CCAField;
+import com.strandls.cca.pojo.CCAFieldValue;
+import com.strandls.cca.pojo.ValueWithLabel;
+import com.strandls.cca.pojo.fields.ValueOptionsField;
+import com.strandls.cca.util.CCAUtil;
+
+public class SingleSelectFieldValue extends CCAFieldValue<ValueWithLabel> {
+
+	private ValueWithLabel value;
+
+	public SingleSelectFieldValue(String dataValue) {
+		if (dataValue != null && !"".equals(dataValue)) {
+			String[] values = dataValue.split(CCAUtil.COLUMN_SEPARATOR);
+			if (values.length != 1)
+				throw new IllegalArgumentException("Single selection is requied");
+
+			ValueWithLabel valueWithLabel = new ValueWithLabel();
+			valueWithLabel.setLabel(values[0]);
+			this.value = valueWithLabel;
+		}
+	}
+
+	@Override
+	public boolean validate(CCAField field) {
+		if (!super.validate(field))
+			return false;
+
+		if (!field.getIsRequired().booleanValue() && (value == null || "".equals(value.getLabel())))
+			return true;
+
+		if (!(field instanceof ValueOptionsField))
+			return false;
+
+		return ((ValueOptionsField) field).contains(value.getLabel());
+	}
+
+	public ValueWithLabel getValue() {
+		return value;
+	}
+
+	public void setValue(ValueWithLabel value) {
+		this.value = value;
+	}
+
+}

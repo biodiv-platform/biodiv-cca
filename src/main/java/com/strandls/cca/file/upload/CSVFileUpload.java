@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,20 +13,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.opencsv.CSVReader;
 import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.CCATemplate;
-import com.strandls.cca.pojo.FieldType;
+import com.strandls.cca.pojo.fields.value.CCAFieldValueFactory;
 import com.strandls.cca.service.CCADataService;
 import com.strandls.cca.service.CCATemplateService;
 
 public class CSVFileUpload implements IFileUpload {
-
-	private static final String COLUMN_SEPARATOR = "|";
 
 	protected InputStream inputStream;
 	protected FileMetadata metaData;
@@ -77,6 +72,7 @@ public class CSVFileUpload implements IFileUpload {
 		return uploadResponse;
 	}
 
+	@SuppressWarnings("rawtypes")
 	private CCAData convertToCCAData(String[] data, CCATemplate ccaTemplate) {
 		Map<String, Integer> fieldToColumnIndex = metaData.getFieldToColumnIndex();
 
@@ -102,6 +98,7 @@ public class CSVFileUpload implements IFileUpload {
 	 * @param fields
 	 * @return
 	 */
+	@SuppressWarnings("rawtypes")
 	private Map<String, CCAFieldValue> convertToCCADataUtil(String[] data, Map<String, Integer> fieldToColumnIndex,
 			CCATemplate ccaTemplate) {
 
@@ -110,25 +107,11 @@ public class CSVFileUpload implements IFileUpload {
 		Iterator<CCAField> it = ccaTemplate.iterator();
 		while (it.hasNext()) {
 			CCAField ccaField = it.next();
-			CCAFieldValue fieldValue = new CCAFieldValue();
-
-			fieldValue.setFieldId(ccaField.getFieldId());
-			fieldValue.setName(ccaField.getName());
-
-			String fieldId = ccaField.getFieldId();
-			List<String> values;
-			if (fieldToColumnIndex.containsKey(fieldId)) {
-				String dataValue = data[fieldToColumnIndex.get(ccaField.getFieldId())];
-				if (FieldType.GEOMETRY.equals(ccaField.getType())) {
-					values = Arrays.asList(StringUtils.split(dataValue, ","));
-				} else {
-					values = Arrays.asList(StringUtils.split(dataValue, COLUMN_SEPARATOR));
-				}
-			} else
-				values = new ArrayList<>();
-			fieldValue.setValue(values);
-
-			fieldValues.put(ccaField.getFieldId(), fieldValue);
+			Integer index = fieldToColumnIndex.get(ccaField.getFieldId());
+			if (index != null) {
+				CCAFieldValue fieldValue = CCAFieldValueFactory.createFieldValue(ccaField, data[index]);
+				fieldValues.put(ccaField.getFieldId(), fieldValue);
+			}
 		}
 
 		return fieldValues;
