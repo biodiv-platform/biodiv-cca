@@ -1,4 +1,4 @@
-package com.strandls.cca.pojo.upload;
+package com.strandls.cca.file.upload;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,14 +18,15 @@ import org.apache.commons.lang3.StringUtils;
 import com.opencsv.CSVReader;
 import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.CCAField;
-import com.strandls.cca.pojo.CCAFieldValues;
+import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.CCATemplate;
+import com.strandls.cca.pojo.FieldType;
 import com.strandls.cca.service.CCADataService;
 import com.strandls.cca.service.CCATemplateService;
 
 public class CSVFileUpload implements IFileUpload {
 
-	private static final String COLUMN_SEPARATOR = ";";
+	private static final String COLUMN_SEPARATOR = "|";
 
 	protected InputStream inputStream;
 	protected FileMetadata metaData;
@@ -49,7 +50,7 @@ public class CSVFileUpload implements IFileUpload {
 
 		try {
 			validataHeader(headers, ccaTemplate);
-		} catch (IllegalArgumentException e) {
+		} catch (Exception e) {
 			uploadResponse.addError("Header: ", e.getMessage());
 		}
 
@@ -59,15 +60,17 @@ public class CSVFileUpload implements IFileUpload {
 		}
 
 		// Validate the data
+		int line = 1;
 		while (it.hasNext()) {
 			String[] data = it.next();
 			try {
 				CCAData ccaData = convertToCCAData(data, ccaTemplate);
 				ccaDataService.validateData(ccaData, ccaTemplate);
 				uploadResponse.addCorrectObject(data[0], ccaData);
-			} catch (IllegalArgumentException e) {
-				uploadResponse.addError(data[0], e.getMessage());
+			} catch (Exception e) {
+				uploadResponse.addError(data[0] + " line : " + line, e.getMessage());
 			}
+			line++;
 		}
 		reader.close();
 		return uploadResponse;
@@ -83,17 +86,27 @@ public class CSVFileUpload implements IFileUpload {
 		ccaData.setCreatedOn(date);
 		ccaData.setUpdatedOn(date);
 		ccaData.setUserId(userId);
-		List<CCAFieldValues> fieldValues = convertToCCADataUtil(data, fieldToColumnIndex, ccaTemplate.getFields());
+		List<CCAFieldValue> fieldValues = convertToCCADataUtil(data, fieldToColumnIndex, ccaTemplate.getFields());
 		ccaData.setCcaFieldValues(fieldValues);
 
 		return ccaData;
 	}
 
-	private List<CCAFieldValues> convertToCCADataUtil(String[] data, Map<String, Integer> fieldToColumnIndex,
+	/** 
+	 * Operating this one recursively rather than using iterator, reason being we want the child value of each field as well.
+	 * @param data
+	 * @param fieldToColumnIndex
+	 * @param fields
+	 * @return
+	 */
+	private List<CCAFieldValue> convertToCCADataUtil(String[] data, Map<String, Integer> fieldToColumnIndex,
 			List<CCAField> fields) {
-		List<CCAFieldValues> fieldValues = new ArrayList<>();
+		List<CCAFieldValue> fieldValues = new ArrayList<>();
+		if (fields == null || fields.isEmpty())
+			return fieldValues;
+
 		for (CCAField ccaField : fields) {
-			CCAFieldValues fieldValue = new CCAFieldValues();
+			CCAFieldValue fieldValue = new CCAFieldValue();
 
 			fieldValue.setFieldId(ccaField.getFieldId());
 			fieldValue.setName(ccaField.getName());
@@ -102,7 +115,11 @@ public class CSVFileUpload implements IFileUpload {
 			List<String> values;
 			if (fieldToColumnIndex.containsKey(fieldId)) {
 				String dataValue = data[fieldToColumnIndex.get(ccaField.getFieldId())];
-				values = Arrays.asList(StringUtils.split(dataValue, COLUMN_SEPARATOR));
+				if (FieldType.GEOMETRY.equals(ccaField.getType())) {
+					values = Arrays.asList(StringUtils.split(dataValue, ","));
+				} else {
+					values = Arrays.asList(StringUtils.split(dataValue, COLUMN_SEPARATOR));
+				}
 			} else
 				values = new ArrayList<>();
 			fieldValue.setValue(values);
@@ -118,7 +135,7 @@ public class CSVFileUpload implements IFileUpload {
 		Map<String, Integer> fieldToColumnIndex = metaData.getFieldToColumnIndex();
 
 		// Validate all the ccaField IDS
-		validateWithCCAFields(fieldToColumnIndex, ccaTemplate.getFields());
+		validateWithCCAFields(fieldToColumnIndex, ccaTemplate);
 
 		// Validate all the indices as well
 		Set<Integer> indices = new HashSet<>();
@@ -135,22 +152,16 @@ public class CSVFileUpload implements IFileUpload {
 		}
 	}
 
-	private void validateWithCCAFields(Map<String, Integer> fieldToColumnIndex, List<CCAField> ccaFields) {
+	private void validateWithCCAFields(Map<String, Integer> fieldToColumnIndex, CCATemplate ccaTemplate) {
 
-		if (ccaFields.isEmpty())
-			return;
-
-		for (CCAField ccaField : ccaFields) {
-
-			if (ccaField.getValidation().getIsRequired().booleanValue()
-					&& !fieldToColumnIndex.containsKey(ccaField.getFieldId())) {
+		Iterator<CCAField> it = ccaTemplate.iterator();
+		while (it.hasNext()) {
+			CCAField ccaField = it.next();
+			if (ccaField.getIsRequired().booleanValue() && !fieldToColumnIndex.containsKey(ccaField.getFieldId())) {
 				throw new IllegalArgumentException(
 						"Missing required field with ID: " + ccaField.getFieldId() + " Name: " + ccaField.getName());
 			}
-
-			validateWithCCAFields(fieldToColumnIndex, ccaField.getChildren());
 		}
-
 	}
 
 	/**

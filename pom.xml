@@ -156,13 +156,19 @@
 			<version>2.31</version>
 		</dependency>
 
-		<dependency>
+		<!-- <dependency>
 			<groupId>net.vz.mongodb.jackson</groupId>
 			<artifactId>mongo-jackson-mapper</artifactId>
 			<version>1.4.1</version>
 		</dependency>
-
-
+ -->
+		<!-- https://mvnrepository.com/artifact/org.mongodb/mongo-java-driver -->
+		<dependency>
+			<groupId>org.mongodb</groupId>
+			<artifactId>mongo-java-driver</artifactId>
+			<version>3.12.10</version>
+		</dependency>
+		
 		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>

@@ -1,15 +1,17 @@
 package com.strandls.cca.pojo;
 
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
-import net.vz.mongodb.jackson.Id;
-import net.vz.mongodb.jackson.ObjectId;
+import org.bson.codecs.pojo.annotations.BsonId;
 
-public class CCAData {
+import com.strandls.cca.IdInterface;
+import com.strandls.cca.util.DFSTreeIterator;
 
-	@Id
-	@ObjectId
+public class CCAData implements IdInterface {
+
+	@BsonId
 	private String id;
 
 	private String shortName;
@@ -17,7 +19,11 @@ public class CCAData {
 	private Date createdOn;
 	private Date updatedOn;
 
-	private List<CCAFieldValues> ccaFieldValues;
+	private List<CCAFieldValue> ccaFieldValues;
+
+	public Iterator<CCAFieldValue> iterator() {
+		return new DFSTreeIterator<>(ccaFieldValues);
+	}
 
 	public String getId() {
 		return id;
@@ -59,11 +65,11 @@ public class CCAData {
 		this.updatedOn = updatedOn;
 	}
 
-	public List<CCAFieldValues> getCcaFieldValues() {
+	public List<CCAFieldValue> getCcaFieldValues() {
 		return ccaFieldValues;
 	}
 
-	public void setCcaFieldValues(List<CCAFieldValues> ccaFieldValues) {
+	public void setCcaFieldValues(List<CCAFieldValue> ccaFieldValues) {
 		this.ccaFieldValues = ccaFieldValues;
 	}
 }

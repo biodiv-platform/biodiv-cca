@@ -1,4 +1,4 @@
-package com.strandls.cca.pojo.upload;
+package com.strandls.cca.file.upload;
 
 public class FieldToColumn {
 	

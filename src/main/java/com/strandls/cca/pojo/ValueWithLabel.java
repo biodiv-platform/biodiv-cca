@@ -1,11 +1,10 @@
 package com.strandls.cca.pojo;
 
-import net.vz.mongodb.jackson.internal.stream.JacksonDBObject;
-
 public class ValueWithLabel {
 
 	private String label;
-	private JacksonDBObject<Object>	value;
+	private String value;
+	// private JacksonDBObject<Object> value;
 
 	public String getLabel() {
 		return label;
@@ -15,12 +14,16 @@ public class ValueWithLabel {
 		this.label = label;
 	}
 
-	public Object getValue() {
-		return value.getObject();
+	public String getValue() {
+		return value;
 	}
 
-	public void setValue(Object value) {
-		this.value = new JacksonDBObject<>(value);
+	public void setValue(String value) {
+		this.value = value;
+	}
+
+	public boolean belongs(String value) {
+		return label.toLowerCase().trim().equals(value.toLowerCase().trim());
 	}
 
 }

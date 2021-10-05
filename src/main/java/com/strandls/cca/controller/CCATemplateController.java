@@ -22,7 +22,7 @@ import javax.ws.rs.core.Response.Status;
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.pojo.CCATemplate;
-import com.strandls.cca.pojo.enumtype.Platform;
+import com.strandls.cca.pojo.Platform;
 import com.strandls.cca.service.CCATemplateService;
 
 import io.swagger.annotations.Api;

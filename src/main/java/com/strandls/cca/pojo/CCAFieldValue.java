@@ -2,13 +2,13 @@ package com.strandls.cca.pojo;
 
 import java.util.List;
 
-public class CCAFieldValues {
+public class CCAFieldValue implements IChildable<CCAFieldValue> {
 
 	private String fieldId;
 	private String name;
 	private List<String> value;
 
-	private List<CCAFieldValues> children;
+	private List<CCAFieldValue> children;
 
 	public String getFieldId() {
 		return fieldId;
@@ -34,11 +34,11 @@ public class CCAFieldValues {
 		this.value = value;
 	}
 
-	public List<CCAFieldValues> getChildren() {
+	public List<CCAFieldValue> getChildren() {
 		return children;
 	}
 
-	public void setChildren(List<CCAFieldValues> children) {
+	public void setChildren(List<CCAFieldValue> children) {
 		this.children = children;
 	}
 

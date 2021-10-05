@@ -1,4 +1,4 @@
-package com.strandls.cca.pojo.enumtype;
+package com.strandls.cca.pojo;
 
 public enum Platform {
 

@@ -1,17 +1,17 @@
 package com.strandls.cca.pojo;
 
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
-import com.strandls.cca.pojo.enumtype.Platform;
+import org.bson.codecs.pojo.annotations.BsonId;
 
-import net.vz.mongodb.jackson.Id;
-import net.vz.mongodb.jackson.ObjectId;
+import com.strandls.cca.IdInterface;
+import com.strandls.cca.util.DFSTreeIterator;
 
-public class CCATemplate {
+public class CCATemplate implements IdInterface {
 
-	@Id
-	@ObjectId
+	@BsonId
 	private String id;
 
 	private String name;
@@ -27,6 +27,10 @@ public class CCATemplate {
 	private Date updatedOn;
 
 	private List<CCAField> fields;
+
+	public Iterator<CCAField> iterator() {
+		return new DFSTreeIterator<>(fields);
+	}
 
 	public String getId() {
 		return id;
@@ -63,11 +67,11 @@ public class CCATemplate {
 	public List<Platform> getPlatform() {
 		return platform;
 	}
-	
+
 	public void setPlatform(List<Platform> platform) {
 		this.platform = platform;
 	}
-	
+
 	public Date getCreateOn() {
 		return createOn;
 	}
