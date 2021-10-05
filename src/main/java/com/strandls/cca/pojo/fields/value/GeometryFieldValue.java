@@ -7,7 +7,7 @@ import com.mongodb.client.model.geojson.Point;
 import com.mongodb.client.model.geojson.Position;
 import com.strandls.cca.pojo.CCAFieldValue;
 
-public class GeometryFieldValue extends CCAFieldValue<Geometry> {
+public class GeometryFieldValue extends CCAFieldValue {
 
 	private Geometry value;
 

@@ -9,7 +9,7 @@ import com.strandls.cca.pojo.ValueWithLabel;
 import com.strandls.cca.pojo.fields.ValueOptionsField;
 import com.strandls.cca.util.CCAUtil;
 
-public class MultiSelectFieldValue extends CCAFieldValue<List<ValueWithLabel>> {
+public class MultiSelectFieldValue extends CCAFieldValue {
 
 	private List<ValueWithLabel> value;
 
@@ -39,8 +39,10 @@ public class MultiSelectFieldValue extends CCAFieldValue<List<ValueWithLabel>> {
 
 	@Override
 	public boolean validate(CCAField field) {
-		if (!super.validate(field))
-			return false;
+		super.validate(field);
+
+		if (field.getIsRequired().booleanValue() && getValue() == null)
+			throw new IllegalArgumentException("Field is required");
 
 		if (!field.getIsRequired().booleanValue() && (value == null || value.isEmpty()))
 			return true;

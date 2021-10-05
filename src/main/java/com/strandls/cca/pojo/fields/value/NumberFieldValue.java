@@ -5,7 +5,7 @@ import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.fields.RangableField;
 import com.strandls.cca.util.CCAUtil;
 
-public class NumberFieldValue extends CCAFieldValue<Double> {
+public class NumberFieldValue extends CCAFieldValue {
 
 	private Double value;
 
@@ -25,8 +25,10 @@ public class NumberFieldValue extends CCAFieldValue<Double> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean validate(CCAField field) {
-		if (!super.validate(field))
-			return false;
+		super.validate(field);
+
+		if (field.getIsRequired().booleanValue() && getValue() == null)
+			throw new IllegalArgumentException("Field is required");
 
 		if (!field.getIsRequired().booleanValue() && value == null)
 			return true;

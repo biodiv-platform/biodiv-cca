@@ -7,7 +7,7 @@ import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.fields.RangableField;
 import com.strandls.cca.util.CCAUtil;
 
-public class DateFieldValue extends CCAFieldValue<Date> {
+public class DateFieldValue extends CCAFieldValue {
 
 	private Date value;
 
@@ -27,9 +27,11 @@ public class DateFieldValue extends CCAFieldValue<Date> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean validate(CCAField field) {
-		if (!super.validate(field))
-			return false;
-
+		super.validate(field);
+		
+		if (field.getIsRequired().booleanValue() && getValue() == null)
+			throw new IllegalArgumentException("Field is required");
+			
 		if (!(field instanceof RangableField<?>))
 			return false;
 

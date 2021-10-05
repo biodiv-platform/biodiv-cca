@@ -36,17 +36,11 @@ import com.strandls.cca.pojo.fields.value.TextFieldValue;
 		@JsonSubTypes.Type(value = SingleSelectFieldValue.class, name = FieldConstants.SINGLE_SELECT),
 		@JsonSubTypes.Type(value = TextFieldValue.class, name = FieldConstants.TEXT) })
 @BsonDiscriminator()
-public abstract class CCAFieldValue<T> {
+public abstract class CCAFieldValue {
 
 	private String fieldId;
 	private String name;
 	private FieldType type;
-
-	//public abstract T parse(String dataValue);
-
-	//public abstract T getValue();
-
-	//public abstract void setValue(T t);
 
 	/**
 	 * Always validating to true. If some validation are required. Then implement it

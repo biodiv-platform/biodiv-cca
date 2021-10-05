@@ -2,7 +2,7 @@ package com.strandls.cca.pojo.fields.value;
 
 import com.strandls.cca.pojo.CCAFieldValue;
 
-public class TextFieldValue extends CCAFieldValue<String> {
+public class TextFieldValue extends CCAFieldValue {
 
 	private String value;
 

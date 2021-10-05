@@ -9,7 +9,6 @@ public class CCAFieldValueFactory {
 	private CCAFieldValueFactory() {
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static CCAFieldValue createFieldValue(CCAField ccaField, String dataValue) {
 		CCAFieldValue fieldValue;
 
@@ -62,7 +61,6 @@ public class CCAFieldValueFactory {
 		fieldValue.setFieldId(ccaField.getFieldId());
 		fieldValue.setName(ccaField.getName());
 		fieldValue.setType(ccaField.getType());
-		//fieldValue.setValue(fieldValue.parse(dataValue));
 
 		return fieldValue;
 	}

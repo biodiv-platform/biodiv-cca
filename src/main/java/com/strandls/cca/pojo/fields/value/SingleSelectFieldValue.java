@@ -6,7 +6,7 @@ import com.strandls.cca.pojo.ValueWithLabel;
 import com.strandls.cca.pojo.fields.ValueOptionsField;
 import com.strandls.cca.util.CCAUtil;
 
-public class SingleSelectFieldValue extends CCAFieldValue<ValueWithLabel> {
+public class SingleSelectFieldValue extends CCAFieldValue {
 
 	private ValueWithLabel value;
 
@@ -24,8 +24,10 @@ public class SingleSelectFieldValue extends CCAFieldValue<ValueWithLabel> {
 
 	@Override
 	public boolean validate(CCAField field) {
-		if (!super.validate(field))
-			return false;
+		super.validate(field);
+
+		if (field.getIsRequired().booleanValue() && getValue() == null)
+			throw new IllegalArgumentException("Field is required");
 
 		if (!field.getIsRequired().booleanValue() && (value == null || "".equals(value.getLabel())))
 			return true;
