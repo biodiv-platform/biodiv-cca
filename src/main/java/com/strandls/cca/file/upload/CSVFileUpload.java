@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -86,26 +87,29 @@ public class CSVFileUpload implements IFileUpload {
 		ccaData.setCreatedOn(date);
 		ccaData.setUpdatedOn(date);
 		ccaData.setUserId(userId);
-		List<CCAFieldValue> fieldValues = convertToCCADataUtil(data, fieldToColumnIndex, ccaTemplate.getFields());
+		Map<String, CCAFieldValue> fieldValues = convertToCCADataUtil(data, fieldToColumnIndex, ccaTemplate);
 		ccaData.setCcaFieldValues(fieldValues);
 
 		return ccaData;
 	}
 
-	/** 
-	 * Operating this one recursively rather than using iterator, reason being we want the child value of each field as well.
+	/**
+	 * Operating this one recursively rather than using iterator, reason being we
+	 * want the child value of each field as well.
+	 * 
 	 * @param data
 	 * @param fieldToColumnIndex
 	 * @param fields
 	 * @return
 	 */
-	private List<CCAFieldValue> convertToCCADataUtil(String[] data, Map<String, Integer> fieldToColumnIndex,
-			List<CCAField> fields) {
-		List<CCAFieldValue> fieldValues = new ArrayList<>();
-		if (fields == null || fields.isEmpty())
-			return fieldValues;
+	private Map<String, CCAFieldValue> convertToCCADataUtil(String[] data, Map<String, Integer> fieldToColumnIndex,
+			CCATemplate ccaTemplate) {
 
-		for (CCAField ccaField : fields) {
+		Map<String, CCAFieldValue> fieldValues = new HashMap<>();
+
+		Iterator<CCAField> it = ccaTemplate.iterator();
+		while (it.hasNext()) {
+			CCAField ccaField = it.next();
 			CCAFieldValue fieldValue = new CCAFieldValue();
 
 			fieldValue.setFieldId(ccaField.getFieldId());
@@ -123,10 +127,10 @@ public class CSVFileUpload implements IFileUpload {
 			} else
 				values = new ArrayList<>();
 			fieldValue.setValue(values);
-			fieldValue.setChildren(convertToCCADataUtil(data, fieldToColumnIndex, ccaField.getChildren()));
 
-			fieldValues.add(fieldValue);
+			fieldValues.put(ccaField.getFieldId(), fieldValue);
 		}
+
 		return fieldValues;
 	}
 

@@ -1,8 +1,10 @@
 package com.strandls.cca.service.impl;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -60,18 +62,41 @@ public class CCADataServiceImpl implements CCADataService {
 
 	@Override
 	public void validateData(CCAData ccaData, CCATemplate ccaTemplate) {
-		Iterator<CCAFieldValue> dataIterator = ccaData.iterator();
+		Map<String, CCAFieldValue> ccaFieldValues = ccaData.getCcaFieldValues();
 		Iterator<CCAField> templateIterator = ccaTemplate.iterator();
 
-		while (dataIterator.hasNext() && templateIterator.hasNext()) {
+		Map<String, CCAField> ccaFields = new HashMap<>();
+		while (templateIterator.hasNext()) {
 			CCAField field = templateIterator.next();
-			CCAFieldValue fieldValue = dataIterator.next();
+			ccaFields.put(field.getFieldId(), field);
+		}
+
+		for (Map.Entry<String, CCAFieldValue> e : ccaFieldValues.entrySet()) {
+			String fieldId = e.getKey();
+			CCAFieldValue fieldValue = e.getValue();
+			if (fieldId == null)
+				throw new IllegalArgumentException(fieldValue.getName() + " : FieldId can't be null");
+
+			CCAField field = ccaFields.get(fieldId);
+			if (field == null) {
+				// The value is not part of the template
+				continue;
+			}
 
 			validateWithRespectToField(fieldValue, field);
 		}
 
-		if (dataIterator.hasNext() || templateIterator.hasNext())
+		/*
+		while (ccaFieldValues.hasNext() && templateIterator.hasNext()) {
+			CCAField field = templateIterator.next();
+			CCAFieldValue fieldValue = ccaFieldValues.next();
+
+			validateWithRespectToField(fieldValue, field);
+		}
+
+		if (ccaFieldValues.hasNext() || templateIterator.hasNext())
 			throw new IllegalArgumentException("Invalid template mapping");
+		*/
 	}
 
 	private void validateWithRespectToField(CCAFieldValue fieldValue, CCAField field) {
