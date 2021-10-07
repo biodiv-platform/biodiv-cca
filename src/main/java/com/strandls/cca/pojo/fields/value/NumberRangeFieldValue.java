@@ -62,8 +62,8 @@ public class NumberRangeFieldValue extends CCAFieldValue {
 			return false;
 		Double min = value.get(0);
 		Double max = value.get(1);
-		return min < max && CCAUtil.isRanged(min, f.getMin(), f.getMax())
-				&& CCAUtil.isRanged(max, f.getMin(), f.getMax());
+		return min < max && CCAUtil.isRanged(min, f.fetchMinRange(), f.fetchMaxRange())
+				&& CCAUtil.isRanged(max, f.fetchMinRange(), f.fetchMaxRange());
 	}
 
 }

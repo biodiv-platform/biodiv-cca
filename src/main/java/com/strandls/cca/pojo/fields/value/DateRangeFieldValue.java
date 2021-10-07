@@ -62,8 +62,8 @@ public class DateRangeFieldValue extends CCAFieldValue {
 			return false;
 		Date min = value.get(0);
 		Date max = value.get(1);
-		return min.compareTo(max) < 0 && CCAUtil.isRanged(min, f.getMin(), f.getMax())
-				&& CCAUtil.isRanged(max, f.getMin(), f.getMax());
+		return min.compareTo(max) < 0 && CCAUtil.isRanged(min, f.fetchMinRange(), f.fetchMaxRange())
+				&& CCAUtil.isRanged(max, f.fetchMinRange(), f.fetchMaxRange());
 	}
 
 }

@@ -43,7 +43,7 @@ public class DateFieldValue extends CCAFieldValue {
 
 		RangableField<Date> f = (RangableField<Date>) field;
 
-		return CCAUtil.isRanged(value, f.getMin(), f.getMax());
+		return CCAUtil.isRanged(value, f.fetchMinRange(), f.fetchMaxRange());
 	}
 
 }

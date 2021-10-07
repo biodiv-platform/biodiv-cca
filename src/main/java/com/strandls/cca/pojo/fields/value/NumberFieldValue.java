@@ -41,7 +41,7 @@ public class NumberFieldValue extends CCAFieldValue {
 
 		RangableField<Double> f = (RangableField<Double>) field;
 
-		return CCAUtil.isRanged(value, f.getMin(), f.getMax());
+		return CCAUtil.isRanged(value, f.fetchMinRange(), f.fetchMaxRange());
 	}
 
 }
