@@ -13,6 +13,9 @@ public class DateRangeFieldValue extends CCAFieldValue {
 
 	private List<Date> value;
 
+	public DateRangeFieldValue() {
+	}
+
 	public List<Date> getValue() {
 		return value;
 	}

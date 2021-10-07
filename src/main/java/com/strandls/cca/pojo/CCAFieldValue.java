@@ -54,9 +54,6 @@ public abstract class CCAFieldValue {
 		if (!fieldValueId.equals(field.getFieldId()))
 			throw new IllegalArgumentException("Invalid template mapping");
 
-		//if (field.getIsRequired().booleanValue() && getValue() == null)
-		//	throw new IllegalArgumentException("Field is required");
-
 		return true;
 	}
 

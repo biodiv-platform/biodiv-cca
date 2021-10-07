@@ -10,6 +10,9 @@ public class SingleSelectFieldValue extends CCAFieldValue {
 
 	private ValueWithLabel value;
 
+	public SingleSelectFieldValue() {
+	}
+
 	public SingleSelectFieldValue(String dataValue) {
 		if (dataValue != null && !"".equals(dataValue)) {
 			String[] values = dataValue.split(CCAUtil.COLUMN_SEPARATOR);

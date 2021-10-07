@@ -9,6 +9,9 @@ public class NumberFieldValue extends CCAFieldValue {
 
 	private Double value;
 
+	public NumberFieldValue() {
+	}
+
 	public NumberFieldValue(String dataValue) {
 		if (dataValue != null && !"".equals(dataValue))
 			this.value = Double.parseDouble(dataValue);

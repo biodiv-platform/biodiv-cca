@@ -6,9 +6,13 @@ public class FileFieldValue extends CCAFieldValue {
 
 	private String value;
 
+	public FileFieldValue() {
+	}
+
 	public FileFieldValue(String dataValue) {
 		this.value = dataValue;
 	}
+
 	public String getValue() {
 		return value;
 	}

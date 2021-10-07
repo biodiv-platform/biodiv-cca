@@ -38,7 +38,7 @@ public class CCADataServiceImpl implements CCADataService {
 
 	@Override
 	public List<CCAData> getAllCCA(HttpServletRequest request) {
-		return getAllCCA(request);
+		return ccaDataDao.getAll();
 	}
 
 	@Override
@@ -60,7 +60,6 @@ public class CCADataServiceImpl implements CCADataService {
 		return ccaDataDao.save(ccaData);
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
 	public void validateData(CCAData ccaData, CCATemplate ccaTemplate) {
 		Map<String, CCAFieldValue> ccaFieldValues = ccaData.getCcaFieldValues();
@@ -88,7 +87,6 @@ public class CCADataServiceImpl implements CCADataService {
 		}
 	}
 
-	@SuppressWarnings("rawtypes")
 	private void validateWithRespectToField(CCAFieldValue fieldValue, CCAField field) {
 		if (fieldValue.getFieldId() == null)
 			throw new IllegalArgumentException(field.getName() + " : FieldId can't be null");

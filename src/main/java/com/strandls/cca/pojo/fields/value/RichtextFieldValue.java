@@ -6,6 +6,9 @@ public class RichtextFieldValue extends CCAFieldValue {
 
 	private String value;
 
+	public RichtextFieldValue() {
+	}
+
 	public RichtextFieldValue(String dataValue) {
 		this.value = dataValue;
 	}

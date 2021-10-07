@@ -12,6 +12,9 @@ public class NumberRangeFieldValue extends CCAFieldValue {
 
 	private List<Double> value;
 
+	public NumberRangeFieldValue() {
+	}
+
 	public NumberRangeFieldValue(String dataValue) {
 		if (dataValue == null || "".equals(dataValue))
 			this.value = new ArrayList<>();

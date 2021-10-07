@@ -6,6 +6,9 @@ public class TextFieldValue extends CCAFieldValue {
 
 	private String value;
 
+	public TextFieldValue() {
+	}
+
 	public TextFieldValue(String dataValue) {
 		this.value = dataValue;
 	}

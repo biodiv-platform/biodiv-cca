@@ -11,6 +11,9 @@ public class GeometryFieldValue extends CCAFieldValue {
 
 	private Geometry value;
 
+	public GeometryFieldValue() {
+	}
+
 	public GeometryFieldValue(String dataValue) {
 		String[] points = dataValue.split(",");
 		Double point1 = Double.parseDouble(points[0]);

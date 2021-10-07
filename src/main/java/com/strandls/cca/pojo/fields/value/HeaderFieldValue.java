@@ -4,6 +4,9 @@ import com.strandls.cca.pojo.CCAFieldValue;
 
 public class HeaderFieldValue extends CCAFieldValue {
 
+	public HeaderFieldValue() {
+	}
+
 	public HeaderFieldValue(String dataValue) {
 	}
 

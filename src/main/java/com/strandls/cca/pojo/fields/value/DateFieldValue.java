@@ -11,6 +11,9 @@ public class DateFieldValue extends CCAFieldValue {
 
 	private Date value;
 
+	public DateFieldValue() {
+	}
+
 	public DateFieldValue(String dataValue) {
 		if (dataValue != null && !"".equals(dataValue))
 			this.value = CCAUtil.parseDate(dataValue);
@@ -28,10 +31,10 @@ public class DateFieldValue extends CCAFieldValue {
 	@Override
 	public boolean validate(CCAField field) {
 		super.validate(field);
-		
+
 		if (field.getIsRequired().booleanValue() && getValue() == null)
 			throw new IllegalArgumentException("Field is required");
-			
+
 		if (!(field instanceof RangableField<?>))
 			return false;
 

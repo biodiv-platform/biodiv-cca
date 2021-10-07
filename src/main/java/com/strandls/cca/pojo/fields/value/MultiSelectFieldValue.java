@@ -13,6 +13,9 @@ public class MultiSelectFieldValue extends CCAFieldValue {
 
 	private List<ValueWithLabel> value;
 
+	public MultiSelectFieldValue() {
+	}
+
 	public List<ValueWithLabel> getValue() {
 		return value;
 	}

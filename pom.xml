@@ -156,12 +156,6 @@
 			<version>2.31</version>
 		</dependency>
 
-		<!-- <dependency>
-			<groupId>net.vz.mongodb.jackson</groupId>
-			<artifactId>mongo-jackson-mapper</artifactId>
-			<version>1.4.1</version>
-		</dependency>
- -->
 		<!-- https://mvnrepository.com/artifact/org.mongodb/mongo-java-driver -->
 		<dependency>
 			<groupId>org.mongodb</groupId>
