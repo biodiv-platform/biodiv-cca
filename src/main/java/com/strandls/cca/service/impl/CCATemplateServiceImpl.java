@@ -7,12 +7,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.bson.types.ObjectId;
 
 import com.google.inject.Inject;
 import com.strandls.cca.dao.CCATemplateDao;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCATemplate;
+import com.strandls.cca.pojo.Platform;
 import com.strandls.cca.service.CCATemplateService;
 
 /**
@@ -92,8 +95,8 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 	}
 
 	@Override
-	public List<CCATemplate> getAllCCATemplate() {
-		return ccaTemplateDao.getAllCCATemplateWithoutFields();
+	public List<CCATemplate> getAllCCATemplate(HttpServletRequest request, Platform platform) {
+		return ccaTemplateDao.getAllCCATemplateWithoutFields(platform);
 	}
 
 	@Override

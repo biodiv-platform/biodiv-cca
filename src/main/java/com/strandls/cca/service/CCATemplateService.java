@@ -2,7 +2,10 @@ package com.strandls.cca.service;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.strandls.cca.pojo.CCATemplate;
+import com.strandls.cca.pojo.Platform;
 
 /**
  * 
@@ -17,7 +20,7 @@ public interface CCATemplateService {
 
 	public CCATemplate save(CCATemplate ccaMasterField);
 
-	public List<CCATemplate> getAllCCATemplate();
+	public List<CCATemplate> getAllCCATemplate(HttpServletRequest request, Platform plateform);
 
 	public CCATemplate remove(String shortName);
 

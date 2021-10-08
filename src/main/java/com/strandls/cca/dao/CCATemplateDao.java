@@ -3,12 +3,15 @@ package com.strandls.cca.dao;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bson.conversions.Bson;
+
 import com.google.inject.Inject;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Projections;
 import com.mongodb.client.result.DeleteResult;
 import com.strandls.cca.pojo.CCATemplate;
+import com.strandls.cca.pojo.Platform;
 import com.strandls.cca.service.impl.CCATemplateServiceImpl;
 
 public class CCATemplateDao extends AbstractDao<CCATemplate> {
@@ -27,7 +30,14 @@ public class CCATemplateDao extends AbstractDao<CCATemplate> {
 		return template;
 	}
 
-	public List<CCATemplate> getAllCCATemplateWithoutFields() {
-		return dbCollection.find().projection(Projections.exclude("fields")).into(new ArrayList<CCATemplate>());
+	public List<CCATemplate> getAllCCATemplateWithoutFields(Platform platform) {
+		// Get all the document with id
+		Bson filters = Filters.exists("_id");
+
+		// Add filter for the platform
+		if (platform != null)
+			filters = Filters.and(filters, Filters.eq("platform", platform.name()));
+
+		return dbCollection.find(filters).projection(Projections.exclude("fields")).into(new ArrayList<CCATemplate>());
 	}
 }

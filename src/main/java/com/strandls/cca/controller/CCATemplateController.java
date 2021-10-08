@@ -67,7 +67,7 @@ public class CCATemplateController {
 
 	public Response getAllCCATemplate(@Context HttpServletRequest request, @QueryParam("platform") Platform plateform) {
 		try {
-			List<CCATemplate> ccaTemplate = ccaContextService.getAllCCATemplate();
+			List<CCATemplate> ccaTemplate = ccaContextService.getAllCCATemplate(request, plateform);
 			return Response.status(Status.OK).entity(ccaTemplate).build();
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(
