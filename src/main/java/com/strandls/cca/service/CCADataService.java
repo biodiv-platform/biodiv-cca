@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.UriInfo;
 
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
@@ -20,7 +21,7 @@ public interface CCADataService {
 
 	public CCAData remove(String id);
 
-	public List<CCAData> getAllCCA(HttpServletRequest request);
+	public List<CCAData> getAllCCA(HttpServletRequest request, UriInfo info, String shortName);
 
 	public List<CCAData> insertBulk(List<CCAData> ccaDatas);
 

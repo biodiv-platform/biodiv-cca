@@ -8,6 +8,8 @@ import java.util.Map;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.UriInfo;
 
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.pac4j.core.profile.CommonProfile;
@@ -37,8 +39,9 @@ public class CCADataServiceImpl implements CCADataService {
 	}
 
 	@Override
-	public List<CCAData> getAllCCA(HttpServletRequest request) {
-		return ccaDataDao.getAll();
+	public List<CCAData> getAllCCA(HttpServletRequest request, UriInfo info, String shortName) {
+		MultivaluedMap<String, String> queryParameters = info.getQueryParameters();
+		return ccaDataDao.getAll(queryParameters, shortName);
 	}
 
 	@Override
