@@ -20,7 +20,7 @@ public class SingleSelectFieldValue extends CCAFieldValue {
 				throw new IllegalArgumentException("Single selection is requied");
 
 			ValueWithLabel valueWithLabel = new ValueWithLabel();
-			valueWithLabel.setLabel(values[0]);
+			valueWithLabel.setLabel(values[0].trim());
 			this.value = valueWithLabel;
 		}
 	}

@@ -16,7 +16,7 @@ public class DateFieldValue extends CCAFieldValue {
 
 	public DateFieldValue(String dataValue) {
 		if (dataValue != null && !"".equals(dataValue))
-			this.value = CCAUtil.parseDate(dataValue);
+			this.value = CCAUtil.parseDate(dataValue.trim());
 	}
 
 	public Date getValue() {

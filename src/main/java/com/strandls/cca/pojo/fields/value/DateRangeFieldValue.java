@@ -32,8 +32,8 @@ public class DateRangeFieldValue extends CCAFieldValue {
 			if (values.length != 2)
 				throw new IllegalArgumentException("Range should have 2 values");
 			List<Date> minMax = new ArrayList<>();
-			minMax.add(CCAUtil.parseDate(values[0]));
-			minMax.add(CCAUtil.parseDate(values[1]));
+			minMax.add(CCAUtil.parseDate(values[0].trim()));
+			minMax.add(CCAUtil.parseDate(values[1].trim()));
 			this.value = minMax;
 		}
 	}

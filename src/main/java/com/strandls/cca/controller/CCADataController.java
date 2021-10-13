@@ -11,19 +11,18 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
 
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.pojo.CCAData;
+import com.strandls.cca.pojo.filter.IFilter;
 import com.strandls.cca.service.CCADataService;
 
 import io.swagger.annotations.Api;
@@ -59,16 +58,39 @@ public class CCADataController {
 		}
 	}
 
-	@GET
+	@POST
 	@Path("/all")
 
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get the cca data", notes = "Returns CCA data fields", response = CCAData.class, responseContainer = "List")
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
-	public Response getCCAData(@Context HttpServletRequest request, @Context UriInfo info,
-			@QueryParam("shortName") String shortName) {
+	public Response getCCAData(@Context HttpServletRequest request, IFilter ccaFilters) {
 		try {
-			List<CCAData> ccaData = ccaDataService.getAllCCA(request, info, shortName);
+			List<CCAData> ccaData = ccaDataService.getAllCCA(request, ccaFilters);
+			return Response.status(Status.OK).entity(ccaData).build();
+		} catch (IllegalArgumentException e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
+		} catch (Exception e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+		}
+	}
+	
+	@POST
+	@Path("/update")
+
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+
+	@ApiOperation(value = "Save the cca data", notes = "Returns CCA data fields", response = CCAData.class)
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not save the data", response = String.class) })
+
+	public Response updateCCAData(@Context HttpServletRequest request, @ApiParam("ccaData") CCAData ccaData) {
+		try {
+			ccaData = ccaDataService.update(request, ccaData);
 			return Response.status(Status.OK).entity(ccaData).build();
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(
@@ -92,7 +114,7 @@ public class CCADataController {
 
 	public Response saveCCAData(@Context HttpServletRequest request, @ApiParam("ccaData") CCAData ccaData) {
 		try {
-			ccaData = ccaDataService.saveOrUpdate(request, ccaData);
+			ccaData = ccaDataService.save(request, ccaData);
 			return Response.status(Status.OK).entity(ccaData).build();
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(

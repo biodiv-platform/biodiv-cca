@@ -18,5 +18,7 @@ public class FieldConstants {
 	public static final String GEOMETRY = "GEOMETRY";
 	public static final String FILE = "FILE";
 	public static final String HEADING = "HEADING";
+	public static final String AND = "AND";
+	public static final String OR = "OR";
 
 }

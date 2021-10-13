@@ -8,8 +8,6 @@ import java.util.Map;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.UriInfo;
 
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.pac4j.core.profile.CommonProfile;
@@ -22,6 +20,7 @@ import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.CCATemplate;
+import com.strandls.cca.pojo.filter.IFilter;
 import com.strandls.cca.service.CCADataService;
 import com.strandls.cca.service.CCATemplateService;
 
@@ -39,9 +38,9 @@ public class CCADataServiceImpl implements CCADataService {
 	}
 
 	@Override
-	public List<CCAData> getAllCCA(HttpServletRequest request, UriInfo info, String shortName) {
-		MultivaluedMap<String, String> queryParameters = info.getQueryParameters();
-		return ccaDataDao.getAll(queryParameters, shortName);
+	public List<CCAData> getAllCCA(HttpServletRequest request, IFilter ccaFilters) {
+		//MultivaluedMap<String, String> queryParameters = info.getQueryParameters();
+		return ccaDataDao.getAll(ccaFilters);
 	}
 
 	@Override
@@ -53,7 +52,7 @@ public class CCADataServiceImpl implements CCADataService {
 	}
 
 	@Override
-	public CCAData saveOrUpdate(HttpServletRequest request, CCAData ccaData) {
+	public CCAData save(HttpServletRequest request, CCAData ccaData) {
 
 		String shortName = ccaData.getShortName();
 		CCATemplate ccaTemplate = ccaTemplateService.getCCAByShortName(shortName);
@@ -61,6 +60,17 @@ public class CCADataServiceImpl implements CCADataService {
 		validateData(ccaData, ccaTemplate);
 
 		return ccaDataDao.save(ccaData);
+	}
+	
+	@Override
+	public CCAData update(HttpServletRequest request, CCAData ccaData) {
+
+		String shortName = ccaData.getShortName();
+		CCATemplate ccaTemplate = ccaTemplateService.getCCAByShortName(shortName);
+
+		validateData(ccaData, ccaTemplate);
+
+		return ccaDataDao.updateOne(ccaData);
 	}
 
 	@Override

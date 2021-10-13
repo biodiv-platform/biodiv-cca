@@ -32,7 +32,7 @@ public class MultiSelectFieldValue extends CCAFieldValue {
 			String[] values = dataValue.split(CCAUtil.COLUMN_SEPARATOR);
 			for (String v : values) {
 				ValueWithLabel valueWithLabel = new ValueWithLabel();
-				valueWithLabel.setLabel(v);
+				valueWithLabel.setLabel(v.trim());
 				output.add(valueWithLabel);
 			}
 			this.value = output;

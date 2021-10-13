@@ -72,7 +72,6 @@ public class CSVFileUpload implements IFileUpload {
 		return uploadResponse;
 	}
 
-	@SuppressWarnings("rawtypes")
 	private CCAData convertToCCAData(String[] data, CCATemplate ccaTemplate) {
 		Map<String, Integer> fieldToColumnIndex = metaData.getFieldToColumnIndex();
 
@@ -98,7 +97,6 @@ public class CSVFileUpload implements IFileUpload {
 	 * @param fields
 	 * @return
 	 */
-	@SuppressWarnings("rawtypes")
 	private Map<String, CCAFieldValue> convertToCCADataUtil(String[] data, Map<String, Integer> fieldToColumnIndex,
 			CCATemplate ccaTemplate) {
 

@@ -23,8 +23,8 @@ public class NumberRangeFieldValue extends CCAFieldValue {
 			if (values.length != 2)
 				throw new IllegalArgumentException("Range should have 2 values");
 			List<Double> minMax = new ArrayList<>();
-			minMax.add(Double.parseDouble(values[0]));
-			minMax.add(Double.parseDouble(values[1]));
+			minMax.add(Double.parseDouble(values[0].trim()));
+			minMax.add(Double.parseDouble(values[1].trim()));
 			this.value = minMax;
 		}
 
