@@ -30,7 +30,7 @@ import com.strandls.cca.dao.CCADaoModule;
 import com.strandls.cca.service.impl.CCAServiceModule;
 
 /**
- * 
+ * Class to make initial configuration
  * @author vilay
  *
  */

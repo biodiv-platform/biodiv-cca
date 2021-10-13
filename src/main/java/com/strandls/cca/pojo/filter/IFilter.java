@@ -11,6 +11,7 @@ import com.strandls.cca.pojo.filter.field.CheckboxFilter;
 import com.strandls.cca.pojo.filter.field.DateFilter;
 import com.strandls.cca.pojo.filter.field.DateRangeFilter;
 import com.strandls.cca.pojo.filter.field.FileFilter;
+import com.strandls.cca.pojo.filter.field.GenericFilter;
 import com.strandls.cca.pojo.filter.field.GeometryFilter;
 import com.strandls.cca.pojo.filter.field.HeaderFilter;
 import com.strandls.cca.pojo.filter.field.MultiSelectFilter;
@@ -36,7 +37,8 @@ import com.strandls.cca.pojo.filter.field.TextFilter;
 		@JsonSubTypes.Type(value = SingleSelectFilter.class, name = FieldConstants.SINGLE_SELECT),
 		@JsonSubTypes.Type(value = TextFilter.class, name = FieldConstants.TEXT),
 		@JsonSubTypes.Type(value = AndFilter.class, name = FieldConstants.AND),
-		@JsonSubTypes.Type(value = OrFilter.class, name = FieldConstants.OR) })
+		@JsonSubTypes.Type(value = OrFilter.class, name = FieldConstants.OR),
+		@JsonSubTypes.Type(value = GenericFilter.class, name = FieldConstants.GENERIC)})
 public interface IFilter {
 
 	public static final String CCA_FIELD_VALUES = "ccaFieldValues";

@@ -1,5 +1,10 @@
 package com.strandls.cca;
 
+/**
+ * This many number of field type and operation type we are supporting as of now
+ * @author vilay
+ *
+ */
 public class FieldConstants {
 
 	private FieldConstants() {
@@ -20,5 +25,6 @@ public class FieldConstants {
 	public static final String HEADING = "HEADING";
 	public static final String AND = "AND";
 	public static final String OR = "OR";
+	public static final String GENERIC = "GENERIC";
 
 }

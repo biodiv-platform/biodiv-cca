@@ -39,7 +39,6 @@ public class CCADataServiceImpl implements CCADataService {
 
 	@Override
 	public List<CCAData> getAllCCA(HttpServletRequest request, IFilter ccaFilters) {
-		//MultivaluedMap<String, String> queryParameters = info.getQueryParameters();
 		return ccaDataDao.getAll(ccaFilters);
 	}
 
