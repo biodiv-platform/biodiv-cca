@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.bson.types.ObjectId;
 
 import com.google.inject.Inject;
+import com.strandls.cca.FieldConstants;
 import com.strandls.cca.dao.CCATemplateDao;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCATemplate;
@@ -25,8 +26,6 @@ import com.strandls.cca.service.CCATemplateService;
  */
 public class CCATemplateServiceImpl implements CCATemplateService {
 
-	public static final String SHORT_NAME = "shortName";
-
 	@Inject
 	private CCATemplateDao ccaTemplateDao;
 
@@ -37,7 +36,7 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 
 	@Override
 	public CCATemplate getCCAByShortName(String ccaTemplate) {
-		return ccaTemplateDao.findByProperty(SHORT_NAME, ccaTemplate);
+		return ccaTemplateDao.findByProperty(FieldConstants.SHORT_NAME, ccaTemplate);
 	}
 
 	@Override
@@ -46,7 +45,7 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 			ObjectId id = new ObjectId();
 			context.setId(id.toHexString());
 		}
-		CCATemplate template = ccaTemplateDao.findByProperty(SHORT_NAME, context.getShortName());
+		CCATemplate template = ccaTemplateDao.findByProperty(FieldConstants.SHORT_NAME, context.getShortName());
 		if (template != null)
 			throw new IllegalArgumentException(
 					"Can't create new with same short name. Either update or create new one");
@@ -61,7 +60,7 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 
 	@Override
 	public CCATemplate update(CCATemplate context) {
-		CCATemplate template = ccaTemplateDao.findByProperty(SHORT_NAME, context.getShortName());
+		CCATemplate template = ccaTemplateDao.findByProperty(FieldConstants.SHORT_NAME, context.getShortName());
 		if (template == null)
 			throw new IllegalArgumentException("Can't update the template, template does not exit");
 

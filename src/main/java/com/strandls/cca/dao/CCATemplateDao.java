@@ -10,9 +10,9 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Projections;
 import com.mongodb.client.result.DeleteResult;
+import com.strandls.cca.FieldConstants;
 import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.cca.pojo.Platform;
-import com.strandls.cca.service.impl.CCATemplateServiceImpl;
 
 public class CCATemplateDao extends AbstractDao<CCATemplate> {
 
@@ -22,8 +22,8 @@ public class CCATemplateDao extends AbstractDao<CCATemplate> {
 	}
 
 	public CCATemplate removeByShortName(String shortName) {
-		CCATemplate template = findByProperty(CCATemplateServiceImpl.SHORT_NAME, shortName);
-		DeleteResult dResult = dbCollection.deleteOne(Filters.eq(CCATemplateServiceImpl.SHORT_NAME, template.getId()));
+		CCATemplate template = findByProperty(FieldConstants.SHORT_NAME, shortName);
+		DeleteResult dResult = dbCollection.deleteOne(Filters.eq(FieldConstants.SHORT_NAME, template.getId()));
 		if (dResult.getDeletedCount() == 0) {
 			throw new IllegalArgumentException("Can't delete object, it is not existing the system");
 		}

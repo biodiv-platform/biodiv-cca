@@ -15,6 +15,7 @@ import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Scopes;
@@ -60,6 +61,9 @@ public class CCAServeletContextListener extends GuiceServletContextListener {
 				} finally {
 					// mongoClient.close();
 				}
+				
+				ObjectMapper om = new ObjectMapper();
+				bind(ObjectMapper.class).toInstance(om);
 
 				Map<String, String> props = new HashMap<>();
 				props.put("javax.ws.rs.Application", ApplicationConfig.class.getName());

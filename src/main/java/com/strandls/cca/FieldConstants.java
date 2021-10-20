@@ -26,5 +26,8 @@ public class FieldConstants {
 	public static final String AND = "AND";
 	public static final String OR = "OR";
 	public static final String GENERIC = "GENERIC";
+	
+	public static final String SHORT_NAME = "shortName";
+	public static final String VALUE = "value";
 
 }

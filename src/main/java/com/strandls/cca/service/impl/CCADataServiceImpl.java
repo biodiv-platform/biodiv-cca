@@ -8,10 +8,12 @@ import java.util.Map;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.UriInfo;
 
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.pac4j.core.profile.CommonProfile;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.cca.dao.CCADataDao;
 import com.strandls.cca.file.upload.FileUploadFactory;
@@ -35,6 +37,11 @@ public class CCADataServiceImpl implements CCADataService {
 	@Inject
 	public CCADataServiceImpl() {
 		// Just for the injection purpose
+	}
+	
+	@Override
+	public List<CCAData> getAllCCA(HttpServletRequest request, UriInfo uriInfo) throws JsonProcessingException {
+		return ccaDataDao.getAll(uriInfo);
 	}
 
 	@Override
