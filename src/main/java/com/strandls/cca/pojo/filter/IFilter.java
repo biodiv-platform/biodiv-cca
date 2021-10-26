@@ -20,6 +20,7 @@ import com.strandls.cca.pojo.filter.field.NumberRangeFilter;
 import com.strandls.cca.pojo.filter.field.RadioFilter;
 import com.strandls.cca.pojo.filter.field.RichtextFilter;
 import com.strandls.cca.pojo.filter.field.SingleSelectFilter;
+import com.strandls.cca.pojo.filter.field.TextAreaFilter;
 import com.strandls.cca.pojo.filter.field.TextFilter;
 
 @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "type", visible = true, defaultImpl = CompoundFilter.class)
@@ -35,6 +36,7 @@ import com.strandls.cca.pojo.filter.field.TextFilter;
 		@JsonSubTypes.Type(value = RadioFilter.class, name = FieldConstants.RADIO),
 		@JsonSubTypes.Type(value = RichtextFilter.class, name = FieldConstants.RICHTEXT),
 		@JsonSubTypes.Type(value = SingleSelectFilter.class, name = FieldConstants.SINGLE_SELECT),
+		@JsonSubTypes.Type(value = TextAreaFilter.class, name = FieldConstants.TEXT_AREA),
 		@JsonSubTypes.Type(value = TextFilter.class, name = FieldConstants.TEXT),
 		@JsonSubTypes.Type(value = AndFilter.class, name = FieldConstants.AND),
 		@JsonSubTypes.Type(value = OrFilter.class, name = FieldConstants.OR),

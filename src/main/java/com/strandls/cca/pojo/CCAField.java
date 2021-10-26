@@ -22,6 +22,7 @@ import com.strandls.cca.pojo.fields.NumberRangeField;
 import com.strandls.cca.pojo.fields.RadioField;
 import com.strandls.cca.pojo.fields.RichtextField;
 import com.strandls.cca.pojo.fields.SingleSelectField;
+import com.strandls.cca.pojo.fields.TextAreaField;
 import com.strandls.cca.pojo.fields.TextField;
 
 @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "type", visible = true)
@@ -37,7 +38,8 @@ import com.strandls.cca.pojo.fields.TextField;
 		@JsonSubTypes.Type(value = RadioField.class, name = FieldConstants.RADIO),
 		@JsonSubTypes.Type(value = RichtextField.class, name = FieldConstants.RICHTEXT),
 		@JsonSubTypes.Type(value = SingleSelectField.class, name = FieldConstants.SINGLE_SELECT),
-		@JsonSubTypes.Type(value = TextField.class, name = FieldConstants.TEXT) })
+		@JsonSubTypes.Type(value = TextField.class, name = FieldConstants.TEXT),
+		@JsonSubTypes.Type(value = TextAreaField.class, name = FieldConstants.TEXT_AREA)})
 @BsonDiscriminator()
 public abstract class CCAField implements IChildable<CCAField> {
 

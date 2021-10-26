@@ -11,6 +11,7 @@ public class FieldConstants {
 	}
 
 	public static final String TEXT = "TEXT";
+	public static final String TEXT_AREA = "TEXT_AREA";
 	public static final String RICHTEXT = "RICHTEXT";
 	public static final String NUMBER = "NUMBER";
 	public static final String NUMBER_RANGE = "NUMBER_RANGE";
