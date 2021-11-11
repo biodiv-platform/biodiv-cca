@@ -60,6 +60,25 @@ public class CCADataController {
 	}
 
 	@GET
+	@Path("{id}")
+
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get the cca data", notes = "Returns CCA data fields", response = CCAData.class)
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
+	public Response getCCAData(@Context HttpServletRequest request, @PathParam("id") String id) {
+		try {
+			CCAData ccaData = ccaDataService.findById(id);
+			return Response.status(Status.OK).entity(ccaData).build();
+		} catch (IllegalArgumentException e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
+		} catch (Exception e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+		}
+	}
+
+	@GET
 	@Path("/all")
 
 	@Produces(MediaType.APPLICATION_JSON)
@@ -77,7 +96,7 @@ public class CCADataController {
 					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
 		}
 	}
-	
+
 	@POST
 	@Path("/all")
 
@@ -96,7 +115,7 @@ public class CCADataController {
 					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
 		}
 	}
-	
+
 	@POST
 	@Path("/update")
 

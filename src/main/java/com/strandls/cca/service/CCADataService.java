@@ -18,6 +18,8 @@ public interface CCADataService {
 	public void validateData(CCAData ccaData, CCATemplate ccaTemplate);
 
 	public CCAData save(HttpServletRequest request, CCAData ccaData);
+	
+	public CCAData findById(String id);
 
 	public CCAData update(HttpServletRequest request, CCAData ccaData);
 

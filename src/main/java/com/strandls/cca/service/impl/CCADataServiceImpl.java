@@ -38,7 +38,12 @@ public class CCADataServiceImpl implements CCADataService {
 	public CCADataServiceImpl() {
 		// Just for the injection purpose
 	}
-	
+
+	@Override
+	public CCAData findById(String id) {
+		return ccaDataDao.findByProperty("_id", id);
+	}
+
 	@Override
 	public List<CCAData> getAllCCA(HttpServletRequest request, UriInfo uriInfo) throws JsonProcessingException {
 		return ccaDataDao.getAll(uriInfo);
@@ -67,7 +72,7 @@ public class CCADataServiceImpl implements CCADataService {
 
 		return ccaDataDao.save(ccaData);
 	}
-	
+
 	@Override
 	public CCAData update(HttpServletRequest request, CCAData ccaData) {
 
