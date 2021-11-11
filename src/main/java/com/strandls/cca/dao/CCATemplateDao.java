@@ -23,7 +23,7 @@ public class CCATemplateDao extends AbstractDao<CCATemplate> {
 
 	public CCATemplate removeByShortName(String shortName) {
 		CCATemplate template = findByProperty(FieldConstants.SHORT_NAME, shortName);
-		DeleteResult dResult = dbCollection.deleteOne(Filters.eq(FieldConstants.SHORT_NAME, template.getId()));
+		DeleteResult dResult = dbCollection.deleteOne(Filters.eq(FieldConstants.SHORT_NAME, shortName));
 		if (dResult.getDeletedCount() == 0) {
 			throw new IllegalArgumentException("Can't delete object, it is not existing the system");
 		}
