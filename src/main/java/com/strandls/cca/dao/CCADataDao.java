@@ -60,6 +60,9 @@ public class CCADataDao extends AbstractDao<CCAData> {
 		filterObject.appendField("type", OperatorType.AND);
 
 		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
+		if(queryParameter.isEmpty()) {
+			return getAll();
+		}
 
 		// Take a master template as reference and create the filter
 		CCATemplate ccaTemplate = templateDao.findByProperty(FieldConstants.SHORT_NAME, "master");

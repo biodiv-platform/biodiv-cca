@@ -18,18 +18,20 @@ public class GeoJsonPolygon extends GeoJsonGeometry {
 			return null;
 
 		List<Position> exterior = new ArrayList<>();
-		List<Position> interior = new ArrayList<>();
 
 		for (List<Double> point : coordinates.get(0)) {
 			exterior.add(new Position(point));
 		}
 
-		if (coordinates.size() == 2)
+		if (coordinates.size() == 2) {
+			List<Position> interior = new ArrayList<>();
 			for (List<Double> point : coordinates.get(1)) {
 				interior.add(new Position(point));
 			}
+			return new Polygon(exterior, interior);
+		}
 
-		return new Polygon(exterior, interior);
+		return new Polygon(exterior);
 	}
 
 	public List<List<List<Double>>> getCoordinates() {

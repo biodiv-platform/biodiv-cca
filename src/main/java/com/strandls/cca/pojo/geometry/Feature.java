@@ -1,11 +1,12 @@
 package com.strandls.cca.pojo.geometry;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class Feature {
 
-	private String type;
-	private Map<String, String> properties;
+	private String type = "Feature";
+	private Map<String, String> properties = new HashMap<>();
 	private GeoJsonGeometry geometry;
 
 	public String getType() {

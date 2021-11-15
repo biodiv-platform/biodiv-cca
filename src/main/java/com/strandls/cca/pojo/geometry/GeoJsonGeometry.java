@@ -1,5 +1,8 @@
 package com.strandls.cca.pojo.geometry;
 
+import org.bson.codecs.pojo.annotations.BsonDiscriminator;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
@@ -14,15 +17,12 @@ import com.mongodb.client.model.geojson.Geometry;
 		@JsonSubTypes.Type(value = GeoJsonPolygon.class, name = GeometryConstants.POLYGON),
 		@JsonSubTypes.Type(value = GeoJsonMultiPolygon.class, name = GeometryConstants.MULTI_POLYGON),
 		@JsonSubTypes.Type(value = GeoJsonGeometryCollection.class, name = GeometryConstants.GEOMETRY_COLLECTION) })
+@BsonDiscriminator()
 public abstract class GeoJsonGeometry {
 
 	protected GeometryType type;
-	protected Geometry geometry;
 
-	public void getGeometry(Geometry geometry) {
-		this.geometry = geometry;
-	}
-	
+	@JsonIgnore
 	public abstract Geometry getGeometry();
 
 	public GeometryType getType() {

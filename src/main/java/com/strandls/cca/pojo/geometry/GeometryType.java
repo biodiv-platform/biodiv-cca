@@ -1,8 +1,10 @@
 package com.strandls.cca.pojo.geometry;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum GeometryType {
-	POINT("Point"), MULTI_POINT("MultiPoint"), LINE_STRING("LineString"), MULTI_LINE_STRING("MultiLineString"),
-	POLYGON("Polygon"), MULTI_POLYGON("MultiPolygon"), GEOMETRY_COLLECTION("GeometryCollection");
+	Point("Point"), MultiPoint("MultiPoint"), LineString("LineString"), MultiLineString("MultiLineString"),
+	Polygon("Polygon"), MultiPolygon("MultiPolygon"), GeometryCollection("GeometryCollection");
 
 	private String value;
 
@@ -18,6 +20,7 @@ public enum GeometryType {
 		throw new IllegalArgumentException(value);
 	}
 
+	@JsonValue
 	public String getValue() {
 		return value;
 	}

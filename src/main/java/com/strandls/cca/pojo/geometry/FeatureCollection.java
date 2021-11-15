@@ -2,15 +2,17 @@ package com.strandls.cca.pojo.geometry;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mongodb.client.model.geojson.Geometry;
 
 public class FeatureCollection {
 
-	private String type;
+	private String type = "FeatureCollection";
 	private List<Feature> features;
 	
 	// Supporting only one features
 	// TODO : Need to support across multiple values in the geometry
+	@JsonIgnore
 	public Geometry getGeometry() {
 		return features.get(0).getGeometry().getGeometry();
 	}
