@@ -4,15 +4,15 @@ public class NumberField extends RangableField<Double> {
 
 	@Override
 	public Double fetchMinRange() {
-		if (getMin() == null)
+		if (!isMinMaxSet())
 			return Double.MIN_VALUE;
-		return getMin();
+		return getMinMax().get(0);
 	}
 
 	@Override
 	public Double fetchMaxRange() {
-		if (getMax() == null)
+		if (!isMinMaxSet() || getMinMax().size() < 2)
 			return Double.MAX_VALUE;
-		return getMax();
+		return getMinMax().get(1);
 	}
 }

@@ -1,35 +1,36 @@
 package com.strandls.cca.pojo.fields;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.strandls.cca.pojo.CCAField;
 
 public abstract class RangableField<T extends Comparable<T>> extends CCAField {
 
-	private T min;
-	private T max;
+	private List<T> minMax = new ArrayList<>();
 
-	/** 
-	 * This method is for getting minimum and maximum for the generic type T
-	 * Used only for the validation purpose.
+	/**
+	 * This method is for getting minimum and maximum for the generic type T Used
+	 * only for the validation purpose.
+	 * 
 	 * @return
 	 */
 	public abstract T fetchMaxRange();
 
 	public abstract T fetchMinRange();
 
-	public T getMin() {
-		return min;
+	@JsonIgnore
+	public boolean isMinMaxSet() {
+		return minMax != null && !minMax.isEmpty();
 	}
 
-	public void setMin(T min) {
-		this.min = min;
+	public List<T> getMinMax() {
+		return minMax;
 	}
 
-	public T getMax() {
-		return max;
-	}
-
-	public void setMax(T max) {
-		this.max = max;
+	public void setMinMax(List<T> minMax) {
+		this.minMax = minMax;
 	}
 
 }

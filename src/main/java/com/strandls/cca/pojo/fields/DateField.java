@@ -7,16 +7,16 @@ public class DateField extends RangableField<Date> {
 
 	@Override
 	public Date fetchMinRange() {
-		if (getMin() == null)
+		if (!isMinMaxSet())
 			return Date.from(Instant.EPOCH);
-		return getMin();
+		return getMinMax().get(0);
 	}
 
 	@Override
 	public Date fetchMaxRange() {
-		if (getMax() == null)
+		if (!isMinMaxSet() || getMinMax().size() < 2)
 			return new Date(Long.MAX_VALUE - 1);
-		return getMax();
+		return getMinMax().get(1);
 	}
 
 }
