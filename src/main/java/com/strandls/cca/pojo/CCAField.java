@@ -46,7 +46,7 @@ public abstract class CCAField implements IChildable<CCAField> {
 	private String fieldId;
 
 	private String name;
-	private Boolean isRequired;
+	private Boolean isRequired = false;
 	private String question;
 	private String helpText = "";
 	private Boolean isMasterField = false;

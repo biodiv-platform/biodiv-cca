@@ -1,6 +1,8 @@
 package com.strandls.cca.service.impl;
 
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -68,7 +70,15 @@ public class CCADataServiceImpl implements CCADataService {
 		String shortName = ccaData.getShortName();
 		CCATemplate ccaTemplate = ccaTemplateService.getCCAByShortName(shortName);
 
+		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+		
 		validateData(ccaData, ccaTemplate);
+		
+		Timestamp time = new Timestamp(new Date().getTime());
+		ccaData.setCreatedOn(time);
+		ccaData.setUpdatedOn(time);
+		
+		ccaData.setUserId(profile.getId());
 
 		return ccaDataDao.save(ccaData);
 	}
@@ -80,6 +90,9 @@ public class CCADataServiceImpl implements CCADataService {
 		CCATemplate ccaTemplate = ccaTemplateService.getCCAByShortName(shortName);
 
 		validateData(ccaData, ccaTemplate);
+		
+		Timestamp time = new Timestamp(new Date().getTime());
+		ccaData.setUpdatedOn(time);
 
 		return ccaDataDao.updateOne(ccaData);
 	}
