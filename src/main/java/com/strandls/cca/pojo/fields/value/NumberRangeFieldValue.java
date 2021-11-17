@@ -60,10 +60,21 @@ public class NumberRangeFieldValue extends CCAFieldValue {
 	private boolean isRanged(RangableField<Double> f) {
 		if (value.size() != 2)
 			return false;
+
 		Double min = value.get(0);
 		Double max = value.get(1);
-		return min < max && CCAUtil.isRanged(min, f.fetchMinRange(), f.fetchMaxRange())
-				&& CCAUtil.isRanged(max, f.fetchMinRange(), f.fetchMaxRange());
+
+		if (min == null && max == null) {
+			return true;
+		} else if (min != null && max != null) {
+			return min < max && CCAUtil.isRanged(min, f.fetchMinRange(), f.fetchMaxRange())
+					&& CCAUtil.isRanged(max, f.fetchMinRange(), f.fetchMaxRange());
+		} else if (min == null) {
+			return CCAUtil.isRanged(max, f.fetchMinRange(), f.fetchMaxRange());
+		} else {
+			return CCAUtil.isRanged(min, f.fetchMinRange(), f.fetchMaxRange());
+		}
+
 	}
 
 }
