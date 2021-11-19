@@ -16,7 +16,7 @@ public abstract class ValueOptionsField extends CCAField {
 			throw new IllegalArgumentException("Value options not provided");
 	}
 
-	public boolean contains(String value) {
+	public boolean contains(ValueWithLabel value) {
 		for (ValueWithLabel valueWithLabel : valueOptions) {
 			if (valueWithLabel.belongs(value))
 				return true;

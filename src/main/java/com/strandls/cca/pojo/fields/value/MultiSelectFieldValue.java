@@ -54,7 +54,7 @@ public class MultiSelectFieldValue extends CCAFieldValue {
 			return false;
 
 		for (ValueWithLabel v : value) {
-			if (!((ValueOptionsField) field).contains(v.getLabel()))
+			if (!((ValueOptionsField) field).contains(v))
 				return false;
 		}
 

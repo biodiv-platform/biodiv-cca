@@ -2,9 +2,9 @@ package com.strandls.cca.pojo;
 
 public class ValueWithLabel {
 
+	private static final String OTHER_VALUE = "Other|?";
 	private String label;
 	private String value;
-	// private JacksonDBObject<Object> value;
 
 	public String getLabel() {
 		return label;
@@ -22,8 +22,10 @@ public class ValueWithLabel {
 		this.value = value;
 	}
 
-	public boolean belongs(String value) {
-		return label.toLowerCase().trim().equals(value.toLowerCase().trim());
+	public boolean belongs(ValueWithLabel valueWithLabel) {
+		if (OTHER_VALUE.equals(valueWithLabel.getValue()) && OTHER_VALUE.equals(getValue()))
+			return true;
+		return label.toLowerCase().trim().equals(valueWithLabel.getLabel().toLowerCase().trim());
 	}
 
 }

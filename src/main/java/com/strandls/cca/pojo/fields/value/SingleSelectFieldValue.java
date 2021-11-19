@@ -38,7 +38,7 @@ public class SingleSelectFieldValue extends CCAFieldValue {
 		if (!(field instanceof ValueOptionsField))
 			return false;
 
-		return ((ValueOptionsField) field).contains(value.getLabel());
+		return ((ValueOptionsField) field).contains(value);
 	}
 
 	public ValueWithLabel getValue() {
