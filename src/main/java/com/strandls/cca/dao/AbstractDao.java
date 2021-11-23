@@ -59,7 +59,7 @@ public abstract class AbstractDao<T extends IdInterface> {
 	}
 
 	public T remove(T t) {
-		DeleteResult dResult = dbCollection.deleteOne(Filters.eq("id", t.getId()));
+		DeleteResult dResult = dbCollection.deleteOne(Filters.eq("_id", t.getId()));
 		if (dResult.getDeletedCount() == 0) {
 			throw new IllegalArgumentException("Can't delete object, it is not existing the system");
 		}
