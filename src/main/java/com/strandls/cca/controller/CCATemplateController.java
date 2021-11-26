@@ -6,6 +6,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -56,10 +57,10 @@ public class CCATemplateController {
 
 	@GET
 	@Path("/all")
-	
+
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
-	
+
 	@ValidateUser
 
 	@ApiOperation(value = "Find CCA METADATA by ID", notes = "Returns CCA field details", response = CCATemplate.class, responseContainer = "List")
@@ -80,18 +81,19 @@ public class CCATemplateController {
 
 	@GET
 	@Path("/{shortName}")
-	
+
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 
 	@ValidateUser
-	
+
 	@ApiOperation(value = "Find CCA METADATA by ID", notes = "Returns CCA field details", response = CCATemplate.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "CCA field not found", response = String.class) })
 
-	public Response getCCATemplateById(@Context HttpServletRequest request, @PathParam("shortName") String shortName) {
+	public Response getCCATemplateById(@Context HttpServletRequest request, @PathParam("shortName") String shortName,
+			@DefaultValue("en") @QueryParam("languageCode") String languageCode) {
 		try {
-			CCATemplate ccaTemplate = ccaContextService.getCCAByShortName(shortName);
+			CCATemplate ccaTemplate = ccaContextService.getCCAByShortName(shortName, languageCode);
 			return Response.status(Status.OK).entity(ccaTemplate).build();
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(
@@ -104,17 +106,18 @@ public class CCATemplateController {
 
 	@POST
 	@Path("/save")
-	
+
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	
+
 	@ValidateUser
 
 	@ApiOperation(value = "Create the cca template", notes = "Returns CCA template created fields", response = CCATemplate.class)
 	@ApiResponses(value = {
 			@ApiResponse(code = 404, message = "Could not create the CCA template", response = String.class) })
 
-	public Response createCCATemplate(@Context HttpServletRequest request, @ApiParam("ccaTemplate") CCATemplate ccaMasterField) {
+	public Response createCCATemplate(@Context HttpServletRequest request,
+			@ApiParam("ccaTemplate") CCATemplate ccaMasterField) {
 		try {
 			ccaMasterField = ccaContextService.save(ccaMasterField);
 			return Response.status(Status.OK).entity(ccaMasterField).build();
@@ -129,17 +132,18 @@ public class CCATemplateController {
 
 	@PUT
 	@Path("/update")
-	
+
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	
+
 	@ValidateUser
 
 	@ApiOperation(value = "Update the cca template", notes = "Returns CCA Template and its fields", response = CCATemplate.class)
 	@ApiResponses(value = {
 			@ApiResponse(code = 404, message = "Could not save the CCA Template", response = String.class) })
 
-	public Response updateCCATemplate(@Context HttpServletRequest request, @ApiParam("ccaTemplate") CCATemplate ccaMasterField) {
+	public Response updateCCATemplate(@Context HttpServletRequest request,
+			@ApiParam("ccaTemplate") CCATemplate ccaMasterField) {
 		try {
 			ccaMasterField = ccaContextService.update(ccaMasterField);
 			return Response.status(Status.OK).entity(ccaMasterField).build();
@@ -154,10 +158,10 @@ public class CCATemplateController {
 
 	@DELETE
 	@Path("/delete/{shortName}")
-	
+
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	
+
 	@ValidateUser
 
 	@ApiOperation(value = "Delete the cca template", notes = "Returns delelted CCA Template", response = CCATemplate.class)

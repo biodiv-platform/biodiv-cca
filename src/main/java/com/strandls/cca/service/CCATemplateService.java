@@ -14,7 +14,7 @@ import com.strandls.cca.pojo.Platform;
  */
 public interface CCATemplateService {
 
-	public CCATemplate getCCAByShortName(String ccaId);
+	public CCATemplate getCCAByShortName(String ccaId, String language);
 
 	public CCATemplate update(CCATemplate ccaMetaData);
 

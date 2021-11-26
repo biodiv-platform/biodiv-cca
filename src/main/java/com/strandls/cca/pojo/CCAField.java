@@ -1,14 +1,21 @@
 package com.strandls.cca.pojo;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bson.codecs.pojo.annotations.BsonDiscriminator;
+import org.bson.codecs.pojo.annotations.BsonIgnore;
+import org.bson.codecs.pojo.annotations.BsonProperty;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import com.strandls.cca.ApiConstants;
+import com.strandls.cca.CCAConfig;
 import com.strandls.cca.FieldConstants;
 import com.strandls.cca.pojo.fields.CheckboxField;
 import com.strandls.cca.pojo.fields.DateField;
@@ -39,22 +46,66 @@ import com.strandls.cca.pojo.fields.TextField;
 		@JsonSubTypes.Type(value = RichtextField.class, name = FieldConstants.RICHTEXT),
 		@JsonSubTypes.Type(value = SingleSelectField.class, name = FieldConstants.SINGLE_SELECT),
 		@JsonSubTypes.Type(value = TextField.class, name = FieldConstants.TEXT),
-		@JsonSubTypes.Type(value = TextAreaField.class, name = FieldConstants.TEXT_AREA)})
+		@JsonSubTypes.Type(value = TextAreaField.class, name = FieldConstants.TEXT_AREA) })
 @BsonDiscriminator()
 public abstract class CCAField implements IChildable<CCAField> {
 
 	private String fieldId;
 
+	/*
+	 * Not storing name, question and help text in the mongo DB Taking it from the
+	 * translation
+	 */
+	@BsonIgnore
 	private String name;
-	private Boolean isRequired = false;
+	@BsonIgnore
 	private String question;
+	@BsonIgnore
 	private String helpText = "";
+
+	private Boolean isRequired = false;
 	private Boolean isMasterField = false;
-	private Boolean isSummaryField =  false;
+	private Boolean isSummaryField = false;
 	private FieldType type;
 	private Date createOn;
 	private Date updatedOn;
 	private List<CCAField> children;
+
+	@JsonIgnore
+	@BsonProperty("translations")
+	private Map<String, CCAFieldTranslations> translations = new HashMap<>();
+
+	/**
+	 * Do the translation for CCA field
+	 * @param language
+	 * @return
+	 */
+	public CCAField translate(String language) {
+		CCAFieldTranslations ccaFieldTranslations = translations.get(language);
+		if (ccaFieldTranslations == null)
+			ccaFieldTranslations = translations.get(CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE));
+		return ccaFieldTranslations.translate(this);
+	}
+
+	/**
+	 * Add update the language for current field based
+	 * @param ccaField - This is the history node. Need to copy previous translation for this
+	 * @param language - Language for translation
+	 * @return
+	 */
+	public CCAField addUpdateTranslation(CCAField ccaField, String language) {
+		// Add previous translation to the current field
+		if (ccaField != null)
+			getTranslations().putAll(ccaField.getTranslations());
+
+		// Create the translation for given language.
+		CCAFieldTranslations ccaFieldTranslations = new CCAFieldTranslations();
+		ccaFieldTranslations.addUpdateTranslation(this);
+		getTranslations().put(language, ccaFieldTranslations);
+
+		// Translate the current node.
+		return translate(language);
+	}
 
 	public void validate() {
 		// Nothing to do here
@@ -146,6 +197,14 @@ public abstract class CCAField implements IChildable<CCAField> {
 
 	public void setChildren(List<CCAField> children) {
 		this.children = children;
+	}
+
+	public Map<String, CCAFieldTranslations> getTranslations() {
+		return translations;
+	}
+
+	public void setTranslations(Map<String, CCAFieldTranslations> translations) {
+		this.translations = translations;
 	}
 
 }

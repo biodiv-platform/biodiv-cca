@@ -14,6 +14,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.opencsv.CSVReader;
+import com.strandls.cca.ApiConstants;
+import com.strandls.cca.CCAConfig;
 import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCAFieldValue;
@@ -158,7 +160,8 @@ public class CSVFileUpload implements IFileUpload {
 	public List<CCAData> upload(CCATemplateService ccaTemplateService, CCADataService ccaDataService)
 			throws IOException {
 		if (this.ccaTemplate == null) {
-			this.ccaTemplate = ccaTemplateService.getCCAByShortName(metaData.getShortName());
+			this.ccaTemplate = ccaTemplateService.getCCAByShortName(metaData.getShortName(),
+					CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE));
 		}
 		FileValidationResponse fileValidationResponse = validate(ccaTemplate, ccaDataService);
 		return upload(fileValidationResponse, ccaDataService);

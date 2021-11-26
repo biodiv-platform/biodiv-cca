@@ -1,10 +1,38 @@
 package com.strandls.cca.pojo;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.bson.codecs.pojo.annotations.BsonIgnore;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.strandls.cca.ApiConstants;
+import com.strandls.cca.CCAConfig;
+
 public class ValueWithLabel {
 
 	private static final String OTHER_VALUE = "others|?";
+
+	@BsonIgnore
 	private String label;
 	private String value;
+
+	@JsonIgnore
+	private Map<String, String> translations = new HashMap<>();
+
+	public ValueWithLabel translate(String language) {
+		this.label = translations.get(language);
+		if (this.label == null)
+			this.label = translations.get(CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE));
+		return this;
+	}
+
+	public ValueWithLabel addUpdateTranslation(ValueWithLabel valueWithLabel, String language) {
+		if (valueWithLabel != null)
+			getTranslations().putAll(valueWithLabel.getTranslations());
+		getTranslations().put(language, label);
+		return translate(language);
+	}
 
 	public String getLabel() {
 		return label;
@@ -22,11 +50,22 @@ public class ValueWithLabel {
 		this.value = value;
 	}
 
+	public Map<String, String> getTranslations() {
+		return translations;
+	}
+
+	public void setTranslations(Map<String, String> labelTranslations) {
+		this.translations = labelTranslations;
+	}
+
+	// TODO : Need to make change for take into consideration the othe language as
+	// well.
 	public boolean belongs(ValueWithLabel valueWithLabel) {
 		if (OTHER_VALUE.equals(valueWithLabel.getValue().toLowerCase().replaceAll("\\s", ""))
 				&& OTHER_VALUE.equals(getValue().toLowerCase().replaceAll("\\s", "")))
 			return true;
-		return label.toLowerCase().trim().equals(valueWithLabel.getLabel().toLowerCase().trim());
+		String labelInDB = getTranslations().get(CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE));
+		return labelInDB.toLowerCase().trim().equals(valueWithLabel.getLabel().toLowerCase().trim());
 	}
 
 }

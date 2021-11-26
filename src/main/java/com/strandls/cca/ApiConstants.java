@@ -16,4 +16,6 @@ public class ApiConstants {
 	public static final String CCA = "/cca";
 	public static final String DATA = "/data";
 	public static final String TEMPLATE = "/template";
+	
+	public static final String DEFAULT_LANGUAGE = "default.language";
 }

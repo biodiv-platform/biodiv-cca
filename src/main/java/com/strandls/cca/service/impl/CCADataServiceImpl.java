@@ -17,6 +17,8 @@ import org.pac4j.core.profile.CommonProfile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.strandls.authentication_utility.util.AuthUtil;
+import com.strandls.cca.ApiConstants;
+import com.strandls.cca.CCAConfig;
 import com.strandls.cca.dao.CCADataDao;
 import com.strandls.cca.file.upload.FileUploadFactory;
 import com.strandls.cca.file.upload.IFileUpload;
@@ -68,16 +70,17 @@ public class CCADataServiceImpl implements CCADataService {
 	public CCAData save(HttpServletRequest request, CCAData ccaData) {
 
 		String shortName = ccaData.getShortName();
-		CCATemplate ccaTemplate = ccaTemplateService.getCCAByShortName(shortName);
+		CCATemplate ccaTemplate = ccaTemplateService.getCCAByShortName(shortName,
+				CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE));
 
 		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
-		
+
 		validateData(ccaData, ccaTemplate);
-		
+
 		Timestamp time = new Timestamp(new Date().getTime());
 		ccaData.setCreatedOn(time);
 		ccaData.setUpdatedOn(time);
-		
+
 		ccaData.setUserId(profile.getId());
 
 		return ccaDataDao.save(ccaData);
@@ -87,10 +90,11 @@ public class CCADataServiceImpl implements CCADataService {
 	public CCAData update(HttpServletRequest request, CCAData ccaData) {
 
 		String shortName = ccaData.getShortName();
-		CCATemplate ccaTemplate = ccaTemplateService.getCCAByShortName(shortName);
+		CCATemplate ccaTemplate = ccaTemplateService.getCCAByShortName(shortName,
+				CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE));
 
 		validateData(ccaData, ccaTemplate);
-		
+
 		Timestamp time = new Timestamp(new Date().getTime());
 		ccaData.setUpdatedOn(time);
 

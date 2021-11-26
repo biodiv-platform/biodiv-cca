@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.bson.types.ObjectId;
 
 import com.google.inject.Inject;
+import com.strandls.cca.ApiConstants;
+import com.strandls.cca.CCAConfig;
 import com.strandls.cca.FieldConstants;
 import com.strandls.cca.dao.CCATemplateDao;
 import com.strandls.cca.pojo.CCAField;
@@ -35,8 +37,9 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 	}
 
 	@Override
-	public CCATemplate getCCAByShortName(String ccaTemplate) {
-		return ccaTemplateDao.findByProperty(FieldConstants.SHORT_NAME, ccaTemplate);
+	public CCATemplate getCCAByShortName(String shortName, String language) {
+		CCATemplate ccaTemplate = ccaTemplateDao.findByProperty(FieldConstants.SHORT_NAME, shortName);
+		return ccaTemplate.translate(language);
 	}
 
 	@Override
@@ -49,6 +52,8 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 		if (template != null)
 			throw new IllegalArgumentException(
 					"Can't create new with same short name. Either update or create new one");
+
+		context.addUpdateTranslation(context, CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE));
 
 		validateField(context);
 		context.setCreateOn(new Timestamp(new Date().getTime()));
@@ -63,6 +68,12 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 		CCATemplate template = ccaTemplateDao.findByProperty(FieldConstants.SHORT_NAME, context.getShortName());
 		if (template == null)
 			throw new IllegalArgumentException("Can't update the template, template does not exit");
+
+		String language = context.getLanguage();
+		if (language == null)
+			language = CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE);
+
+		context.addUpdateTranslation(template, language);
 
 		validateField(context);
 		context.setUpdatedOn(new Timestamp(new Date().getTime()));

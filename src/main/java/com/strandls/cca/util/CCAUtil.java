@@ -33,4 +33,5 @@ public class CCAUtil {
 	public static boolean isRanged(Double date, Double min, Double max) {
 		return date.compareTo(min) >= 0 && date.compareTo(max) <= 0;
 	}
+
 }
