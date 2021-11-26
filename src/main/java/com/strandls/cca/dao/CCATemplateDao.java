@@ -30,7 +30,7 @@ public class CCATemplateDao extends AbstractDao<CCATemplate> {
 		return template;
 	}
 
-	public List<CCATemplate> getAllCCATemplateWithoutFields(Platform platform) {
+	public List<CCATemplate> getAllCCATemplateWithoutFields(Platform platform, String language) {
 		// Get all the document with id
 		Bson filters = Filters.exists("_id");
 

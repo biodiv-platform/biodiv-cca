@@ -64,6 +64,9 @@ public class CCATemplate implements IdInterface {
 		if (ccaTemplateTranslations == null) {
 			ccaTemplateTranslations = getTranslations().get(CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE));
 		}
+		if (ccaTemplateTranslations == null)
+			throw new IllegalArgumentException(
+					"No translation support for given language and default language as well for " + this.shortName);
 		return ccaTemplateTranslations.translate(this);
 	}
 

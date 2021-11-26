@@ -105,8 +105,18 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 	}
 
 	@Override
-	public List<CCATemplate> getAllCCATemplate(HttpServletRequest request, Platform platform) {
-		return ccaTemplateDao.getAllCCATemplateWithoutFields(platform);
+	public List<CCATemplate> getAllCCATemplate(HttpServletRequest request, Platform platform, String language) {
+
+		if (language == null)
+			language = CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE);
+
+		List<CCATemplate> templates = ccaTemplateDao.getAllCCATemplateWithoutFields(platform, language);
+
+		for (CCATemplate template : templates) {
+			template.translate(language);
+		}
+		
+		return templates;
 	}
 
 	@Override

@@ -77,6 +77,7 @@ public abstract class CCAField implements IChildable<CCAField> {
 
 	/**
 	 * Do the translation for CCA field
+	 * 
 	 * @param language
 	 * @return
 	 */
@@ -84,12 +85,18 @@ public abstract class CCAField implements IChildable<CCAField> {
 		CCAFieldTranslations ccaFieldTranslations = translations.get(language);
 		if (ccaFieldTranslations == null)
 			ccaFieldTranslations = translations.get(CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE));
+		if (ccaFieldTranslations == null)
+			throw new IllegalArgumentException(
+					"No translation support for given language and default language as well for + " + this.name
+							+ " Id : " + this.fieldId);
 		return ccaFieldTranslations.translate(this);
 	}
 
 	/**
 	 * Add update the language for current field based
-	 * @param ccaField - This is the history node. Need to copy previous translation for this
+	 * 
+	 * @param ccaField - This is the history node. Need to copy previous translation
+	 *                 for this
 	 * @param language - Language for translation
 	 * @return
 	 */

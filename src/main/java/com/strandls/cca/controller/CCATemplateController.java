@@ -66,9 +66,10 @@ public class CCATemplateController {
 	@ApiOperation(value = "Find CCA METADATA by ID", notes = "Returns CCA field details", response = CCATemplate.class, responseContainer = "List")
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "CCA field not found", response = String.class) })
 
-	public Response getAllCCATemplate(@Context HttpServletRequest request, @QueryParam("platform") Platform plateform) {
+	public Response getAllCCATemplate(@Context HttpServletRequest request, @QueryParam("platform") Platform plateform,
+			@QueryParam("language") String language) {
 		try {
-			List<CCATemplate> ccaTemplate = ccaContextService.getAllCCATemplate(request, plateform);
+			List<CCATemplate> ccaTemplate = ccaContextService.getAllCCATemplate(request, plateform, language);
 			return Response.status(Status.OK).entity(ccaTemplate).build();
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(
@@ -91,9 +92,9 @@ public class CCATemplateController {
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "CCA field not found", response = String.class) })
 
 	public Response getCCATemplateById(@Context HttpServletRequest request, @PathParam("shortName") String shortName,
-			@DefaultValue("en") @QueryParam("languageCode") String languageCode) {
+			@DefaultValue("en") @QueryParam("language") String language) {
 		try {
-			CCATemplate ccaTemplate = ccaContextService.getCCAByShortName(shortName, languageCode);
+			CCATemplate ccaTemplate = ccaContextService.getCCAByShortName(shortName, language);
 			return Response.status(Status.OK).entity(ccaTemplate).build();
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(
