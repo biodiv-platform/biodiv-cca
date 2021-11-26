@@ -3,8 +3,6 @@ package com.strandls.cca.pojo;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bson.codecs.pojo.annotations.BsonIgnore;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.CCAConfig;
@@ -13,7 +11,6 @@ public class ValueWithLabel {
 
 	private static final String OTHER_VALUE = "others|?";
 
-	@BsonIgnore
 	private String label;
 	private String value;
 
