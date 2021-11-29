@@ -53,9 +53,12 @@ public class CCADataServiceImpl implements CCADataService {
 		return ccaDataDao.getAll(uriInfo);
 	}
 
+	/**
+	 * Passing master as default now.. May need to change as per need
+	 */
 	@Override
 	public List<CCAData> getAllCCA(HttpServletRequest request, IFilter ccaFilters) {
-		return ccaDataDao.getAll(ccaFilters);
+		return ccaDataDao.getAll(ccaFilters, "master");
 	}
 
 	@Override
