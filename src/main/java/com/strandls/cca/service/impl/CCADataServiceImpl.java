@@ -92,7 +92,7 @@ public class CCADataServiceImpl implements CCADataService {
 		Timestamp time = new Timestamp(new Date().getTime());
 		ccaData.setUpdatedOn(time);
 
-		return ccaDataDao.updateOne(ccaData);
+		return ccaDataDao.replaceOne(ccaData);
 	}
 
 	@Override
@@ -147,7 +147,7 @@ public class CCADataServiceImpl implements CCADataService {
 	public CCAData remove(String id) {
 		CCAData data = ccaDataDao.findByProperty("_id", id);
 		data.setIsDeleted(true);
-		return ccaDataDao.updateOne(data);
+		return ccaDataDao.replaceOne(data);
 	}
 
 	@Override

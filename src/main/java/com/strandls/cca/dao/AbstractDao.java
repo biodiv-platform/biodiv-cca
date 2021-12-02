@@ -79,8 +79,4 @@ public abstract class AbstractDao<T extends IdInterface> {
 		}
 		return t;
 	}
-
-	public T updateOne(T t) {
-		return t;
-	}
 }
