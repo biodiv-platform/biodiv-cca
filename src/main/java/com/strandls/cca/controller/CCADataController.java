@@ -8,6 +8,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -96,7 +97,7 @@ public class CCADataController {
 		}
 	}
 
-	@POST
+	@PUT
 	@Path("/update")
 
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -104,7 +105,7 @@ public class CCADataController {
 
 	@ValidateUser
 
-	@ApiOperation(value = "Save the cca data", notes = "Returns CCA data fields", response = CCAData.class)
+	@ApiOperation(value = "Update the cca data", notes = "Returns CCA data fields", response = CCAData.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not save the data", response = String.class) })
 
 	public Response updateCCAData(@Context HttpServletRequest request, @ApiParam("ccaData") CCAData ccaData) {
