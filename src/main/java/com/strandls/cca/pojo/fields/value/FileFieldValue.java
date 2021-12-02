@@ -1,23 +1,27 @@
 package com.strandls.cca.pojo.fields.value;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.strandls.cca.pojo.CCAFieldValue;
 
 public class FileFieldValue extends CCAFieldValue {
 
-	private String value;
+	private List<String> value;
 
 	public FileFieldValue() {
 	}
 
 	public FileFieldValue(String dataValue) {
-		this.value = dataValue;
+		List<String> files = Arrays.asList(dataValue.split(","));
+		this.value = files;
 	}
 
-	public String getValue() {
+	public List<String> getValue() {
 		return value;
 	}
 
-	public void setValue(String value) {
+	public void setValue(List<String> value) {
 		this.value = value;
 	}
 
