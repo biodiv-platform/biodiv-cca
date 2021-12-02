@@ -66,8 +66,10 @@ public abstract class CCAField implements IChildable<CCAField> {
 	private Boolean isRequired = false;
 	private Boolean isMasterField = false;
 	private Boolean isSummaryField = false;
+	private Boolean isFilterable = false;
+
 	private FieldType type;
-	private Date createOn;
+	private Date createdOn;
 	private Date updatedOn;
 	private List<CCAField> children;
 
@@ -174,6 +176,14 @@ public abstract class CCAField implements IChildable<CCAField> {
 		this.isSummaryField = isSummaryField;
 	}
 
+	public Boolean getIsFilterable() {
+		return isFilterable;
+	}
+
+	public void setIsFilterable(Boolean isFilterable) {
+		this.isFilterable = isFilterable;
+	}
+
 	public FieldType getType() {
 		return type;
 	}
@@ -182,12 +192,12 @@ public abstract class CCAField implements IChildable<CCAField> {
 		this.type = type;
 	}
 
-	public Date getCreateOn() {
-		return createOn;
+	public Date getCreatedOn() {
+		return createdOn;
 	}
 
-	public void setCreateOn(Date createOn) {
-		this.createOn = createOn;
+	public void setCreatedOn(Date createOn) {
+		this.createdOn = createOn;
 	}
 
 	public Date getUpdatedOn() {

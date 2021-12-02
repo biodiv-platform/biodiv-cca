@@ -13,7 +13,7 @@ public class AndFilter extends CompoundFilter {
 	public Bson getFilter() {
 		List<Bson> andFilters = new ArrayList<>();
 		for (IFilter filter : getFilters()) {
-			andFilters.add(Filters.and(filter.getFilter()));
+			andFilters.add(filter.getFilter());
 		}
 		return Filters.and(andFilters);
 	}

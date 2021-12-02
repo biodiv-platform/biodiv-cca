@@ -16,12 +16,16 @@ public interface CCATemplateService {
 
 	public CCATemplate getCCAByShortName(String ccaId, String language);
 
-	public CCATemplate update(CCATemplate ccaMetaData);
+	public CCATemplate update(HttpServletRequest request, CCATemplate ccaMetaData);
 
-	public CCATemplate save(CCATemplate ccaMasterField);
+	public CCATemplate save(HttpServletRequest request, CCATemplate ccaMasterField);
 
 	public List<CCATemplate> getAllCCATemplate(HttpServletRequest request, Platform plateform, String language);
 
-	public CCATemplate remove(String shortName);
+	public CCATemplate remove(HttpServletRequest request, String shortName);
+
+	public CCATemplate deepRemove(HttpServletRequest request, String shortName);
+
+	public CCATemplate revoke(HttpServletRequest request, String shortName);
 
 }

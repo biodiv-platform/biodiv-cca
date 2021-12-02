@@ -2,6 +2,7 @@ package com.strandls.cca;
 
 /**
  * This many number of field type and operation type we are supporting as of now
+ * 
  * @author vilay
  *
  */
@@ -27,12 +28,5 @@ public class FieldConstants {
 	public static final String AND = "AND";
 	public static final String OR = "OR";
 	public static final String GENERIC = "GENERIC";
-	
-	public static final String SHORT_NAME = "shortName";
-	public static final String VALUE = "value";
-	
-	
-	public static final String VIEW_TEMPLATE = "viewTemplate";
-	public static final String FILTER_TEMPLATE = "filterTemplate";
 
 }

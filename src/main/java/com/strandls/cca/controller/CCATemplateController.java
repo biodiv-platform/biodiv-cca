@@ -120,7 +120,7 @@ public class CCATemplateController {
 	public Response createCCATemplate(@Context HttpServletRequest request,
 			@ApiParam("ccaTemplate") CCATemplate ccaMasterField) {
 		try {
-			ccaMasterField = ccaContextService.save(ccaMasterField);
+			ccaMasterField = ccaContextService.save(request, ccaMasterField);
 			return Response.status(Status.OK).entity(ccaMasterField).build();
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(
@@ -146,7 +146,57 @@ public class CCATemplateController {
 	public Response updateCCATemplate(@Context HttpServletRequest request,
 			@ApiParam("ccaTemplate") CCATemplate ccaMasterField) {
 		try {
-			ccaMasterField = ccaContextService.update(ccaMasterField);
+			ccaMasterField = ccaContextService.update(request, ccaMasterField);
+			return Response.status(Status.OK).entity(ccaMasterField).build();
+		} catch (IllegalArgumentException e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
+		} catch (Exception e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+		}
+	}
+
+	@PUT
+	@Path("/revoke/{shortName}")
+
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+
+	@ApiOperation(value = "Delete the cca template(Mark as deleted)", notes = "Returns delelted CCA Template", response = CCATemplate.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 404, message = "Could not delete the CCA Template", response = String.class) })
+
+	public Response revokeCCATemplate(@Context HttpServletRequest request, @PathParam("shortName") String shortName) {
+		try {
+			CCATemplate ccaMasterField = ccaContextService.revoke(request, shortName);
+			return Response.status(Status.OK).entity(ccaMasterField).build();
+		} catch (IllegalArgumentException e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
+		} catch (Exception e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+		}
+	}
+	
+	@DELETE
+	@Path("/delete/{shortName}")
+
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+
+	@ApiOperation(value = "Delete the cca template(Mark as deleted)", notes = "Returns delelted CCA Template", response = CCATemplate.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 404, message = "Could not delete the CCA Template", response = String.class) })
+
+	public Response removeCCATemplate(@Context HttpServletRequest request, @PathParam("shortName") String shortName) {
+		try {
+			CCATemplate ccaMasterField = ccaContextService.remove(request, shortName);
 			return Response.status(Status.OK).entity(ccaMasterField).build();
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(
@@ -158,20 +208,21 @@ public class CCATemplateController {
 	}
 
 	@DELETE
-	@Path("/delete/{shortName}")
+	@Path("/delete/deep/{shortName}")
 
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 
 	@ValidateUser
 
-	@ApiOperation(value = "Delete the cca template", notes = "Returns delelted CCA Template", response = CCATemplate.class)
+	@ApiOperation(value = "Delete the cca template completely", notes = "Returns delelted CCA Template", response = CCATemplate.class)
 	@ApiResponses(value = {
 			@ApiResponse(code = 404, message = "Could not delete the CCA Template", response = String.class) })
 
-	public Response removeCCATemplate(@Context HttpServletRequest request, @PathParam("shortName") String shortName) {
+	public Response deepRemoveCCATemplate(@Context HttpServletRequest request,
+			@PathParam("shortName") String shortName) {
 		try {
-			CCATemplate ccaMasterField = ccaContextService.remove(shortName);
+			CCATemplate ccaMasterField = ccaContextService.deepRemove(request, shortName);
 			return Response.status(Status.OK).entity(ccaMasterField).build();
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(

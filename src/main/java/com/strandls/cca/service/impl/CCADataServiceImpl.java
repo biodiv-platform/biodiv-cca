@@ -26,7 +26,6 @@ import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.CCATemplate;
-import com.strandls.cca.pojo.filter.IFilter;
 import com.strandls.cca.service.CCADataService;
 import com.strandls.cca.service.CCATemplateService;
 
@@ -51,14 +50,6 @@ public class CCADataServiceImpl implements CCADataService {
 	@Override
 	public List<CCAData> getAllCCA(HttpServletRequest request, UriInfo uriInfo) throws JsonProcessingException {
 		return ccaDataDao.getAll(uriInfo);
-	}
-
-	/**
-	 * Passing master as default now.. May need to change as per need
-	 */
-	@Override
-	public List<CCAData> getAllCCA(HttpServletRequest request, IFilter ccaFilters) {
-		return ccaDataDao.getAll(ccaFilters, "master");
 	}
 
 	@Override
@@ -145,16 +136,18 @@ public class CCADataServiceImpl implements CCADataService {
 					field.getName() + " " + field.getFieldId() + " : Failed in value validation");
 		}
 	}
-
+	
 	@Override
-	public CCAData remove(CCAData ccaData) {
-		return ccaDataDao.remove(ccaData);
+	public CCAData deepRemove(String id) {
+		CCAData data = ccaDataDao.findByProperty("_id", id);
+		return ccaDataDao.remove(data);
 	}
-
+	
 	@Override
 	public CCAData remove(String id) {
 		CCAData data = ccaDataDao.findByProperty("_id", id);
-		return remove(data);
+		data.setIsDeleted(true);
+		return ccaDataDao.updateOne(data);
 	}
 
 	@Override

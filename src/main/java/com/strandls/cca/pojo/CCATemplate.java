@@ -1,28 +1,23 @@
 package com.strandls.cca.pojo;
 
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.codecs.pojo.annotations.BsonIgnore;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.CCAConfig;
-import com.strandls.cca.IdInterface;
 import com.strandls.cca.util.DFSTreeIterator;
 
-public class CCATemplate implements IdInterface {
-
-	@BsonId
-	private String id;
+public class CCATemplate extends BaseEntity {
 
 	/*
-	 * Taking the name description from the translations
+	 * Taking the name and description from the translations
 	 */
 	@BsonIgnore
 	private String name;
@@ -33,11 +28,7 @@ public class CCATemplate implements IdInterface {
 
 	private List<Platform> platform;
 
-	private Date createOn;
-
-	private Date updatedOn;
-
-	private List<CCAField> fields;
+	private List<CCAField> fields = new ArrayList<>();
 
 	@BsonIgnore
 	private String language;
@@ -121,17 +112,6 @@ public class CCATemplate implements IdInterface {
 		return fieldsMap;
 	}
 
-	/**
-	 * From here we have all the getter and setter
-	 */
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
 	public String getName() {
 		return name;
 	}
@@ -162,22 +142,6 @@ public class CCATemplate implements IdInterface {
 
 	public void setPlatform(List<Platform> platform) {
 		this.platform = platform;
-	}
-
-	public Date getCreateOn() {
-		return createOn;
-	}
-
-	public void setCreateOn(Date createOn) {
-		this.createOn = createOn;
-	}
-
-	public Date getUpdatedOn() {
-		return updatedOn;
-	}
-
-	public void setUpdatedOn(Date updatedOn) {
-		this.updatedOn = updatedOn;
 	}
 
 	public List<CCAField> getFields() {

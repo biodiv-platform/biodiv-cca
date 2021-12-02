@@ -10,11 +10,13 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 
 import org.bson.types.ObjectId;
+import org.pac4j.core.profile.CommonProfile;
 
 import com.google.inject.Inject;
+import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.CCAConfig;
-import com.strandls.cca.FieldConstants;
+import com.strandls.cca.CCAConstants;
 import com.strandls.cca.dao.CCATemplateDao;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCATemplate;
@@ -38,17 +40,19 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 
 	@Override
 	public CCATemplate getCCAByShortName(String shortName, String language) {
-		CCATemplate ccaTemplate = ccaTemplateDao.findByProperty(FieldConstants.SHORT_NAME, shortName);
+		CCATemplate ccaTemplate = ccaTemplateDao.findByProperty(CCAConstants.SHORT_NAME, shortName);
 		return ccaTemplate.translate(language);
 	}
 
 	@Override
-	public CCATemplate save(CCATemplate context) {
+	public CCATemplate save(HttpServletRequest request, CCATemplate context) {
+		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+
 		if (context.getId() == null) {
 			ObjectId id = new ObjectId();
 			context.setId(id.toHexString());
 		}
-		CCATemplate template = ccaTemplateDao.findByProperty(FieldConstants.SHORT_NAME, context.getShortName());
+		CCATemplate template = ccaTemplateDao.findByProperty(CCAConstants.SHORT_NAME, context.getShortName());
 		if (template != null)
 			throw new IllegalArgumentException(
 					"Can't create new with same short name. Either update or create new one");
@@ -56,16 +60,17 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 		context.addUpdateTranslation(context, CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE));
 
 		validateField(context);
-		context.setCreateOn(new Timestamp(new Date().getTime()));
+		context.setCreatedOn(new Timestamp(new Date().getTime()));
 		context.setUpdatedOn(new Timestamp(new Date().getTime()));
+		context.setUserId(profile.getId());
 
 		return ccaTemplateDao.save(context);
 
 	}
 
 	@Override
-	public CCATemplate update(CCATemplate context) {
-		CCATemplate template = ccaTemplateDao.findByProperty(FieldConstants.SHORT_NAME, context.getShortName());
+	public CCATemplate update(HttpServletRequest request, CCATemplate context) {
+		CCATemplate template = ccaTemplateDao.findByProperty(CCAConstants.SHORT_NAME, context.getShortName());
 		if (template == null)
 			throw new IllegalArgumentException("Can't update the template, template does not exit");
 
@@ -91,8 +96,8 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 
 			// Update the time-stamp
 			Timestamp currentTime = new Timestamp(new Date().getTime());
-			if (ccaField.getCreateOn() == null) {
-				ccaField.setCreateOn(currentTime);
+			if (ccaField.getCreatedOn() == null) {
+				ccaField.setCreatedOn(currentTime);
 				ccaField.setUpdatedOn(currentTime);
 			} else
 				ccaField.setUpdatedOn(currentTime);
@@ -115,13 +120,23 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 		for (CCATemplate template : templates) {
 			template.translate(language);
 		}
-		
+
 		return templates;
+	}
+	
+	@Override
+	public CCATemplate revoke(HttpServletRequest request, String shortName) {
+		return ccaTemplateDao.revoke(shortName);
 	}
 
 	@Override
-	public CCATemplate remove(String shortName) {
-		return ccaTemplateDao.removeByShortName(shortName);
+	public CCATemplate remove(HttpServletRequest request, String shortName) {
+		return ccaTemplateDao.remove(shortName);
+	}
+
+	@Override
+	public CCATemplate deepRemove(HttpServletRequest request, String shortName) {
+		return ccaTemplateDao.deepRemoveByShortName(shortName);
 	}
 
 }

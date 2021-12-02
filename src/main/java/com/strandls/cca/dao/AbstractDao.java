@@ -3,6 +3,7 @@ package com.strandls.cca.dao;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 import com.google.inject.Inject;
@@ -11,6 +12,7 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
+import com.strandls.cca.CCAConstants;
 import com.strandls.cca.IdInterface;
 
 public abstract class AbstractDao<T extends IdInterface> {
@@ -23,7 +25,9 @@ public abstract class AbstractDao<T extends IdInterface> {
 	}
 
 	public T findByProperty(String shortName, Object value) {
-		return dbCollection.find(Filters.eq(shortName, value)).first();
+		Bson isDeleted = Filters.eq(CCAConstants.IS_DELETED, false);
+		Bson filter = Filters.eq(shortName, value);
+		return dbCollection.find(Filters.and(isDeleted, filter)).first();
 	}
 
 	public T getById(String id) {
@@ -31,11 +35,13 @@ public abstract class AbstractDao<T extends IdInterface> {
 	}
 
 	public List<T> getAll(int limit, int offset) {
-		return dbCollection.find().skip(offset).batchSize(limit).into(new ArrayList<T>());
+		Bson filters = Filters.eq(CCAConstants.IS_DELETED, false);
+		return dbCollection.find(filters).skip(offset).batchSize(limit).into(new ArrayList<T>());
 	}
 
 	public List<T> getAll() {
-		return dbCollection.find().into(new ArrayList<T>());
+		Bson filters = Filters.eq(CCAConstants.IS_DELETED, false);
+		return dbCollection.find(filters).into(new ArrayList<T>());
 	}
 
 	public T save(T t) {

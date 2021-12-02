@@ -13,7 +13,7 @@ public class OrFilter extends CompoundFilter {
 	public Bson getFilter() {
 		List<Bson> orFilters = new ArrayList<>();
 		for (IFilter filter : getFilters()) {
-			orFilters.add(Filters.and(filter.getFilter()));
+			orFilters.add(filter.getFilter());
 		}
 		return Filters.or(orFilters);
 

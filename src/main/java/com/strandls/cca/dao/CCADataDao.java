@@ -14,7 +14,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Projections;
+import com.strandls.cca.CCAConstants;
 import com.strandls.cca.FieldConstants;
 import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.CCAField;
@@ -40,9 +42,14 @@ public class CCADataDao extends AbstractDao<CCAData> {
 		super(CCAData.class, db);
 	}
 
-	public List<CCAData> getAll(IFilter ccaFilters, String shortName) {
+	private List<CCAData> getAll(IFilter ccaFilters, String shortName) {
+
+		// Add isDeleted filter here
+		Bson isDeleted = Filters.or(Filters.exists(CCAConstants.IS_DELETED, false),
+				Filters.eq(CCAConstants.IS_DELETED, false));
 
 		Bson filters = ccaFilters.getFilter();
+		filters = Filters.and(filters, isDeleted);
 
 		Bson projections = getProjectionsForListPage(shortName);
 
@@ -66,9 +73,9 @@ public class CCADataDao extends AbstractDao<CCAData> {
 
 		// Take a master template as reference and get all the isSummary column to be
 		// projected.
-		if(shortName == null)
-			shortName = "master";
-		CCATemplate ccaTemplate = templateDao.findByProperty(FieldConstants.SHORT_NAME, shortName);
+		if (shortName == null)
+			shortName = CCAConstants.MASTER;
+		CCATemplate ccaTemplate = templateDao.findByProperty(CCAConstants.SHORT_NAME, shortName);
 		Iterator<CCAField> it = ccaTemplate.iterator();
 		while (it.hasNext()) {
 			CCAField ccaField = it.next();
@@ -82,11 +89,12 @@ public class CCADataDao extends AbstractDao<CCAData> {
 	}
 
 	/**
-	 * Create the filter based on query paramter given
+	 * Create the filter based on query parameter given
 	 * 
-	 * filterTemplate - This is used as reference to create all the filter. (Default to master)
-	 * viewTemplate - This is used as reference to view the list data. (Default to master)
-	 * shortName - User can pass the short name as well. We'll get only data from the given short Name
+	 * filterTemplate - This is used as reference to create all the filter. (Default
+	 * to master) viewTemplate - This is used as reference to view the list data.
+	 * (Default to master) shortName - User can pass the short name as well. We'll
+	 * get only data from the given short Name
 	 * 
 	 * @param uriInfo
 	 * @return
@@ -95,28 +103,22 @@ public class CCADataDao extends AbstractDao<CCAData> {
 	 */
 	public List<CCAData> getAll(UriInfo uriInfo) throws JsonProcessingException {
 
-		JSONObject filterObject = new JSONObject();
-		filterObject.appendField("type", OperatorType.AND);
-
 		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
-		if (queryParameter.isEmpty()) {
-			return getAll();
-		}
 
 		String viewTemplate;
-		if (queryParameter.containsKey(FieldConstants.VIEW_TEMPLATE)) {
-			viewTemplate = queryParameter.getFirst(FieldConstants.VIEW_TEMPLATE);
-		} else 
-			viewTemplate = "master";
-		
+		if (queryParameter.containsKey(CCAConstants.VIEW_TEMPLATE)) {
+			viewTemplate = queryParameter.getFirst(CCAConstants.VIEW_TEMPLATE);
+		} else
+			viewTemplate = CCAConstants.MASTER;
+
 		// Take a master template as reference and create the filter
 		String filterTemplate;
-		if(queryParameter.containsKey(FieldConstants.FILTER_TEMPLATE)) {
-			filterTemplate = queryParameter.getFirst(FieldConstants.FILTER_TEMPLATE);
-		} else 
-			filterTemplate = "master";
-		
-		CCATemplate ccaTemplate = templateDao.findByProperty(FieldConstants.SHORT_NAME, filterTemplate);
+		if (queryParameter.containsKey(CCAConstants.FILTER_TEMPLATE)) {
+			filterTemplate = queryParameter.getFirst(CCAConstants.FILTER_TEMPLATE);
+		} else
+			filterTemplate = CCAConstants.MASTER;
+
+		CCATemplate ccaTemplate = templateDao.findByProperty(CCAConstants.SHORT_NAME, filterTemplate);
 
 		JSONArray filterArray = new JSONArray();
 		Iterator<CCAField> templateIt = ccaTemplate.iterator();
@@ -131,20 +133,35 @@ public class CCADataDao extends AbstractDao<CCAData> {
 			}
 		}
 
-		if (queryParameter.containsKey(FieldConstants.SHORT_NAME)) {
-			JSONObject filter = new JSONObject();
-			filter.appendField("type", "GENERIC");
-			filter.appendField("fieldName", FieldConstants.SHORT_NAME);
-			filter.appendField("value", queryParameter.get(FieldConstants.SHORT_NAME).get(0));
+		if (queryParameter.containsKey(CCAConstants.SHORT_NAME)) {
+			JSONObject filter = getShortNameFilter(queryParameter);
 			filterArray.add(filter);
 		}
 
+		// Create the And filter for all the filter.
+		JSONObject filterObject = new JSONObject();
+		filterObject.appendField(CCAConstants.TYPE, OperatorType.AND);
 		filterObject.appendField("filters", filterArray);
 
 		IFilter filter = objectMapper.readValue(filterObject.toJSONString(), IFilter.class);
 		return getAll(filter, viewTemplate);
 	}
 
+	private JSONObject getShortNameFilter(MultivaluedMap<String, String> queryParameter) {
+		JSONObject filter = new JSONObject();
+		filter.appendField(CCAConstants.TYPE, FieldConstants.GENERIC);
+		filter.appendField(CCAConstants.FIELD_NAME, CCAConstants.SHORT_NAME);
+		filter.appendField(CCAConstants.VALUE, queryParameter.get(CCAConstants.SHORT_NAME).get(0));
+		return filter;
+	}
+
+	/**
+	 * Creating filter based on its type
+	 * 
+	 * @param values
+	 * @param field
+	 * @return
+	 */
 	private List<JSONObject> getFilters(List<String> values, CCAField field) {
 
 		List<JSONObject> filterArray = new ArrayList<>();

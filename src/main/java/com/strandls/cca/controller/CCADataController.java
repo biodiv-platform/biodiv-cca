@@ -23,7 +23,6 @@ import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.pojo.CCAData;
-import com.strandls.cca.pojo.filter.IFilter;
 import com.strandls.cca.service.CCADataService;
 
 import io.swagger.annotations.Api;
@@ -87,25 +86,6 @@ public class CCADataController {
 	public Response getCCAData(@Context HttpServletRequest request, @Context UriInfo uriInfo) {
 		try {
 			List<CCAData> ccaData = ccaDataService.getAllCCA(request, uriInfo);
-			return Response.status(Status.OK).entity(ccaData).build();
-		} catch (IllegalArgumentException e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
-		} catch (Exception e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
-		}
-	}
-
-	@POST
-	@Path("/all")
-
-	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Get the cca data", notes = "Returns CCA data fields", response = CCAData.class, responseContainer = "List")
-	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
-	public Response getCCAData(@Context HttpServletRequest request, IFilter ccaFilters) {
-		try {
-			List<CCAData> ccaData = ccaDataService.getAllCCA(request, ccaFilters);
 			return Response.status(Status.OK).entity(ccaData).build();
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(
@@ -196,12 +176,36 @@ public class CCADataController {
 
 	@ValidateUser
 
-	@ApiOperation(value = "Delete the cca data", notes = "Returns CCA Deleted cca", response = CCAData.class)
+	@ApiOperation(value = "Delete the cca data (Mark as read)", notes = "Returns CCA Deleted cca", response = CCAData.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not delete the data", response = String.class) })
 
 	public Response removeCCAData(@Context HttpServletRequest request, @PathParam("id") String id) {
 		try {
 			CCAData ccaData = ccaDataService.remove(id);
+			return Response.status(Status.OK).entity(ccaData).build();
+		} catch (IllegalArgumentException e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
+		} catch (Exception e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+		}
+	}
+	
+	@DELETE
+	@Path("/delete/deep/{id}")
+
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+
+	@ApiOperation(value = "Delete the cca data completely", notes = "Returns CCA Deleted cca", response = CCAData.class)
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not delete the data", response = String.class) })
+
+	public Response deepRemoveCCAData(@Context HttpServletRequest request, @PathParam("id") String id) {
+		try {
+			CCAData ccaData = ccaDataService.deepRemove(id);
 			return Response.status(Status.OK).entity(ccaData).build();
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(
