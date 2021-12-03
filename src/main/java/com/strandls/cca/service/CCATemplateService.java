@@ -20,7 +20,7 @@ public interface CCATemplateService {
 
 	public CCATemplate save(HttpServletRequest request, CCATemplate ccaMasterField);
 
-	public List<CCATemplate> getAllCCATemplate(HttpServletRequest request, Platform plateform, String language);
+	public List<CCATemplate> getAllCCATemplate(HttpServletRequest request, Platform plateform, String language, Boolean excludeFields);
 
 	public CCATemplate remove(HttpServletRequest request, String shortName);
 

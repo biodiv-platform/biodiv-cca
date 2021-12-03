@@ -26,7 +26,7 @@ public class CCATemplateDao extends AbstractDao<CCATemplate> {
 		template.setIsDeleted(false);
 		return replaceOne(template);
 	}
-	
+
 	public CCATemplate remove(String shortName) {
 		CCATemplate template = dbCollection.find(Filters.eq(CCAConstants.SHORT_NAME, shortName)).first();
 		template.setIsDeleted(true);
@@ -42,7 +42,7 @@ public class CCATemplateDao extends AbstractDao<CCATemplate> {
 		return template;
 	}
 
-	public List<CCATemplate> getAllCCATemplateWithoutFields(Platform platform, String language) {
+	public List<CCATemplate> getAllCCATemplateWithoutFields(Platform platform, Boolean excludeFields) {
 		// Get all the document with is deleted as false
 		Bson filters = Filters.eq(CCAConstants.IS_DELETED, false);
 
@@ -50,9 +50,11 @@ public class CCATemplateDao extends AbstractDao<CCATemplate> {
 		if (platform != null)
 			filters = Filters.and(filters, Filters.eq("platform", platform.name()));
 
-		return dbCollection.find(filters).projection(Projections.exclude("fields")).into(new ArrayList<CCATemplate>());
+		if (excludeFields.booleanValue())
+			return dbCollection.find(filters).projection(Projections.exclude("fields"))
+					.into(new ArrayList<CCATemplate>());
+		else
+			return dbCollection.find(filters).into(new ArrayList<CCATemplate>());
 	}
-
-
 
 }

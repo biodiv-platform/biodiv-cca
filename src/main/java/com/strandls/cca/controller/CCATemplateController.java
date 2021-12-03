@@ -67,9 +67,10 @@ public class CCATemplateController {
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "CCA field not found", response = String.class) })
 
 	public Response getAllCCATemplate(@Context HttpServletRequest request, @QueryParam("platform") Platform plateform,
-			@QueryParam("language") String language) {
+			@QueryParam("language") String language,
+			@DefaultValue("true") @QueryParam("excludeFields") Boolean excludeFields) {
 		try {
-			List<CCATemplate> ccaTemplate = ccaContextService.getAllCCATemplate(request, plateform, language);
+			List<CCATemplate> ccaTemplate = ccaContextService.getAllCCATemplate(request, plateform, language, excludeFields);
 			return Response.status(Status.OK).entity(ccaTemplate).build();
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(
@@ -181,7 +182,7 @@ public class CCATemplateController {
 					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
 		}
 	}
-	
+
 	@DELETE
 	@Path("/delete/{shortName}")
 
