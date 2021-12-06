@@ -91,8 +91,15 @@ public class CCADataServiceImpl implements CCADataService {
 
 		Timestamp time = new Timestamp(new Date().getTime());
 		ccaData.setUpdatedOn(time);
+		
+		if(ccaData.getId() == null)
+			throw new IllegalArgumentException("Please specify the id for cca data");
+		
+		CCAData dataInMem = ccaDataDao.getById(ccaData.getId());
+		
+		dataInMem = dataInMem.overrideFieldData(ccaData);
 
-		return ccaDataDao.replaceOne(ccaData);
+		return ccaDataDao.replaceOne(dataInMem);
 	}
 
 	@Override

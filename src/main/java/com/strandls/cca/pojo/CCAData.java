@@ -24,4 +24,11 @@ public class CCAData extends BaseEntity {
 		this.ccaFieldValues = ccaFieldValues;
 	}
 
+	public CCAData overrideFieldData(CCAData ccaData) {
+		for (Map.Entry<String, CCAFieldValue> e : ccaData.getCcaFieldValues().entrySet()) {
+			this.ccaFieldValues.put(e.getKey(), e.getValue());
+		}
+		return this;
+	}
+
 }

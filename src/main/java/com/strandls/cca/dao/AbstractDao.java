@@ -23,6 +23,10 @@ public abstract class AbstractDao<T extends IdInterface> {
 	protected AbstractDao(Class<T> collectionType, MongoDatabase db) {
 		this.dbCollection = db.getCollection(collectionType.getSimpleName(), collectionType);
 	}
+	
+	private Bson getIdFilter(String id) {
+		return Filters.eq("_id", id);
+	}
 
 	public T findByProperty(String shortName, Object value) {
 		Bson isDeleted = Filters.eq(CCAConstants.IS_DELETED, false);
@@ -31,7 +35,7 @@ public abstract class AbstractDao<T extends IdInterface> {
 	}
 
 	public T getById(String id) {
-		return dbCollection.find(Filters.eq("id", id)).first();
+		return dbCollection.find(getIdFilter(id)).first();
 	}
 
 	public List<T> getAll(int limit, int offset) {
@@ -65,7 +69,7 @@ public abstract class AbstractDao<T extends IdInterface> {
 	}
 
 	public T remove(T t) {
-		DeleteResult dResult = dbCollection.deleteOne(Filters.eq("_id", t.getId()));
+		DeleteResult dResult = dbCollection.deleteOne(getIdFilter(t.getId()));
 		if (dResult.getDeletedCount() == 0) {
 			throw new IllegalArgumentException("Can't delete object, it is not existing the system");
 		}
@@ -73,7 +77,7 @@ public abstract class AbstractDao<T extends IdInterface> {
 	}
 
 	public T replaceOne(T t) {
-		UpdateResult updateResult = dbCollection.replaceOne(Filters.eq("_id", t.getId()), t);
+		UpdateResult updateResult = dbCollection.replaceOne(getIdFilter(t.getId()), t);
 		if (updateResult.getMatchedCount() != 1) {
 			throw new IllegalArgumentException("Could not found the result");
 		}
