@@ -22,6 +22,7 @@ import javax.ws.rs.core.Response.Status;
 
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.cca.ApiConstants;
+import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.cca.pojo.Platform;
 import com.strandls.cca.service.CCATemplateService;
@@ -56,6 +57,31 @@ public class CCATemplateController {
 	}
 
 	@GET
+	@Path("/filter/fields")
+
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+
+	@ApiOperation(value = "Find CCA METADATA by ID", notes = "Returns all filterable CCA fields", response = CCAField.class, responseContainer = "List")
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "CCA field not found", response = String.class) })
+
+	public Response getFilterableFields(@Context HttpServletRequest request, @QueryParam("shortName") String shortName,
+			@QueryParam("language") String language) {
+		try {
+			List<CCAField> ccaFields = ccaContextService.getFilterableFields(request, shortName, language);
+			return Response.status(Status.OK).entity(ccaFields).build();
+		} catch (IllegalArgumentException e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
+		} catch (Exception e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+		}
+	}
+
+	@GET
 	@Path("/all")
 
 	@Consumes(MediaType.TEXT_PLAIN)
@@ -70,7 +96,8 @@ public class CCATemplateController {
 			@QueryParam("language") String language,
 			@DefaultValue("true") @QueryParam("excludeFields") Boolean excludeFields) {
 		try {
-			List<CCATemplate> ccaTemplate = ccaContextService.getAllCCATemplate(request, plateform, language, excludeFields);
+			List<CCATemplate> ccaTemplate = ccaContextService.getAllCCATemplate(request, plateform, language,
+					excludeFields);
 			return Response.status(Status.OK).entity(ccaTemplate).build();
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(

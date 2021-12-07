@@ -22,7 +22,7 @@ public class DFSTreeIterator<T extends IChildable<T>> implements Iterator<T> {
 			return;
 
 		for (T d : data) {
-			this.data.addFirst(d);
+			this.data.addLast(d);
 			constructDFS(d.getChildren());
 		}
 	}

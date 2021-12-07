@@ -41,6 +41,8 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 	@Override
 	public CCATemplate getCCAByShortName(String shortName, String language) {
 		CCATemplate ccaTemplate = ccaTemplateDao.findByProperty(CCAConstants.SHORT_NAME, shortName);
+		if (language == null || "".equals(language))
+			language = CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE);
 		return ccaTemplate.translate(language);
 	}
 
@@ -110,7 +112,24 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 	}
 
 	@Override
-	public List<CCATemplate> getAllCCATemplate(HttpServletRequest request, Platform platform, String language, Boolean excludeFields) {
+	public List<CCAField> getFilterableFields(HttpServletRequest request, String shortName, String language) {
+		if (shortName == null || "".equals(shortName))
+			shortName = CCAConstants.MASTER;
+
+		CCATemplate ccaTemplate = getCCAByShortName(shortName, language);
+		Iterator<CCAField> it = ccaTemplate.iterator();
+		List<CCAField> ccaFields = new ArrayList<>();
+		while (it.hasNext()) {
+			CCAField ccaField = it.next();
+			if (ccaField.getIsFilterable().booleanValue())
+				ccaFields.add(ccaField);
+		}
+		return ccaFields;
+	}
+
+	@Override
+	public List<CCATemplate> getAllCCATemplate(HttpServletRequest request, Platform platform, String language,
+			Boolean excludeFields) {
 
 		if (language == null)
 			language = CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE);
@@ -123,7 +142,7 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 
 		return templates;
 	}
-	
+
 	@Override
 	public CCATemplate revoke(HttpServletRequest request, String shortName) {
 		return ccaTemplateDao.revoke(shortName);
