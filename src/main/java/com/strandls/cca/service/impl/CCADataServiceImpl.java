@@ -2,6 +2,7 @@ package com.strandls.cca.service.impl;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -26,6 +27,7 @@ import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.CCATemplate;
+import com.strandls.cca.pojo.response.CCADataList;
 import com.strandls.cca.service.CCADataService;
 import com.strandls.cca.service.CCATemplateService;
 
@@ -48,8 +50,18 @@ public class CCADataServiceImpl implements CCADataService {
 	}
 
 	@Override
-	public List<CCAData> getAllCCA(HttpServletRequest request, UriInfo uriInfo) throws JsonProcessingException {
-		return ccaDataDao.getAll(uriInfo);
+	public List<CCADataList> getAllCCA(HttpServletRequest request, UriInfo uriInfo) throws JsonProcessingException {
+		List<CCAData> ccaDatas = ccaDataDao.getAll(uriInfo);
+		return mergeToCCADataList(ccaDatas);
+	}
+
+	private List<CCADataList> mergeToCCADataList(List<CCAData> ccaDatas) {
+		List<CCADataList> result = new ArrayList<>();
+		for (CCAData ccaData : ccaDatas) {
+			CCADataList listCard = new CCADataList(ccaData);
+			result.add(listCard);
+		}
+		return result;
 	}
 
 	@Override
@@ -91,12 +103,12 @@ public class CCADataServiceImpl implements CCADataService {
 
 		Timestamp time = new Timestamp(new Date().getTime());
 		ccaData.setUpdatedOn(time);
-		
-		if(ccaData.getId() == null)
+
+		if (ccaData.getId() == null)
 			throw new IllegalArgumentException("Please specify the id for cca data");
-		
+
 		CCAData dataInMem = ccaDataDao.getById(ccaData.getId());
-		
+
 		dataInMem = dataInMem.overrideFieldData(ccaData);
 
 		return ccaDataDao.replaceOne(dataInMem);
@@ -143,13 +155,13 @@ public class CCADataServiceImpl implements CCADataService {
 					field.getName() + " " + field.getFieldId() + " : Failed in value validation");
 		}
 	}
-	
+
 	@Override
 	public CCAData deepRemove(String id) {
 		CCAData data = ccaDataDao.findByProperty("_id", id);
 		return ccaDataDao.remove(data);
 	}
-	
+
 	@Override
 	public CCAData remove(String id) {
 		CCAData data = ccaDataDao.findByProperty("_id", id);

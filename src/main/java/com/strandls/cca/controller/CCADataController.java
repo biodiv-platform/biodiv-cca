@@ -24,6 +24,7 @@ import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.pojo.CCAData;
+import com.strandls.cca.pojo.response.CCADataList;
 import com.strandls.cca.service.CCADataService;
 
 import io.swagger.annotations.Api;
@@ -82,11 +83,11 @@ public class CCADataController {
 	@Path("/all")
 
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Get the cca data", notes = "Returns CCA data fields", response = CCAData.class, responseContainer = "List")
+	@ApiOperation(value = "Get the cca data", notes = "Returns CCA data fields", response = CCADataList.class, responseContainer = "List")
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
 	public Response getCCAData(@Context HttpServletRequest request, @Context UriInfo uriInfo) {
 		try {
-			List<CCAData> ccaData = ccaDataService.getAllCCA(request, uriInfo);
+			List<CCADataList> ccaData = ccaDataService.getAllCCA(request, uriInfo);
 			return Response.status(Status.OK).entity(ccaData).build();
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(

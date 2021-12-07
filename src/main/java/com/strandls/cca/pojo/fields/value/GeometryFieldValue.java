@@ -20,6 +20,7 @@ public class GeometryFieldValue extends CCAFieldValue {
 	private FeatureCollection value;
 
 	public GeometryFieldValue() {
+		this.value = new FeatureCollection();
 	}
 
 	public GeometryFieldValue(String dataValue) {
