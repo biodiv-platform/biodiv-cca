@@ -42,7 +42,7 @@ public class CCADataDao extends AbstractDao<CCAData> {
 		super(CCAData.class, db);
 	}
 
-	private List<CCAData> getAll(IFilter ccaFilters, String shortName) {
+	private List<CCAData> getAll(IFilter ccaFilters, String shortName, boolean projectAll) {
 
 		// Add isDeleted filter here
 		Bson isDeleted = Filters.or(Filters.exists(CCAConstants.IS_DELETED, false),
@@ -51,7 +51,9 @@ public class CCADataDao extends AbstractDao<CCAData> {
 		Bson filters = ccaFilters.getFilter();
 		filters = Filters.and(filters, isDeleted);
 
-		Bson projections = getProjectionsForListPage(shortName);
+		Bson projections = null;
+		if (!projectAll)
+			projections = getProjectionsForListPage(shortName);
 
 		return dbCollection.find(filters).projection(projections).into(new ArrayList<CCAData>());
 	}
@@ -101,7 +103,7 @@ public class CCADataDao extends AbstractDao<CCAData> {
 	 * @throws JsonProcessingException
 	 * @throws JsonMappingException
 	 */
-	public List<CCAData> getAll(UriInfo uriInfo) throws JsonProcessingException {
+	public List<CCAData> getAll(UriInfo uriInfo, boolean projectAll) throws JsonProcessingException {
 
 		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
 
@@ -144,7 +146,7 @@ public class CCADataDao extends AbstractDao<CCAData> {
 		filterObject.appendField("filters", filterArray);
 
 		IFilter filter = objectMapper.readValue(filterObject.toJSONString(), IFilter.class);
-		return getAll(filter, viewTemplate);
+		return getAll(filter, viewTemplate, projectAll);
 	}
 
 	private JSONObject getShortNameFilter(MultivaluedMap<String, String> queryParameter) {

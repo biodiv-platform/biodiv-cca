@@ -17,4 +17,5 @@ public final class CCAConstants {
 	
 	public static final String FIELD_NAME = "fieldName";
 	public static final String TYPE = "type";
+	public static final String PROJECT_ALL = "projectAll";
 }

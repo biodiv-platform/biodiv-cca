@@ -80,14 +80,33 @@ public class CCADataController {
 	}
 
 	@GET
-	@Path("/all")
+	@Path("/list")
 
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get the cca data", notes = "Returns CCA data fields", response = CCADataList.class, responseContainer = "List")
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
-	public Response getCCAData(@Context HttpServletRequest request, @Context UriInfo uriInfo) {
+	public Response getCCADataList(@Context HttpServletRequest request, @Context UriInfo uriInfo) {
 		try {
-			List<CCADataList> ccaData = ccaDataService.getAllCCA(request, uriInfo);
+			List<CCADataList> ccaData = ccaDataService.getCCADataList(request, uriInfo);
+			return Response.status(Status.OK).entity(ccaData).build();
+		} catch (IllegalArgumentException e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
+		} catch (Exception e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+		}
+	}
+
+	@GET
+	@Path("/all")
+
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get the cca data", notes = "Returns CCA data along with all the fields", response = CCAData.class, responseContainer = "List")
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
+	public Response getCCADataDump(@Context HttpServletRequest request, @Context UriInfo uriInfo) {
+		try {
+			List<CCAData> ccaData = ccaDataService.getAllCCAData(request, uriInfo);
 			return Response.status(Status.OK).entity(ccaData).build();
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(
@@ -193,7 +212,7 @@ public class CCADataController {
 					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
 		}
 	}
-	
+
 	@DELETE
 	@Path("/delete/deep/{id}")
 

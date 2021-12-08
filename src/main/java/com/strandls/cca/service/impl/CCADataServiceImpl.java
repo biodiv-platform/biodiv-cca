@@ -50,8 +50,14 @@ public class CCADataServiceImpl implements CCADataService {
 	}
 
 	@Override
-	public List<CCADataList> getAllCCA(HttpServletRequest request, UriInfo uriInfo) throws JsonProcessingException {
-		List<CCAData> ccaDatas = ccaDataDao.getAll(uriInfo);
+	public List<CCAData> getAllCCAData(HttpServletRequest request, UriInfo uriInfo) throws JsonProcessingException {
+		return ccaDataDao.getAll(uriInfo, true);
+	}
+
+	@Override
+	public List<CCADataList> getCCADataList(HttpServletRequest request, UriInfo uriInfo)
+			throws JsonProcessingException {
+		List<CCAData> ccaDatas = ccaDataDao.getAll(uriInfo, false);
 		return mergeToCCADataList(ccaDatas);
 	}
 

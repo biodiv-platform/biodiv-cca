@@ -25,7 +25,9 @@ public interface CCADataService {
 
 	public CCAData remove(String id);
 
-	public List<CCADataList> getAllCCA(HttpServletRequest request, UriInfo uriInfo) throws JsonProcessingException;
+	public List<CCAData> getAllCCAData(HttpServletRequest request, UriInfo uriInfo) throws JsonProcessingException;
+
+	public List<CCADataList> getCCADataList(HttpServletRequest request, UriInfo uriInfo) throws JsonProcessingException;
 
 	public List<CCAData> insertBulk(List<CCAData> ccaDatas);
 
