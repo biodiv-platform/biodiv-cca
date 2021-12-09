@@ -144,8 +144,8 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 	}
 
 	@Override
-	public CCATemplate revoke(HttpServletRequest request, String shortName) {
-		return ccaTemplateDao.revoke(shortName);
+	public CCATemplate restore(HttpServletRequest request, String shortName) {
+		return ccaTemplateDao.restore(shortName);
 	}
 
 	@Override

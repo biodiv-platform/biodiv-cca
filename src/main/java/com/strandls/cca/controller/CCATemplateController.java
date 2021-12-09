@@ -1,5 +1,6 @@
 package com.strandls.cca.controller;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -26,6 +27,8 @@ import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.cca.pojo.Platform;
 import com.strandls.cca.service.CCATemplateService;
+import com.strandls.cca.util.AuthorizationUtil;
+import com.strandls.cca.util.Permissions;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -96,9 +99,15 @@ public class CCATemplateController {
 			@QueryParam("language") String language,
 			@DefaultValue("true") @QueryParam("excludeFields") Boolean excludeFields) {
 		try {
-			List<CCATemplate> ccaTemplate = ccaContextService.getAllCCATemplate(request, plateform, language,
-					excludeFields);
-			return Response.status(Status.OK).entity(ccaTemplate).build();
+			if (AuthorizationUtil.checkAuthorization(request,
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_TEMPLATECURATOR), null)) {
+				List<CCATemplate> ccaTemplate = ccaContextService.getAllCCATemplate(request, plateform, language,
+						excludeFields);
+				return Response.status(Status.OK).entity(ccaTemplate).build();
+			} else {
+				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
+						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
+			}
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(
 					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
@@ -146,10 +155,16 @@ public class CCATemplateController {
 			@ApiResponse(code = 404, message = "Could not create the CCA template", response = String.class) })
 
 	public Response createCCATemplate(@Context HttpServletRequest request,
-			@ApiParam("ccaTemplate") CCATemplate ccaMasterField) {
+			@ApiParam("ccaTemplate") CCATemplate ccaTemplate) {
 		try {
-			ccaMasterField = ccaContextService.save(request, ccaMasterField);
-			return Response.status(Status.OK).entity(ccaMasterField).build();
+			if (AuthorizationUtil.checkAuthorization(request,
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_TEMPLATECURATOR), null)) {
+				ccaTemplate = ccaContextService.save(request, ccaTemplate);
+				return Response.status(Status.OK).entity(ccaTemplate).build();
+			} else {
+				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
+						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
+			}
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(
 					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
@@ -172,10 +187,16 @@ public class CCATemplateController {
 			@ApiResponse(code = 404, message = "Could not save the CCA Template", response = String.class) })
 
 	public Response updateCCATemplate(@Context HttpServletRequest request,
-			@ApiParam("ccaTemplate") CCATemplate ccaMasterField) {
+			@ApiParam("ccaTemplate") CCATemplate ccaTemplate) {
 		try {
-			ccaMasterField = ccaContextService.update(request, ccaMasterField);
-			return Response.status(Status.OK).entity(ccaMasterField).build();
+			if (AuthorizationUtil.checkAuthorization(request,
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_TEMPLATECURATOR), null)) {
+				ccaTemplate = ccaContextService.update(request, ccaTemplate);
+				return Response.status(Status.OK).entity(ccaTemplate).build();
+			} else {
+				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
+						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
+			}
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(
 					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
@@ -186,21 +207,27 @@ public class CCATemplateController {
 	}
 
 	@PUT
-	@Path("/revoke/{shortName}")
+	@Path("/restore/{shortName}")
 
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 
 	@ValidateUser
 
-	@ApiOperation(value = "Delete the cca template(Mark as deleted)", notes = "Returns delelted CCA Template", response = CCATemplate.class)
+	@ApiOperation(value = "Restore the cca template(Which was marked as deleted)", notes = "Returns deleted CCA Template", response = CCATemplate.class)
 	@ApiResponses(value = {
 			@ApiResponse(code = 404, message = "Could not delete the CCA Template", response = String.class) })
 
-	public Response revokeCCATemplate(@Context HttpServletRequest request, @PathParam("shortName") String shortName) {
+	public Response restoreCCATemplate(@Context HttpServletRequest request, @PathParam("shortName") String shortName) {
 		try {
-			CCATemplate ccaMasterField = ccaContextService.revoke(request, shortName);
-			return Response.status(Status.OK).entity(ccaMasterField).build();
+			if (AuthorizationUtil.checkAuthorization(request,
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_TEMPLATECURATOR), null)) {
+				CCATemplate ccaMasterField = ccaContextService.restore(request, shortName);
+				return Response.status(Status.OK).entity(ccaMasterField).build();
+			} else {
+				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
+						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
+			}
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(
 					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
@@ -224,8 +251,14 @@ public class CCATemplateController {
 
 	public Response removeCCATemplate(@Context HttpServletRequest request, @PathParam("shortName") String shortName) {
 		try {
-			CCATemplate ccaMasterField = ccaContextService.remove(request, shortName);
-			return Response.status(Status.OK).entity(ccaMasterField).build();
+			if (AuthorizationUtil.checkAuthorization(request,
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_TEMPLATECURATOR), null)) {
+				CCATemplate ccaMasterField = ccaContextService.remove(request, shortName);
+				return Response.status(Status.OK).entity(ccaMasterField).build();
+			} else {
+				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
+						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
+			}
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(
 					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
@@ -250,8 +283,13 @@ public class CCATemplateController {
 	public Response deepRemoveCCATemplate(@Context HttpServletRequest request,
 			@PathParam("shortName") String shortName) {
 		try {
-			CCATemplate ccaMasterField = ccaContextService.deepRemove(request, shortName);
-			return Response.status(Status.OK).entity(ccaMasterField).build();
+			if (AuthorizationUtil.checkAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN), null)) {
+				CCATemplate ccaMasterField = ccaContextService.deepRemove(request, shortName);
+				return Response.status(Status.OK).entity(ccaMasterField).build();
+			} else {
+				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
+						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
+			}
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(
 					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());

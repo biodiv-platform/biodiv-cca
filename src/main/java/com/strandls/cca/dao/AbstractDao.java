@@ -23,8 +23,8 @@ public abstract class AbstractDao<T extends IdInterface> {
 	protected AbstractDao(Class<T> collectionType, MongoDatabase db) {
 		this.dbCollection = db.getCollection(collectionType.getSimpleName(), collectionType);
 	}
-	
-	private Bson getIdFilter(String id) {
+
+	protected Bson getIdFilter(String id) {
 		return Filters.eq("_id", id);
 	}
 

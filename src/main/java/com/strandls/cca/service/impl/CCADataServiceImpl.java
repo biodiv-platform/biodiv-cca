@@ -51,13 +51,21 @@ public class CCADataServiceImpl implements CCADataService {
 
 	@Override
 	public List<CCAData> getAllCCAData(HttpServletRequest request, UriInfo uriInfo) throws JsonProcessingException {
-		return ccaDataDao.getAll(uriInfo, true);
+		return ccaDataDao.getAll(uriInfo, true, null);
+	}
+
+	@Override
+	public List<CCADataList> getMyCCADataList(HttpServletRequest request, UriInfo uriInfo)
+			throws JsonProcessingException {
+		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+		List<CCAData> ccaDatas = ccaDataDao.getAll(uriInfo, false, profile.getId());
+		return mergeToCCADataList(ccaDatas);
 	}
 
 	@Override
 	public List<CCADataList> getCCADataList(HttpServletRequest request, UriInfo uriInfo)
 			throws JsonProcessingException {
-		List<CCAData> ccaDatas = ccaDataDao.getAll(uriInfo, false);
+		List<CCAData> ccaDatas = ccaDataDao.getAll(uriInfo, false, null);
 		return mergeToCCADataList(ccaDatas);
 	}
 
@@ -163,16 +171,18 @@ public class CCADataServiceImpl implements CCADataService {
 	}
 
 	@Override
-	public CCAData deepRemove(String id) {
-		CCAData data = ccaDataDao.findByProperty("_id", id);
-		return ccaDataDao.remove(data);
+	public CCAData restore(String id) {
+		return ccaDataDao.restore(id);
 	}
 
 	@Override
 	public CCAData remove(String id) {
-		CCAData data = ccaDataDao.findByProperty("_id", id);
-		data.setIsDeleted(true);
-		return ccaDataDao.replaceOne(data);
+		return ccaDataDao.remove(id);
+	}
+
+	@Override
+	public CCAData deepRemove(String id) {
+		return ccaDataDao.deepRemove(id);
 	}
 
 	@Override

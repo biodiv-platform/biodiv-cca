@@ -30,6 +30,6 @@ public interface CCATemplateService {
 
 	public CCATemplate deepRemove(HttpServletRequest request, String shortName);
 
-	public CCATemplate revoke(HttpServletRequest request, String shortName);
+	public CCATemplate restore(HttpServletRequest request, String shortName);
 
 }

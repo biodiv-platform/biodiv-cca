@@ -9,7 +9,6 @@ import com.google.inject.Inject;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Projections;
-import com.mongodb.client.result.DeleteResult;
 import com.strandls.cca.CCAConstants;
 import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.cca.pojo.Platform;
@@ -21,7 +20,7 @@ public class CCATemplateDao extends AbstractDao<CCATemplate> {
 		super(CCATemplate.class, db);
 	}
 
-	public CCATemplate revoke(String shortName) {
+	public CCATemplate restore(String shortName) {
 		CCATemplate template = dbCollection.find(Filters.eq(CCAConstants.SHORT_NAME, shortName)).first();
 		template.setIsDeleted(false);
 		return replaceOne(template);
@@ -35,11 +34,7 @@ public class CCATemplateDao extends AbstractDao<CCATemplate> {
 
 	public CCATemplate deepRemoveByShortName(String shortName) {
 		CCATemplate template = dbCollection.find(Filters.eq(CCAConstants.SHORT_NAME, shortName)).first();
-		DeleteResult dResult = dbCollection.deleteOne(Filters.eq(CCAConstants.SHORT_NAME, shortName));
-		if (dResult.getDeletedCount() == 0) {
-			throw new IllegalArgumentException("Can't delete object, it is not existing the system");
-		}
-		return template;
+		return remove(template);
 	}
 
 	public List<CCATemplate> getAllCCATemplateWithoutFields(Platform platform, Boolean excludeFields) {

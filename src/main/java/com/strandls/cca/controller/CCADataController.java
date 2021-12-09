@@ -1,5 +1,6 @@
 package com.strandls.cca.controller;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -26,6 +27,8 @@ import com.strandls.cca.ApiConstants;
 import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.response.CCADataList;
 import com.strandls.cca.service.CCADataService;
+import com.strandls.cca.util.AuthorizationUtil;
+import com.strandls.cca.util.Permissions;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -69,6 +72,25 @@ public class CCADataController {
 	public Response getCCAData(@Context HttpServletRequest request, @PathParam("id") String id) {
 		try {
 			CCAData ccaData = ccaDataService.findById(id);
+			return Response.status(Status.OK).entity(ccaData).build();
+		} catch (IllegalArgumentException e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
+		} catch (Exception e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+		}
+	}
+
+	@GET
+	@Path("/myList")
+	@ValidateUser
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get the cca data contributed by me", notes = "Returns CCA data contributed by me", response = CCADataList.class, responseContainer = "List")
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
+	public Response getMyCCADataList(@Context HttpServletRequest request, @Context UriInfo uriInfo) {
+		try {
+			List<CCADataList> ccaData = ccaDataService.getMyCCADataList(request, uriInfo);
 			return Response.status(Status.OK).entity(ccaData).build();
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(
@@ -130,8 +152,14 @@ public class CCADataController {
 
 	public Response updateCCAData(@Context HttpServletRequest request, @ApiParam("ccaData") CCAData ccaData) {
 		try {
-			ccaData = ccaDataService.update(request, ccaData);
-			return Response.status(Status.OK).entity(ccaData).build();
+			if (AuthorizationUtil.checkAuthorization(request,
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), ccaData.getId())) {
+				ccaData = ccaDataService.update(request, ccaData);
+				return Response.status(Status.OK).entity(ccaData).build();
+			} else {
+				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
+						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
+			}
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(
 					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
@@ -178,8 +206,43 @@ public class CCADataController {
 
 	public Response uploadCCADataFromFile(@Context HttpServletRequest request, final FormDataMultiPart multiPart) {
 		try {
-			List<CCAData> ccaData = ccaDataService.uploadCCADataFromFile(request, multiPart);
-			return Response.status(Status.OK).entity(ccaData).build();
+			if (AuthorizationUtil.checkAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN), null)) {
+				List<CCAData> ccaData = ccaDataService.uploadCCADataFromFile(request, multiPart);
+				return Response.status(Status.OK).entity(ccaData).build();
+			} else {
+				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
+						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
+			}
+		} catch (IllegalArgumentException e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
+		} catch (Exception e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+		}
+	}
+
+	@PUT
+	@Path("/restore/{id}")
+
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+
+	@ApiOperation(value = "Delete the cca data (Mark as read)", notes = "Returns CCA Deleted cca", response = CCAData.class)
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not delete the data", response = String.class) })
+
+	public Response restoreCCAData(@Context HttpServletRequest request, @PathParam("id") String id) {
+		try {
+			if (AuthorizationUtil.checkAuthorization(request,
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), id)) {
+				CCAData ccaData = ccaDataService.restore(id);
+				return Response.status(Status.OK).entity(ccaData).build();
+			} else {
+				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
+						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
+			}
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(
 					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
@@ -202,8 +265,14 @@ public class CCADataController {
 
 	public Response removeCCAData(@Context HttpServletRequest request, @PathParam("id") String id) {
 		try {
-			CCAData ccaData = ccaDataService.remove(id);
-			return Response.status(Status.OK).entity(ccaData).build();
+			if (AuthorizationUtil.checkAuthorization(request,
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), id)) {
+				CCAData ccaData = ccaDataService.remove(id);
+				return Response.status(Status.OK).entity(ccaData).build();
+			} else {
+				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
+						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
+			}
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(
 					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
@@ -226,8 +295,13 @@ public class CCADataController {
 
 	public Response deepRemoveCCAData(@Context HttpServletRequest request, @PathParam("id") String id) {
 		try {
-			CCAData ccaData = ccaDataService.deepRemove(id);
-			return Response.status(Status.OK).entity(ccaData).build();
+			if (AuthorizationUtil.checkAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN), null)) {
+				CCAData ccaData = ccaDataService.deepRemove(id);
+				return Response.status(Status.OK).entity(ccaData).build();
+			} else {
+				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
+						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
+			}
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(
 					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
