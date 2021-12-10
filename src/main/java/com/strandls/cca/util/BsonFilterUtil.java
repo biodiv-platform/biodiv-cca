@@ -90,9 +90,13 @@ public class BsonFilterUtil {
 		switch (fieldType) {
 		case CHECKBOX:
 		case MULTI_SELECT:
+			filter = getFilter(fieldId, fieldType, CompareOperator.IN, values);
+			filterArray.add(filter);
+			break;
+		case GEOMETRY:
 		case RADIO:
 		case SINGLE_SELECT:
-			filter = getFilter(fieldId, fieldType, CompareOperator.IN, values);
+			filter = getFilter(fieldId, fieldType, null, values.get(0));
 			filterArray.add(filter);
 			break;
 		case DATE:
@@ -108,10 +112,6 @@ public class BsonFilterUtil {
 		case RICHTEXT:
 			filter = getFilter(fieldId, fieldType, null, values.get(0));
 			filter.appendField("isExactMatch", false);
-			filterArray.add(filter);
-			break;
-		case GEOMETRY:
-			filter = getFilter(fieldId, fieldType, null, values);
 			filterArray.add(filter);
 			break;
 		case HEADING:

@@ -25,7 +25,7 @@ public class SingleSelectFilter extends Filter {
 	@Override
 	public Bson getFilter() {
 		String fieldHierarchy = getFieldHierarchy();
-		return Filters.eq(fieldHierarchy, value);
+		return Filters.in(fieldHierarchy, value);
 	}
 
 }
