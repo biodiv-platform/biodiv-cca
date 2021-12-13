@@ -97,15 +97,9 @@ public class CCATemplateController {
 			@QueryParam("language") String language,
 			@DefaultValue("true") @QueryParam("excludeFields") Boolean excludeFields) {
 		try {
-			if (AuthorizationUtil.checkAuthorization(request,
-					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_TEMPLATECURATOR), null)) {
-				List<CCATemplate> ccaTemplate = ccaContextService.getAllCCATemplate(request, plateform, language,
-						excludeFields);
-				return Response.status(Status.OK).entity(ccaTemplate).build();
-			} else {
-				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
-						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
-			}
+			List<CCATemplate> ccaTemplate = ccaContextService.getAllCCATemplate(request, plateform, language,
+					excludeFields);
+			return Response.status(Status.OK).entity(ccaTemplate).build();
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(
 					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
