@@ -19,4 +19,5 @@ public final class CCAConstants {
 	public static final String TYPE = "type";
 	public static final String PROJECT_ALL = "projectAll";
 	public static final Object USER_ID = "userId";
+	public static final Object ID = "_id";
 }

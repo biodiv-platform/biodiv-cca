@@ -22,6 +22,29 @@ public class BsonFilterUtil {
 	private BsonFilterUtil() {
 	}
 
+	public static JSONArray getDataIdsFilter(MultivaluedMap<String, String> queryParameter) {
+		JSONArray filterArray = new JSONArray();
+		if (!queryParameter.containsKey(CCAConstants.ID))
+			return filterArray;
+		
+		JSONArray orFilter = new JSONArray();
+		String [] ids = ((String) queryParameter.get(CCAConstants.ID).get(0)).split(",");
+		for(String id : ids) {
+			JSONObject idFilter = new JSONObject();
+			idFilter.appendField(CCAConstants.TYPE, FieldConstants.GENERIC);
+			idFilter.appendField(CCAConstants.FIELD_NAME, CCAConstants.ID);
+			idFilter.appendField(CCAConstants.VALUE, id);
+			orFilter.add(idFilter);			
+		}
+		
+		JSONObject filter = new JSONObject();
+		filter.appendField(CCAConstants.TYPE, FieldConstants.OR);
+		filter.appendField("filters", orFilter);
+		filterArray.add(filter);
+		
+		return filterArray;
+	}
+	
 	public static JSONArray getUserIdFilter(String userId) {
 		JSONArray filterArray = new JSONArray();
 		if (userId == null)
@@ -192,4 +215,5 @@ public class BsonFilterUtil {
 		filter.appendField("value", value);
 		return filter;
 	}
+
 }

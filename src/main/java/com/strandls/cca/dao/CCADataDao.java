@@ -74,6 +74,7 @@ public class CCADataDao extends AbstractDao<CCAData> {
 		JSONArray filterArray = BsonFilterUtil.getFilterFromFields(queryParameter, templateDao);
 		filterArray.addAll(BsonFilterUtil.getShortNameFilter(queryParameter));
 		filterArray.addAll(BsonFilterUtil.getUserIdFilter(userId));
+		filterArray.addAll(BsonFilterUtil.getDataIdsFilter(queryParameter));
 
 		// Create the And filter for all the filter.
 		JSONObject filterObject = new JSONObject();
