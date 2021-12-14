@@ -1,6 +1,7 @@
 package com.strandls.cca.pojo.response;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +18,9 @@ public class CCADataList {
 	private String shortName;
 	private String userId;
 
+	private Date createdOn;
+	private Date updatedOn;
+
 	private GeometryFieldValue geometry;
 	private List<FileMeta> files;
 	private List<CCAFieldValue> values;
@@ -25,6 +29,8 @@ public class CCADataList {
 		this.id = ccaData.getId();
 		this.shortName = ccaData.getShortName();
 		this.userId = ccaData.getUserId();
+		this.createdOn = ccaData.getCreatedOn();
+		this.updatedOn = ccaData.getUpdatedOn();
 
 		this.geometry = new GeometryFieldValue();
 		this.files = new ArrayList<>();
@@ -74,6 +80,22 @@ public class CCADataList {
 
 	public void setUserId(String userId) {
 		this.userId = userId;
+	}
+
+	public Date getCreatedOn() {
+		return createdOn;
+	}
+
+	public void setCreatedOn(Date createdOn) {
+		this.createdOn = createdOn;
+	}
+
+	public Date getUpdatedOn() {
+		return updatedOn;
+	}
+
+	public void setUpdatedOn(Date updatedOn) {
+		this.updatedOn = updatedOn;
 	}
 
 	public GeometryFieldValue getGeometry() {
