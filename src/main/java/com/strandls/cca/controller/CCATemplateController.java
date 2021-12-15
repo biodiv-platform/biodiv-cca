@@ -115,8 +115,6 @@ public class CCATemplateController {
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 
-	@ValidateUser
-
 	@ApiOperation(value = "Find CCA METADATA by ID", notes = "Returns CCA field details", response = CCATemplate.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "CCA field not found", response = String.class) })
 
