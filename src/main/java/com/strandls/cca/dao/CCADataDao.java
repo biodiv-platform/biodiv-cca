@@ -1,7 +1,9 @@
 package com.strandls.cca.dao;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.MultivaluedMap;
@@ -12,17 +14,13 @@ import org.bson.conversions.Bson;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Aggregates;
 import com.strandls.cca.CCAConstants;
 import com.strandls.cca.pojo.CCAData;
-import com.strandls.cca.pojo.filter.IFilter;
-import com.strandls.cca.pojo.filter.OperatorType;
-import com.strandls.cca.util.BsonFilterUtil;
 import com.strandls.cca.util.BsonProjectionUtil;
-
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
+import com.strandls.cca.util.CCAFilterUtil;
 
 public class CCADataDao extends AbstractDao<CCAData> {
 
@@ -37,20 +35,17 @@ public class CCADataDao extends AbstractDao<CCAData> {
 		super(CCAData.class, db);
 	}
 
-	private List<CCAData> getAll(IFilter ccaFilters, String shortName, boolean projectAll) {
+	public AggregateIterable<Map> getAggregation(UriInfo uriInfo, String userId) throws JsonProcessingException {
+		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
 
-		// Add isDeleted filter here
-		Bson isDeleted = Filters.or(Filters.exists(CCAConstants.IS_DELETED, false),
-				Filters.eq(CCAConstants.IS_DELETED, false));
+		Bson filters = CCAFilterUtil.getAllFilters(queryParameter, templateDao, objectMapper, userId);
+		Bson facet = CCAFilterUtil.getFacetListForFilterableFields(queryParameter, templateDao);
 
-		Bson filters = ccaFilters.getFilter();
-		filters = Filters.and(filters, isDeleted);
+		// Bson facet = Aggregates.facet(new Facet("a1", Aggregates.group("$userId",
+		// Accumulators.sum("count", 1))));
 
-		Bson projections = null;
-		if (!projectAll)
-			projections = BsonProjectionUtil.getProjectionsForListPage(templateDao, shortName);
-
-		return dbCollection.find(filters).projection(projections).into(new ArrayList<CCAData>());
+		Bson match = Aggregates.match(filters);
+		return dbCollection.aggregate(Arrays.asList(match, facet), Map.class);
 	}
 
 	/**
@@ -70,27 +65,19 @@ public class CCADataDao extends AbstractDao<CCAData> {
 
 		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
 
-		// Add all the filter here
-		JSONArray filterArray = BsonFilterUtil.getFilterFromFields(queryParameter, templateDao);
-		filterArray.addAll(BsonFilterUtil.getShortNameFilter(queryParameter));
-		filterArray.addAll(BsonFilterUtil.getUserIdFilter(userId));
-		filterArray.addAll(BsonFilterUtil.getDataIdsFilter(queryParameter));
+		Bson filters = CCAFilterUtil.getAllFilters(queryParameter, templateDao, objectMapper, userId);
 
-		// Create the And filter for all the filter.
-		JSONObject filterObject = new JSONObject();
-		filterObject.appendField(CCAConstants.TYPE, OperatorType.AND);
-		filterObject.appendField("filters", filterArray);
+		Bson projections = null;
+		if (!projectAll) {
+			String viewTemplate;
+			if (queryParameter.containsKey(CCAConstants.VIEW_TEMPLATE)) {
+				viewTemplate = queryParameter.getFirst(CCAConstants.VIEW_TEMPLATE);
+			} else
+				viewTemplate = CCAConstants.MASTER;
+			projections = BsonProjectionUtil.getProjectionsForListPage(templateDao, viewTemplate);
+		}
 
-		// Generate the IFilter from the jackson.
-		IFilter filter = objectMapper.readValue(filterObject.toJSONString(), IFilter.class);
-		
-		String viewTemplate;
-		if (queryParameter.containsKey(CCAConstants.VIEW_TEMPLATE)) {
-			viewTemplate = queryParameter.getFirst(CCAConstants.VIEW_TEMPLATE);
-		} else
-			viewTemplate = CCAConstants.MASTER;
-
-		return getAll(filter, viewTemplate, projectAll);
+		return dbCollection.find(filters).projection(projections).into(new ArrayList<CCAData>());
 	}
 
 	public CCAData restore(Long id) {

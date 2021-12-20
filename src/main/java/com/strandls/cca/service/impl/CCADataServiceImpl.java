@@ -21,6 +21,8 @@ import org.pac4j.core.profile.CommonProfile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.MongoCursor;
 import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.CCAConfig;
@@ -32,6 +34,7 @@ import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.CCATemplate;
+import com.strandls.cca.pojo.response.AggregationResponse;
 import com.strandls.cca.pojo.response.CCADataList;
 import com.strandls.cca.service.CCADataService;
 import com.strandls.cca.service.CCATemplateService;
@@ -67,18 +70,34 @@ public class CCADataServiceImpl implements CCADataService {
 	}
 
 	@Override
-	public List<CCADataList> getMyCCADataList(HttpServletRequest request, UriInfo uriInfo)
+	public AggregationResponse getMyCCADataList(HttpServletRequest request, UriInfo uriInfo)
 			throws JsonProcessingException {
-		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
-		List<CCAData> ccaDatas = ccaDataDao.getAll(uriInfo, false, profile.getId());
-		return mergeToCCADataList(ccaDatas);
+		return getCCADataList(request, uriInfo, true);
 	}
 
 	@Override
-	public List<CCADataList> getCCADataList(HttpServletRequest request, UriInfo uriInfo)
+	public AggregationResponse getCCADataList(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly)
 			throws JsonProcessingException {
-		List<CCAData> ccaDatas = ccaDataDao.getAll(uriInfo, false, null);
-		return mergeToCCADataList(ccaDatas);
+		String userId = null;
+		if (myListOnly) {
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			userId = profile.getId();
+		}
+
+		List<CCAData> ccaDatas = ccaDataDao.getAll(uriInfo, false, userId);
+		List<CCADataList> ccaDataList = mergeToCCADataList(ccaDatas);
+
+		AggregateIterable<Map> aggregation = ccaDataDao.getAggregation(uriInfo, userId);
+
+		MongoCursor<Map> it = aggregation.iterator();
+		while (it.hasNext()) {
+			Object ccaData = it.next();
+			System.out.println(ccaData);
+		}
+		AggregationResponse aggregationResponse = new AggregationResponse();
+		aggregationResponse.setCcaDataList(ccaDataList);
+		aggregationResponse.setAggregation(aggregation.first());
+		return aggregationResponse;
 	}
 
 	private List<CCADataList> mergeToCCADataList(List<CCAData> ccaDatas) {

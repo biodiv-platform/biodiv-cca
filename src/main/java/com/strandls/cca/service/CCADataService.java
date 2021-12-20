@@ -11,7 +11,7 @@ import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.CCATemplate;
-import com.strandls.cca.pojo.response.CCADataList;
+import com.strandls.cca.pojo.response.AggregationResponse;
 
 public interface CCADataService {
 
@@ -29,10 +29,11 @@ public interface CCADataService {
 
 	public List<CCAData> getAllCCAData(HttpServletRequest request, UriInfo uriInfo) throws JsonProcessingException;
 
-	public List<CCADataList> getMyCCADataList(HttpServletRequest request, UriInfo uriInfo)
+	public AggregationResponse getMyCCADataList(HttpServletRequest request, UriInfo uriInfo)
 			throws JsonProcessingException;
 
-	public List<CCADataList> getCCADataList(HttpServletRequest request, UriInfo uriInfo) throws JsonProcessingException;
+	public AggregationResponse getCCADataList(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly)
+			throws JsonProcessingException;
 
 	public List<CCAData> insertBulk(List<CCAData> ccaDatas);
 

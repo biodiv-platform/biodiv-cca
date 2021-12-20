@@ -4,12 +4,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bson.conversions.Bson;
+
+import com.mongodb.client.model.Accumulators;
+import com.mongodb.client.model.Aggregates;
+import com.mongodb.client.model.Facet;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.ValueWithLabel;
 
 public abstract class ValueOptionsField extends CCAField {
 
 	private List<ValueWithLabel> valueOptions;
+
+	@Override
+	public Facet getGroupAggregation() {
+		String fieldHierarchy = getFieldHierarchy();
+		Bson unwind = Aggregates.unwind("$" + fieldHierarchy);
+		Bson group = Aggregates.group("$" + fieldHierarchy + ".value", Accumulators.sum("count", 1));
+		return new Facet(getFieldId(), unwind, group);
+	}
 
 	/**
 	 * Translating extra attribute (value options) for the traits.

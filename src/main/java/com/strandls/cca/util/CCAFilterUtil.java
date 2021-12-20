@@ -1,76 +1,93 @@
 package com.strandls.cca.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.core.MultivaluedMap;
 
+import org.bson.conversions.Bson;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.client.model.Aggregates;
+import com.mongodb.client.model.Facet;
+import com.mongodb.client.model.Filters;
 import com.strandls.cca.CCAConstants;
-import com.strandls.cca.FieldConstants;
 import com.strandls.cca.dao.CCATemplateDao;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.cca.pojo.FieldType;
 import com.strandls.cca.pojo.filter.CompareOperator;
+import com.strandls.cca.pojo.filter.IFilter;
+import com.strandls.cca.pojo.filter.OperatorType;
 
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
-public class BsonFilterUtil {
+public class CCAFilterUtil {
 
-	private BsonFilterUtil() {
+	private CCAFilterUtil() {
 	}
 
-	public static JSONArray getDataIdsFilter(MultivaluedMap<String, String> queryParameter) {
-		JSONArray filterArray = new JSONArray();
-		if (!queryParameter.containsKey(CCAConstants.ID))
-			return filterArray;
-		
-		JSONArray orFilter = new JSONArray();
-		String [] ids = ((String) queryParameter.get(CCAConstants.ID).get(0)).split(",");
-		for(String id : ids) {
-			JSONObject idFilter = new JSONObject();
-			idFilter.appendField(CCAConstants.TYPE, FieldConstants.GENERIC);
-			idFilter.appendField(CCAConstants.FIELD_NAME, CCAConstants.ID);
-			idFilter.appendField(CCAConstants.VALUE, id);
-			orFilter.add(idFilter);			
+	public static Bson getAllFilters(MultivaluedMap<String, String> queryParameter, CCATemplateDao templateDao,
+			ObjectMapper objectMapper, String userId) throws JsonProcessingException {
+
+		List<Bson> filters = new ArrayList<>();
+		filters.addAll(getShortNameFilter(queryParameter));
+		filters.addAll(getUserIdFilter(userId));
+		filters.addAll(getDataIdsFilter(queryParameter));
+		filters.addAll(getIsDeleteFilter());
+
+		// Create the And filter from all the fields.
+		List<Bson> filter = CCAFilterUtil.getFilterFromFields(queryParameter, templateDao, objectMapper);
+		filters.addAll(filter);
+
+		return Filters.and(filters);
+
+	}
+
+	private static List<Bson> getIsDeleteFilter() {
+		// Add isDeleted filter here
+		List<Bson> filters = new ArrayList<>();
+		Bson isDeleted = Filters.or(Filters.exists(CCAConstants.IS_DELETED, false),
+				Filters.eq(CCAConstants.IS_DELETED, false));
+		filters.add(isDeleted);
+		return filters;
+	}
+
+	public static List<Bson> getDataIdsFilter(MultivaluedMap<String, String> queryParameter) {
+		List<Bson> filters = new ArrayList<>();
+		if (queryParameter.containsKey(CCAConstants.ID)) {
+			String[] stringIds = ((String) queryParameter.get(CCAConstants.ID).get(0)).split(",");
+			List<Long> ids = Arrays.stream(stringIds).map(Long::parseLong).collect(Collectors.toList());
+			Bson idFilter = Filters.in(CCAConstants.ID, ids);
+			filters.add(idFilter);
 		}
-		
-		JSONObject filter = new JSONObject();
-		filter.appendField(CCAConstants.TYPE, FieldConstants.OR);
-		filter.appendField("filters", orFilter);
-		filterArray.add(filter);
-		
-		return filterArray;
-	}
-	
-	public static JSONArray getUserIdFilter(String userId) {
-		JSONArray filterArray = new JSONArray();
-		if (userId == null)
-			return filterArray;
-		JSONObject filter = new JSONObject();
-		filter.appendField(CCAConstants.TYPE, FieldConstants.GENERIC);
-		filter.appendField(CCAConstants.FIELD_NAME, CCAConstants.USER_ID);
-		filter.appendField(CCAConstants.VALUE, userId);
-		filterArray.add(filter);
-		return filterArray;
+		return filters;
 	}
 
-	public static JSONArray getShortNameFilter(MultivaluedMap<String, String> queryParameter) {
-		JSONArray filterArray = new JSONArray();
-		if (!queryParameter.containsKey(CCAConstants.SHORT_NAME))
-			return filterArray;
-		JSONObject filter = new JSONObject();
-		filter.appendField(CCAConstants.TYPE, FieldConstants.GENERIC);
-		filter.appendField(CCAConstants.FIELD_NAME, CCAConstants.SHORT_NAME);
-		filter.appendField(CCAConstants.VALUE, queryParameter.get(CCAConstants.SHORT_NAME).get(0));
-		filterArray.add(filter);
-		return filterArray;
+	public static List<Bson> getUserIdFilter(String userId) {
+		List<Bson> filters = new ArrayList<>();
+		if (userId != null) {
+			filters.add(Filters.eq("userId", userId));
+		}
+		return filters;
 	}
 
-	public static JSONArray getFilterFromFields(MultivaluedMap<String, String> queryParameter,
-			CCATemplateDao templateDao) {
+	public static List<Bson> getShortNameFilter(MultivaluedMap<String, String> queryParameter) {
+		List<Bson> filters = new ArrayList<>();
+		if (queryParameter.containsKey(CCAConstants.SHORT_NAME)) {
+			String shortName = queryParameter.get(CCAConstants.SHORT_NAME).get(0);
+			filters.add(Filters.eq(CCAConstants.SHORT_NAME, shortName));
+		}
+		return filters;
+	}
+
+	public static List<Bson> getFilterFromFields(MultivaluedMap<String, String> queryParameter,
+			CCATemplateDao templateDao, ObjectMapper objectMapper) throws JsonProcessingException {
 		// Take a master template as reference and create the filter
 		String filterTemplate;
 		if (queryParameter.containsKey(CCAConstants.FILTER_TEMPLATE)) {
@@ -92,7 +109,15 @@ public class BsonFilterUtil {
 				filterArray.addAll(getFilters(value, field));
 			}
 		}
-		return filterArray;
+
+		JSONObject filterObject = new JSONObject();
+		filterObject.appendField(CCAConstants.TYPE, OperatorType.AND);
+		filterObject.appendField("filters", filterArray);
+		IFilter filter = objectMapper.readValue(filterObject.toJSONString(), IFilter.class);
+
+		List<Bson> filters = new ArrayList<>();
+		filters.add(filter.getFilter());
+		return filters;
 	}
 
 	/**
@@ -214,6 +239,30 @@ public class BsonFilterUtil {
 		}
 		filter.appendField("value", value);
 		return filter;
+	}
+
+	public static Bson getFacetListForFilterableFields(MultivaluedMap<String, String> queryParameter,
+			CCATemplateDao templateDao) {
+		// Take a master template as reference and create the filter
+		String filterTemplate;
+		if (queryParameter.containsKey(CCAConstants.FILTER_TEMPLATE)) {
+			filterTemplate = queryParameter.getFirst(CCAConstants.FILTER_TEMPLATE);
+		} else
+			filterTemplate = CCAConstants.MASTER;
+
+		CCATemplate ccaTemplate = templateDao.findByProperty(CCAConstants.SHORT_NAME, filterTemplate);
+
+		List<Facet> facets = new ArrayList<>();
+		Iterator<CCAField> templateIt = ccaTemplate.iterator();
+		while (templateIt.hasNext()) {
+
+			CCAField field = templateIt.next();
+			if (field.getIsFilterable().booleanValue()) {
+				Facet facet = field.getGroupAggregation();
+				facets.add(facet);
+			}
+		}
+		return Aggregates.facet(facets);
 	}
 
 }

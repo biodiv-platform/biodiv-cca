@@ -3,12 +3,25 @@ package com.strandls.cca.pojo.fields;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bson.conversions.Bson;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mongodb.client.model.Accumulators;
+import com.mongodb.client.model.Aggregates;
+import com.mongodb.client.model.Facet;
 import com.strandls.cca.pojo.CCAField;
 
 public abstract class RangableField<T extends Comparable<T>> extends CCAField {
 
 	private List<T> minMax = new ArrayList<>();
+
+	@Override
+	public Facet getGroupAggregation() {
+		String fieldHierarchy = "$" + getFieldHierarchy();
+		Bson group = Aggregates.group(null, Accumulators.min("min", fieldHierarchy),
+				Accumulators.max("max", fieldHierarchy));
+		return new Facet(getFieldId(), group);
+	}
 
 	/**
 	 * This method is for getting minimum and maximum for the generic type T Used
@@ -28,7 +41,7 @@ public abstract class RangableField<T extends Comparable<T>> extends CCAField {
 
 		if (!(obj instanceof RangableField<?>))
 			return false;
-		
+
 		RangableField<T> field = (RangableField<T>) obj;
 		return getMinMax().equals(field.getMinMax());
 	}

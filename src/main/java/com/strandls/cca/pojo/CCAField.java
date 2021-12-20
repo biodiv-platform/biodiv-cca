@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import com.mongodb.client.model.Facet;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.CCAConfig;
 import com.strandls.cca.FieldConstants;
@@ -31,6 +32,7 @@ import com.strandls.cca.pojo.fields.RichtextField;
 import com.strandls.cca.pojo.fields.SingleSelectField;
 import com.strandls.cca.pojo.fields.TextAreaField;
 import com.strandls.cca.pojo.fields.TextField;
+import com.strandls.cca.pojo.filter.IFilter;
 
 @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "type", visible = true)
 @JsonSubTypes({ @JsonSubTypes.Type(value = CheckboxField.class, name = FieldConstants.CHECKBOX),
@@ -76,6 +78,19 @@ public abstract class CCAField implements IChildable<CCAField> {
 	@JsonIgnore
 	@BsonProperty("translations")
 	private Map<String, CCAFieldTranslations> translations = new HashMap<>();
+
+	
+	@JsonIgnore
+	@BsonIgnore
+	public String getFieldHierarchy() {
+		return IFilter.CCA_FIELD_VALUES + "." + getFieldId() + ".value";
+	}
+	
+	@JsonIgnore
+	@BsonIgnore
+	public Facet getGroupAggregation() {
+		return null;
+	}
 
 	/**
 	 * Do the translation for CCA field
