@@ -46,4 +46,9 @@ public class CCAFieldTranslations {
 		this.setHelpText(ccaField.getHelpText());
 	}
 
+	public boolean equalsTo(CCAField field) {
+		return getName().equals(field.getName()) && getQuestion().equals(field.getQuestion())
+				&& getHelpText().equals(field.getHelpText());
+	}
+
 }

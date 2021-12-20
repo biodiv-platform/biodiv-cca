@@ -11,21 +11,33 @@ import com.strandls.cca.IdInterface;
 public class BaseEntity implements IdInterface {
 
 	@BsonId
-	private String id;
+	@BsonProperty("_id")
+	@JsonIgnore
+	private String basonId;
+
+	private Long id;
 
 	private String userId;
 	private Date createdOn;
 	private Date updatedOn;
-	
+
 	@JsonIgnore
 	@BsonProperty
 	private Boolean isDeleted = false;
 
-	public String getId() {
+	public String getBasonId() {
+		return basonId;
+	}
+
+	public void setBasonId(String basonId) {
+		this.basonId = basonId;
+	}
+
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 

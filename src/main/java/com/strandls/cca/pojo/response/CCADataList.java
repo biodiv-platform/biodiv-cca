@@ -14,7 +14,7 @@ import com.strandls.cca.pojo.geometry.Feature;
 
 public class CCADataList {
 
-	private String id;
+	private Long id;
 	private String shortName;
 	private String userId;
 
@@ -58,11 +58,11 @@ public class CCADataList {
 		}
 	}
 
-	public String getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 

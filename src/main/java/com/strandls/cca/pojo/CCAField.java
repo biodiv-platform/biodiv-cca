@@ -120,6 +120,26 @@ public abstract class CCAField implements IChildable<CCAField> {
 		// Nothing to do here
 	}
 
+	public boolean equals(Object obj, String language) {
+		if (!(obj instanceof CCAField))
+			return false;
+
+		if (language == null)
+			language = CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE);
+
+		CCAField field = (CCAField) obj;
+
+		CCAFieldTranslations fieldTranslations = getTranslations().get(language);
+		if (fieldTranslations == null)
+			return false;
+
+		return fieldTranslations.equalsTo(field) && getIsRequired().equals(field.getIsRequired())
+				&& getIsMasterField().equals(field.getIsMasterField())
+				&& getIsSummaryField().equals(field.getIsSummaryField())
+				&& getIsFilterable().equals(field.getIsFilterable());
+
+	}
+
 	public String getFieldId() {
 		return fieldId;
 	}

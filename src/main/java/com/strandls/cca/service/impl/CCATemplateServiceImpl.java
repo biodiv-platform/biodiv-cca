@@ -5,13 +5,16 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.HttpHeaders;
 
-import org.bson.types.ObjectId;
 import org.pac4j.core.profile.CommonProfile;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.cca.ApiConstants;
@@ -34,6 +37,12 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 	private CCATemplateDao ccaTemplateDao;
 
 	@Inject
+	private LogActivities logActivities;
+
+	@Inject
+	private ObjectMapper objectMapper;
+
+	@Inject
 	public CCATemplateServiceImpl() {
 		// Just for the injection purpose
 	}
@@ -51,8 +60,8 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 
 		if (context.getId() == null) {
-			ObjectId id = new ObjectId();
-			context.setId(id.toHexString());
+			Long id = ccaTemplateDao.getNextValue();
+			context.setId(id);
 		}
 		CCATemplate template = ccaTemplateDao.findByProperty(CCAConstants.SHORT_NAME, context.getShortName());
 		if (template != null)
@@ -66,8 +75,13 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 		context.setUpdatedOn(new Timestamp(new Date().getTime()));
 		context.setUserId(profile.getId());
 
-		return ccaTemplateDao.save(context);
+		CCATemplate ccaTemplate = ccaTemplateDao.save(context);
 
+		String desc = "Template created with short Name : " + context.getShortName();
+		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, context.getId(),
+				context.getId(), "ccaTempate", context.getId(), "Template created");
+
+		return ccaTemplate;
 	}
 
 	@Override
@@ -80,12 +94,58 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 		if (language == null)
 			language = CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE);
 
+		try {
+			logActivityForUpdate(request, context, template, language);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+
 		context.addUpdateTranslation(template, language);
 
 		validateField(context);
 		context.setUpdatedOn(new Timestamp(new Date().getTime()));
 
 		return ccaTemplateDao.replaceOne(context);
+	}
+
+	private void logActivityForUpdate(HttpServletRequest request, CCATemplate context, CCATemplate template,
+			String language) throws JsonProcessingException {
+		Map<String, CCAField> inputFields = context.getAllFields();
+		Map<String, CCAField> dbFields = template.getAllFields();
+
+		for (Map.Entry<String, CCAField> e : dbFields.entrySet()) {
+			String fieldId = e.getKey();
+			CCAField dbField = e.getValue();
+			if (inputFields.containsKey(fieldId)) {
+				CCAField inputField = inputFields.get(fieldId);
+				// Condition to get the difference of the field in case of found
+				if (!dbField.equals(inputField, language)) {
+					String desc = "Field updated from  : " + objectMapper.writeValueAsString(dbField) + " to : "
+							+ objectMapper.writeValueAsString(inputField);
+					logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, context.getId(),
+							context.getId(), "ccaTempate", context.getId(), "Field updated");
+				}
+			} else {
+				// This field is not available in the input.. Got deleted from the template
+				String desc = "Field deleted with name : " + dbField.getName() + " value : "
+						+ objectMapper.writeValueAsString(dbField);
+				logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, context.getId(),
+						context.getId(), "ccaTempate", context.getId(), "Field deleted");
+			}
+		}
+
+		// Get all the added fields here
+		for (Map.Entry<String, CCAField> e : inputFields.entrySet()) {
+			String fieldId = e.getKey();
+			CCAField f = e.getValue();
+			if (!dbFields.containsKey(fieldId)) {
+				String desc = "Field Added with name : " + f.getName() + " value : "
+						+ objectMapper.writeValueAsString(f);
+				logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, context.getId(),
+						context.getId(), "ccaTempate", context.getId(), "Field created");
+			}
+		}
+
 	}
 
 	private void validateField(CCATemplate context) {

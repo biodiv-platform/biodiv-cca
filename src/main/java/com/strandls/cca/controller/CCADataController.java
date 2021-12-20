@@ -69,7 +69,7 @@ public class CCADataController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get the cca data", notes = "Returns CCA data fields", response = CCAData.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
-	public Response getCCAData(@Context HttpServletRequest request, @PathParam("id") String id) {
+	public Response getCCAData(@Context HttpServletRequest request, @PathParam("id") Long id) {
 		try {
 			CCAData ccaData = ccaDataService.findById(id);
 			return Response.status(Status.OK).entity(ccaData).build();
@@ -233,7 +233,7 @@ public class CCADataController {
 	@ApiOperation(value = "Delete the cca data (Mark as read)", notes = "Returns CCA Deleted cca", response = CCAData.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not delete the data", response = String.class) })
 
-	public Response restoreCCAData(@Context HttpServletRequest request, @PathParam("id") String id) {
+	public Response restoreCCAData(@Context HttpServletRequest request, @PathParam("id") Long id) {
 		try {
 			if (AuthorizationUtil.checkAuthorization(request,
 					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), id)) {
@@ -263,7 +263,7 @@ public class CCADataController {
 	@ApiOperation(value = "Delete the cca data (Mark as read)", notes = "Returns CCA Deleted cca", response = CCAData.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not delete the data", response = String.class) })
 
-	public Response removeCCAData(@Context HttpServletRequest request, @PathParam("id") String id) {
+	public Response removeCCAData(@Context HttpServletRequest request, @PathParam("id") Long id) {
 		try {
 			if (AuthorizationUtil.checkAuthorization(request,
 					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), id)) {
@@ -293,7 +293,7 @@ public class CCADataController {
 	@ApiOperation(value = "Delete the cca data completely", notes = "Returns CCA Deleted cca", response = CCAData.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not delete the data", response = String.class) })
 
-	public Response deepRemoveCCAData(@Context HttpServletRequest request, @PathParam("id") String id) {
+	public Response deepRemoveCCAData(@Context HttpServletRequest request, @PathParam("id") Long id) {
 		try {
 			if (AuthorizationUtil.checkAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN), null)) {
 				CCAData ccaData = ccaDataService.deepRemove(id);

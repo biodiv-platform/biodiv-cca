@@ -11,15 +11,18 @@ import java.util.Map;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.UriInfo;
 
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.pac4j.core.profile.CommonProfile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.CCAConfig;
+import com.strandls.cca.CCAConstants;
 import com.strandls.cca.dao.CCADataDao;
 import com.strandls.cca.file.upload.FileUploadFactory;
 import com.strandls.cca.file.upload.IFileUpload;
@@ -40,13 +43,19 @@ public class CCADataServiceImpl implements CCADataService {
 	private CCADataDao ccaDataDao;
 
 	@Inject
+	private LogActivities logActivities;
+
+	@Inject
+	private ObjectMapper objectMapper;
+
+	@Inject
 	public CCADataServiceImpl() {
 		// Just for the injection purpose
 	}
 
 	@Override
-	public CCAData findById(String id) {
-		return ccaDataDao.findByProperty("_id", id);
+	public CCAData findById(Long id) {
+		return ccaDataDao.findByProperty(CCAConstants.ID, id);
 	}
 
 	@Override
@@ -103,6 +112,10 @@ public class CCADataServiceImpl implements CCADataService {
 
 		ccaData.setUserId(profile.getId());
 
+		String desc = "Data created with template : " + ccaData.getShortName();
+		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, ccaData.getId(),
+				ccaData.getId(), "ccaData", ccaData.getId(), "Data created");
+
 		return ccaDataDao.save(ccaData);
 	}
 
@@ -123,7 +136,11 @@ public class CCADataServiceImpl implements CCADataService {
 
 		CCAData dataInMem = ccaDataDao.getById(ccaData.getId());
 
-		dataInMem = dataInMem.overrideFieldData(ccaData);
+		try {
+			dataInMem = dataInMem.overrideFieldData(request, ccaData, objectMapper, logActivities);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
 
 		return ccaDataDao.replaceOne(dataInMem);
 	}
@@ -171,17 +188,17 @@ public class CCADataServiceImpl implements CCADataService {
 	}
 
 	@Override
-	public CCAData restore(String id) {
+	public CCAData restore(Long id) {
 		return ccaDataDao.restore(id);
 	}
 
 	@Override
-	public CCAData remove(String id) {
+	public CCAData remove(Long id) {
 		return ccaDataDao.remove(id);
 	}
 
 	@Override
-	public CCAData deepRemove(String id) {
+	public CCAData deepRemove(Long id) {
 		return ccaDataDao.deepRemove(id);
 	}
 

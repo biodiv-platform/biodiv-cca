@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bson.conversions.Bson;
-import org.bson.types.ObjectId;
 
 import com.google.inject.Inject;
 import com.mongodb.client.MongoCollection;
@@ -14,27 +13,48 @@ import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import com.strandls.cca.CCAConstants;
 import com.strandls.cca.IdInterface;
+import com.strandls.cca.pojo.Counter;
 
 public abstract class AbstractDao<T extends IdInterface> {
 
 	protected MongoCollection<T> dbCollection;
+	private MongoCollection<Counter> counterCollection;
 
 	@Inject
 	protected AbstractDao(Class<T> collectionType, MongoDatabase db) {
 		this.dbCollection = db.getCollection(collectionType.getSimpleName(), collectionType);
+		this.counterCollection = db.getCollection("counter", Counter.class);
 	}
 
-	protected Bson getIdFilter(String id) {
-		return Filters.eq("_id", id);
+	public Long getNextValue() {
+		String collectionName = dbCollection.getNamespace().getCollectionName();
+		ArrayList<Counter> counters = counterCollection.find(Filters.eq(CCAConstants.COLLECTION_NAME, collectionName))
+				.into(new ArrayList<Counter>());
+		Counter counter;
+		if (counters.isEmpty()) {
+			counter = new Counter(collectionName, 1L);
+			counterCollection.insertOne(counter);
+		} else {
+			counter = counterCollection.find(Filters.eq(CCAConstants.COLLECTION_NAME, collectionName)).first();
+		}
+		counter.setIdValue(counter.getIdValue() + 1);
+
+		counterCollection.findOneAndReplace(Filters.eq(CCAConstants.COLLECTION_NAME, collectionName), counter);
+
+		return counter.getIdValue();
 	}
 
-	public T findByProperty(String shortName, Object value) {
+	protected Bson getIdFilter(Long id) {
+		return Filters.eq(CCAConstants.ID, id);
+	}
+
+	public T findByProperty(String property, Object value) {
 		Bson isDeleted = Filters.eq(CCAConstants.IS_DELETED, false);
-		Bson filter = Filters.eq(shortName, value);
+		Bson filter = Filters.eq(property, value);
 		return dbCollection.find(Filters.and(isDeleted, filter)).first();
 	}
 
-	public T getById(String id) {
+	public T getById(Long id) {
 		return dbCollection.find(getIdFilter(id)).first();
 	}
 
@@ -50,8 +70,8 @@ public abstract class AbstractDao<T extends IdInterface> {
 
 	public T save(T t) {
 		if (t.getId() == null) {
-			ObjectId id = new ObjectId();
-			t.setId(id.toHexString());
+			Long id = getNextValue();
+			t.setId(id);
 		}
 		dbCollection.insertOne(t);
 		return t;
@@ -60,8 +80,8 @@ public abstract class AbstractDao<T extends IdInterface> {
 	public List<T> insertBulk(List<T> ts) {
 		for (T t : ts) {
 			if (t.getId() == null) {
-				ObjectId id = new ObjectId();
-				t.setId(id.toHexString());
+				Long id = getNextValue();
+				t.setId(id);
 			}
 		}
 		dbCollection.insertMany(ts);

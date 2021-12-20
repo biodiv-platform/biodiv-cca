@@ -60,6 +60,19 @@ public abstract class ValueOptionsField extends CCAField {
 		return false;
 	}
 
+	@Override
+	public boolean equals(Object obj, String language) {
+		if (!super.equals(obj, language))
+			return false;
+
+		if (!(obj instanceof ValueOptionsField))
+			return false;
+
+		ValueOptionsField field = (ValueOptionsField) obj;
+
+		return getValueOptions().equals(field.getValueOptions());
+	}
+
 	public List<ValueWithLabel> getValueOptions() {
 		return valueOptions;
 	}

@@ -20,6 +20,19 @@ public abstract class RangableField<T extends Comparable<T>> extends CCAField {
 
 	public abstract T fetchMinRange();
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean equals(Object obj, String language) {
+		if (!super.equals(obj, language))
+			return false;
+
+		if (!(obj instanceof RangableField<?>))
+			return false;
+		
+		RangableField<T> field = (RangableField<T>) obj;
+		return getMinMax().equals(field.getMinMax());
+	}
+
 	@JsonIgnore
 	public boolean isMinMaxSet() {
 		return minMax != null && !minMax.isEmpty();

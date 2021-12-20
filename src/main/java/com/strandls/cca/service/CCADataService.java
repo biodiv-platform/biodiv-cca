@@ -19,13 +19,13 @@ public interface CCADataService {
 
 	public CCAData save(HttpServletRequest request, CCAData ccaData);
 
-	public CCAData findById(String id);
+	public CCAData findById(Long id);
 
 	public CCAData update(HttpServletRequest request, CCAData ccaData);
 
-	public CCAData restore(String id);
+	public CCAData restore(Long id);
 
-	public CCAData remove(String id);
+	public CCAData remove(Long id);
 
 	public List<CCAData> getAllCCAData(HttpServletRequest request, UriInfo uriInfo) throws JsonProcessingException;
 
@@ -39,6 +39,6 @@ public interface CCADataService {
 	public List<CCAData> uploadCCADataFromFile(HttpServletRequest request, FormDataMultiPart multiPart)
 			throws IOException;
 
-	public CCAData deepRemove(String id);
+	public CCAData deepRemove(Long id);
 
 }

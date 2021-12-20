@@ -8,8 +8,8 @@ package com.strandls.cca;
  */
 public interface IdInterface {
 
-	public void setId(String id);
+	public void setId(Long id);
 
-	public String getId();
+	public Long getId();
 
 }

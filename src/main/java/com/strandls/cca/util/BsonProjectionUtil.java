@@ -27,8 +27,9 @@ public class BsonProjectionUtil {
 
 		// Compulsory field from the CCA Data - Need to change if there is modification
 		// in the Model
-		fieldNames.add("shortName");
-		fieldNames.add("userId");
+		fieldNames.add(CCAConstants.ID);
+		fieldNames.add(CCAConstants.SHORT_NAME);
+		fieldNames.add(CCAConstants.USER_ID);
 		fieldNames.add("createdOn");
 		fieldNames.add("updatedOn");
 

@@ -31,6 +31,16 @@ public class ValueWithLabel {
 		return translate(language);
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof ValueWithLabel))
+			return false;
+
+		ValueWithLabel field = (ValueWithLabel) obj;
+
+		return getValue().equals(field.getValue());
+	}
+
 	public String getLabel() {
 		return label;
 	}

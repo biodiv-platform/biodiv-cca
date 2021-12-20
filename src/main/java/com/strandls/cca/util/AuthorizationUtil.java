@@ -18,7 +18,7 @@ public class AuthorizationUtil {
 	private AuthorizationUtil() {
 	}
 
-	public static boolean checkAuthorization(HttpServletRequest request, List<Permissions> list, String objectId) {
+	public static boolean checkAuthorization(HttpServletRequest request, List<Permissions> list, Long objectId) {
 		if (request == null)
 			return false;
 
@@ -36,7 +36,7 @@ public class AuthorizationUtil {
 			return true;
 
 		if (objectId != null)
-			return objectId.equals(profile.getId());
+			return objectId.toString().equals(profile.getId());
 
 		return false;
 	}
