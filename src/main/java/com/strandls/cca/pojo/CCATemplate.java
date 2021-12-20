@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.CCAConfig;
 import com.strandls.cca.util.DFSTreeIterator;
+import com.strandls.cca.util.Permissions;
 
 public class CCATemplate extends BaseEntity {
 
@@ -25,6 +26,8 @@ public class CCATemplate extends BaseEntity {
 	private String description;
 
 	private String shortName;
+
+	private List<Permissions> permissions = new ArrayList<>();
 
 	private List<Platform> platform;
 
@@ -134,6 +137,14 @@ public class CCATemplate extends BaseEntity {
 
 	public void setShortName(String shortName) {
 		this.shortName = shortName;
+	}
+
+	public List<Permissions> getPermissions() {
+		return permissions;
+	}
+
+	public void setPermissions(List<Permissions> permissions) {
+		this.permissions = permissions;
 	}
 
 	public List<Platform> getPlatform() {

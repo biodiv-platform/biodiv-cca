@@ -11,7 +11,9 @@ import java.util.Map;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
@@ -33,6 +35,7 @@ import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.cca.pojo.response.CCADataList;
 import com.strandls.cca.service.CCADataService;
 import com.strandls.cca.service.CCATemplateService;
+import com.strandls.cca.util.AuthorizationUtil;
 
 public class CCADataServiceImpl implements CCADataService {
 
@@ -101,6 +104,11 @@ public class CCADataServiceImpl implements CCADataService {
 		String shortName = ccaData.getShortName();
 		CCATemplate ccaTemplate = ccaTemplateService.getCCAByShortName(shortName,
 				CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE));
+
+		if (!AuthorizationUtil.checkAuthorization(request, ccaTemplate.getPermissions(), ccaData.getId())) {
+			throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
+					.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
+		}
 
 		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 
