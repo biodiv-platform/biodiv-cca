@@ -1,6 +1,7 @@
 package com.strandls.cca.pojo.geometry;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Feature {
@@ -8,6 +9,10 @@ public class Feature {
 	private String type = "Feature";
 	private Map<String, String> properties = new HashMap<>();
 	private GeoJsonGeometry geometry;
+
+	public List<Double> getCentroid() {
+		return geometry.getCentroid();
+	}
 
 	public String getType() {
 		return type;

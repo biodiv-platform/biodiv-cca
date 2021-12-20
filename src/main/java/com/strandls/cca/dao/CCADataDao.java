@@ -35,14 +35,12 @@ public class CCADataDao extends AbstractDao<CCAData> {
 		super(CCAData.class, db);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public AggregateIterable<Map> getAggregation(UriInfo uriInfo, String userId) throws JsonProcessingException {
 		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
 
 		Bson filters = CCAFilterUtil.getAllFilters(queryParameter, templateDao, objectMapper, userId);
 		Bson facet = CCAFilterUtil.getFacetListForFilterableFields(queryParameter, templateDao);
-
-		// Bson facet = Aggregates.facet(new Facet("a1", Aggregates.group("$userId",
-		// Accumulators.sum("count", 1))));
 
 		Bson match = Aggregates.match(filters);
 		return dbCollection.aggregate(Arrays.asList(match, facet), Map.class);

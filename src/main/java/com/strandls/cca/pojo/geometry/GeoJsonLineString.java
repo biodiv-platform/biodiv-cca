@@ -6,6 +6,7 @@ import java.util.List;
 import com.mongodb.client.model.geojson.Geometry;
 import com.mongodb.client.model.geojson.LineString;
 import com.mongodb.client.model.geojson.Position;
+import com.strandls.cca.util.GeometryUtil;
 
 public class GeoJsonLineString extends GeoJsonGeometry {
 
@@ -29,6 +30,11 @@ public class GeoJsonLineString extends GeoJsonGeometry {
 
 	public void setCoordinates(List<List<Double>> coordinates) {
 		this.coordinates = coordinates;
+	}
+
+	@Override
+	public List<Double> getCentroid() {
+		return GeometryUtil.computeCentroid2D(coordinates);
 	}
 
 }

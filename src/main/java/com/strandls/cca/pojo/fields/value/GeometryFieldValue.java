@@ -23,17 +23,26 @@ public class GeometryFieldValue extends CCAFieldValue {
 		this.value = new FeatureCollection();
 	}
 
+	public List<Double> getCentroid() {
+		return value.getCentroid();
+	}
+
 	public GeometryFieldValue(String dataValue) {
 		String[] points = dataValue.split(",");
 		Double point1 = Double.parseDouble(points[0]);
 		Double point2 = Double.parseDouble(points[0]);
-		
+
 		List<Feature> features = new ArrayList<>();
 		Feature feature = new Feature();
 		GeoJsonGeometry geometry = new GeoJsonGeometry() {
 			@Override
 			public Geometry getGeometry() {
 				return new Point(new Position(Arrays.asList(point1, point2)));
+			}
+
+			@Override
+			public List<Double> getCentroid() {
+				return Arrays.asList(point1, point2);
 			}
 		};
 		feature.setGeometry(geometry);

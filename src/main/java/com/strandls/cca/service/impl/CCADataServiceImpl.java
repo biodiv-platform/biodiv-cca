@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +20,6 @@ import org.pac4j.core.profile.CommonProfile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.AggregateIterable;
-import com.mongodb.client.MongoCursor;
 import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.CCAConfig;
@@ -75,6 +72,7 @@ public class CCADataServiceImpl implements CCADataService {
 		return getCCADataList(request, uriInfo, true);
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public AggregationResponse getCCADataList(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly)
 			throws JsonProcessingException {
@@ -89,11 +87,6 @@ public class CCADataServiceImpl implements CCADataService {
 
 		AggregateIterable<Map> aggregation = ccaDataDao.getAggregation(uriInfo, userId);
 
-		MongoCursor<Map> it = aggregation.iterator();
-		while (it.hasNext()) {
-			Object ccaData = it.next();
-			System.out.println(ccaData);
-		}
 		AggregationResponse aggregationResponse = new AggregationResponse();
 		aggregationResponse.setCcaDataList(ccaDataList);
 		aggregationResponse.setAggregation(aggregation.first());
@@ -143,6 +136,7 @@ public class CCADataServiceImpl implements CCADataService {
 		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, ccaData.getId(),
 				ccaData.getId(), "ccaData", ccaData.getId(), "Data created");
 
+		ccaData.reComputeCentroid();
 		return ccaDataDao.save(ccaData);
 	}
 
@@ -168,20 +162,15 @@ public class CCADataServiceImpl implements CCADataService {
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
-
+		dataInMem.reComputeCentroid();
 		return ccaDataDao.replaceOne(dataInMem);
 	}
 
 	@Override
 	public void validateData(CCAData ccaData, CCATemplate ccaTemplate) {
-		Map<String, CCAFieldValue> ccaFieldValues = ccaData.getCcaFieldValues();
-		Iterator<CCAField> templateIterator = ccaTemplate.iterator();
 
-		Map<String, CCAField> ccaFields = new HashMap<>();
-		while (templateIterator.hasNext()) {
-			CCAField field = templateIterator.next();
-			ccaFields.put(field.getFieldId(), field);
-		}
+		Map<String, CCAFieldValue> ccaFieldValues = ccaData.getCcaFieldValues();
+		Map<String, CCAField> ccaFields = ccaTemplate.getAllFields();
 
 		for (Map.Entry<String, CCAFieldValue> e : ccaFieldValues.entrySet()) {
 			String fieldId = e.getKey();
@@ -231,6 +220,7 @@ public class CCADataServiceImpl implements CCADataService {
 
 	@Override
 	public List<CCAData> insertBulk(List<CCAData> ccaDatas) {
+		ccaDatas.forEach(CCAData::reComputeCentroid);
 		return ccaDataDao.insertBulk(ccaDatas);
 	}
 

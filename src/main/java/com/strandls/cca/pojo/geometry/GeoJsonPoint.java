@@ -23,4 +23,9 @@ public class GeoJsonPoint extends GeoJsonGeometry {
 		this.coordinates = coordinates;
 	}
 
+	@Override
+	public List<Double> getCentroid() {
+		return coordinates;
+	}
+
 }

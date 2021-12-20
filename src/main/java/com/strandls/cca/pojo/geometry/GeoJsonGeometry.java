@@ -1,5 +1,7 @@
 package com.strandls.cca.pojo.geometry;
 
+import java.util.List;
+
 import org.bson.codecs.pojo.annotations.BsonDiscriminator;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -21,6 +23,8 @@ import com.mongodb.client.model.geojson.Geometry;
 public abstract class GeoJsonGeometry {
 
 	protected GeometryType type;
+
+	public abstract List<Double> getCentroid();
 
 	@JsonIgnore
 	public abstract Geometry getGeometry();

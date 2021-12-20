@@ -15,6 +15,30 @@ public class FeatureCollection {
 		this.features = new ArrayList<>();
 	}
 
+	public List<Double> getCentroid() {
+		List<Double> centroid = new ArrayList<>();
+		Double x = 0.0;
+		Double y = 0.0;
+		boolean coordinateFound = false;
+		Long n = 0L;
+		for (Feature feature : features) {
+			List<Double> c = feature.getCentroid();
+			if (!c.isEmpty()) {
+				coordinateFound = true;
+				x += c.get(0);
+				y += c.get(1);
+				n++;
+			}
+		}
+		if (!coordinateFound)
+			return centroid;
+		x /= n;
+		y /= n;
+		centroid.add(x);
+		centroid.add(y);
+		return centroid;
+	}
+
 	@JsonIgnore
 	public Geometry getGeometry() {
 		return features.get(0).getGeometry().getGeometry();

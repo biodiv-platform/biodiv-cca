@@ -7,6 +7,7 @@ import com.mongodb.client.model.geojson.Geometry;
 import com.mongodb.client.model.geojson.MultiPolygon;
 import com.mongodb.client.model.geojson.PolygonCoordinates;
 import com.mongodb.client.model.geojson.Position;
+import com.strandls.cca.util.GeometryUtil;
 
 public class GeoJsonMultiPolygon extends GeoJsonGeometry {
 
@@ -42,6 +43,11 @@ public class GeoJsonMultiPolygon extends GeoJsonGeometry {
 
 	public void setCoordinates(List<List<List<List<Double>>>> coordinates) {
 		this.coordinates = coordinates;
+	}
+
+	@Override
+	public List<Double> getCentroid() {
+		return GeometryUtil.computeCentroid4D(coordinates);
 	}
 
 }
