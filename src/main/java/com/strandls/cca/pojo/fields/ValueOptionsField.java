@@ -4,8 +4,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bson.codecs.pojo.annotations.BsonIgnore;
 import org.bson.conversions.Bson;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mongodb.client.model.Accumulators;
 import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Facet;
@@ -17,6 +19,8 @@ public abstract class ValueOptionsField extends CCAField {
 	private List<ValueWithLabel> valueOptions;
 
 	@Override
+	@JsonIgnore
+	@BsonIgnore
 	public Facet getGroupAggregation() {
 		String fieldHierarchy = getFieldHierarchy();
 		Bson unwind = Aggregates.unwind("$" + fieldHierarchy);

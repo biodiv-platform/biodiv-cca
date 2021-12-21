@@ -3,6 +3,7 @@ package com.strandls.cca.pojo.fields;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bson.codecs.pojo.annotations.BsonIgnore;
 import org.bson.conversions.Bson;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -16,6 +17,8 @@ public abstract class RangableField<T extends Comparable<T>> extends CCAField {
 	private List<T> minMax = new ArrayList<>();
 
 	@Override
+	@BsonIgnore
+	@JsonIgnore
 	public Facet getGroupAggregation() {
 		String fieldHierarchy = "$" + getFieldHierarchy();
 		Bson group = Aggregates.group(null, Accumulators.min("min", fieldHierarchy),
