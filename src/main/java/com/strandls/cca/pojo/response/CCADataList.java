@@ -21,6 +21,7 @@ public class CCADataList {
 	private Date createdOn;
 	private Date updatedOn;
 
+	private List<Double> centroid;
 	private GeometryFieldValue geometry;
 	private List<FileMeta> files;
 	private List<CCAFieldValue> values;
@@ -32,6 +33,9 @@ public class CCADataList {
 		this.createdOn = ccaData.getCreatedOn();
 		this.updatedOn = ccaData.getUpdatedOn();
 
+		if (ccaData.getCentroid().isEmpty())
+			ccaData.reComputeCentroid();
+		this.centroid = ccaData.getCentroid();
 		this.geometry = new GeometryFieldValue();
 		this.files = new ArrayList<>();
 		this.values = new ArrayList<>();
@@ -96,6 +100,14 @@ public class CCADataList {
 
 	public void setUpdatedOn(Date updatedOn) {
 		this.updatedOn = updatedOn;
+	}
+
+	public List<Double> getCentroid() {
+		return centroid;
+	}
+
+	public void setCentroid(List<Double> centroid) {
+		this.centroid = centroid;
 	}
 
 	public GeometryFieldValue getGeometry() {
