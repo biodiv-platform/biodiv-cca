@@ -19,8 +19,8 @@ public class AuthorizationUtil {
 	private AuthorizationUtil() {
 	}
 
-	public static List<Permissions> getRoles(HttpServletRequest request) {
-		List<Permissions> permissions = new ArrayList<>();
+	public static List<String> getRoles(HttpServletRequest request) {
+		List<String> permissions = new ArrayList<>();
 		if (request == null)
 			return permissions;
 
@@ -30,7 +30,7 @@ public class AuthorizationUtil {
 
 		JSONArray roles = (JSONArray) profile.getAttribute("roles");
 		for (int i = 0; i < roles.size(); i++) {
-			permissions.add(Permissions.valueOf((String) roles.get(i)));
+			permissions.add((String) roles.get(i));
 		}
 		return permissions;
 	}

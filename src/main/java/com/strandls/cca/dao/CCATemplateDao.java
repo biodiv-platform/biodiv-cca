@@ -38,7 +38,7 @@ public class CCATemplateDao extends AbstractDao<CCATemplate> {
 		return remove(template);
 	}
 
-	public List<CCATemplate> getAllCCATemplateWithoutFields(List<Permissions> permissions, Platform platform,
+	public List<CCATemplate> getAllCCATemplateWithoutFields(List<String> permissions, Platform platform,
 			Boolean excludeFields) {
 		// Get all the document with is deleted as false
 		List<Bson> filters = new ArrayList<>();
@@ -46,7 +46,7 @@ public class CCATemplateDao extends AbstractDao<CCATemplate> {
 		Bson isDeleteFilter = Filters.eq(CCAConstants.IS_DELETED, false);
 		filters.add(isDeleteFilter);
 
-		if (!permissions.contains(Permissions.ROLE_ADMIN)) {
+		if (!permissions.contains(Permissions.ROLE_ADMIN.name())) {
 			Bson permissionFilter = Filters.in("permissions", permissions);
 			filters.add(permissionFilter);
 		}
