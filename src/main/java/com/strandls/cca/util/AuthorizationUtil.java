@@ -1,5 +1,6 @@
 package com.strandls.cca.util;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,6 +17,22 @@ public class AuthorizationUtil {
 	public static final String UNAUTHORIZED_MESSAGE = "User is unauthorized to do the action";
 
 	private AuthorizationUtil() {
+	}
+
+	public static List<Permissions> getRoles(HttpServletRequest request) {
+		List<Permissions> permissions = new ArrayList<>();
+		if (request == null)
+			return permissions;
+
+		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+		if (profile == null)
+			return permissions;
+
+		JSONArray roles = (JSONArray) profile.getAttribute("roles");
+		for (int i = 0; i < roles.size(); i++) {
+			permissions.add(Permissions.valueOf((String) roles.get(i)));
+		}
+		return permissions;
 	}
 
 	public static boolean checkAuthorization(HttpServletRequest request, List<Permissions> list, Long objectId) {

@@ -25,6 +25,8 @@ import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.cca.pojo.Platform;
 import com.strandls.cca.service.CCATemplateService;
+import com.strandls.cca.util.AuthorizationUtil;
+import com.strandls.cca.util.Permissions;
 
 /**
  * 
@@ -194,7 +196,10 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 		if (language == null)
 			language = CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE);
 
-		List<CCATemplate> templates = ccaTemplateDao.getAllCCATemplateWithoutFields(platform, excludeFields);
+		List<Permissions> permissions = AuthorizationUtil.getRoles(request);
+
+		List<CCATemplate> templates = ccaTemplateDao.getAllCCATemplateWithoutFields(permissions, platform,
+				excludeFields);
 
 		for (CCATemplate template : templates) {
 			template.translate(language);

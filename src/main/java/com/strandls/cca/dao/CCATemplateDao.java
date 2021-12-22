@@ -12,6 +12,7 @@ import com.mongodb.client.model.Projections;
 import com.strandls.cca.CCAConstants;
 import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.cca.pojo.Platform;
+import com.strandls.cca.util.Permissions;
 
 public class CCATemplateDao extends AbstractDao<CCATemplate> {
 
@@ -37,19 +38,27 @@ public class CCATemplateDao extends AbstractDao<CCATemplate> {
 		return remove(template);
 	}
 
-	public List<CCATemplate> getAllCCATemplateWithoutFields(Platform platform, Boolean excludeFields) {
+	public List<CCATemplate> getAllCCATemplateWithoutFields(List<Permissions> permissions, Platform platform,
+			Boolean excludeFields) {
 		// Get all the document with is deleted as false
-		Bson filters = Filters.eq(CCAConstants.IS_DELETED, false);
+		List<Bson> filters = new ArrayList<>();
+
+		Bson isDeleteFilter = Filters.eq(CCAConstants.IS_DELETED, false);
+		Bson permissionFilter = Filters.in("permissions", permissions);
+
+		filters.add(isDeleteFilter);
+		filters.add(permissionFilter);
 
 		// Add filter for the platform
 		if (platform != null)
-			filters = Filters.and(filters, Filters.eq("platform", platform.name()));
+			filters.add(Filters.eq("platform", platform.name()));
 
+		Bson bsonFilter = Filters.and(filters);
 		if (excludeFields.booleanValue())
-			return dbCollection.find(filters).projection(Projections.exclude("fields"))
+			return dbCollection.find(bsonFilter).projection(Projections.exclude("fields"))
 					.into(new ArrayList<CCATemplate>());
 		else
-			return dbCollection.find(filters).into(new ArrayList<CCATemplate>());
+			return dbCollection.find(bsonFilter).into(new ArrayList<CCATemplate>());
 	}
 
 }
