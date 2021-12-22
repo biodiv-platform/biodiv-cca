@@ -44,10 +44,12 @@ public class CCATemplateDao extends AbstractDao<CCATemplate> {
 		List<Bson> filters = new ArrayList<>();
 
 		Bson isDeleteFilter = Filters.eq(CCAConstants.IS_DELETED, false);
-		Bson permissionFilter = Filters.in("permissions", permissions);
-
 		filters.add(isDeleteFilter);
-		filters.add(permissionFilter);
+
+		if (!permissions.contains(Permissions.ROLE_ADMIN)) {
+			Bson permissionFilter = Filters.in("permissions", permissions);
+			filters.add(permissionFilter);
+		}
 
 		// Add filter for the platform
 		if (platform != null)
