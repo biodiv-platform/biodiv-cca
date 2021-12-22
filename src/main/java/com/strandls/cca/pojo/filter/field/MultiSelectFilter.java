@@ -31,7 +31,7 @@ public class MultiSelectFilter extends Filter {
 
 	@Override
 	public String getFieldHierarchy() {
-		return getCcaFieldValuesString() + "." + getFieldId() + ".value.label";
+		return getCcaFieldValuesString() + "." + getFieldId() + ".value.value";
 	}
 
 	@Override
