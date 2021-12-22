@@ -71,8 +71,9 @@ public class ValueWithLabel {
 		if (OTHER_VALUE.equals(valueWithLabel.getValue().toLowerCase().replaceAll("\\s", ""))
 				&& OTHER_VALUE.equals(getValue().toLowerCase().replaceAll("\\s", "")))
 			return true;
-		String labelInDB = getTranslations().get(CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE));
-		return labelInDB.toLowerCase().trim().equals(valueWithLabel.getLabel().toLowerCase().trim());
+		return getValue().toLowerCase().trim().equals(valueWithLabel.getValue().toLowerCase().trim());
+		//String labelInDB = getTranslations().get(CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE));
+		//return labelInDB.toLowerCase().trim().equals(valueWithLabel.getLabel().toLowerCase().trim());
 	}
 
 }
