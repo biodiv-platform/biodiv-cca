@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
 
 import com.google.inject.Inject;
 import com.mongodb.client.MongoCollection;
@@ -72,6 +73,8 @@ public abstract class AbstractDao<T extends IdInterface> {
 		if (t.getId() == null) {
 			Long id = getNextValue();
 			t.setId(id);
+			ObjectId bsonId = new ObjectId();
+			t.setBasonId(bsonId.toHexString());
 		}
 		dbCollection.insertOne(t);
 		return t;
@@ -82,6 +85,8 @@ public abstract class AbstractDao<T extends IdInterface> {
 			if (t.getId() == null) {
 				Long id = getNextValue();
 				t.setId(id);
+				ObjectId bsonId = new ObjectId();
+				t.setBasonId(bsonId.toHexString());
 			}
 		}
 		dbCollection.insertMany(ts);

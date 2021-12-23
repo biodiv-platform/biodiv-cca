@@ -11,5 +11,9 @@ public interface IdInterface {
 	public void setId(Long id);
 
 	public Long getId();
+	
+	public void setBasonId(String id);
+
+	public String getBasonId();
 
 }
