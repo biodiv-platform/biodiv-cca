@@ -138,12 +138,12 @@ public class CCAFilterUtil {
 		switch (fieldType) {
 		case CHECKBOX:
 		case MULTI_SELECT:
+		case RADIO:
+		case SINGLE_SELECT:
 			filter = getFilter(fieldId, fieldType, CompareOperator.IN, values);
 			filterArray.add(filter);
 			break;
 		case GEOMETRY:
-		case RADIO:
-		case SINGLE_SELECT:
 			filter = getFilter(fieldId, fieldType, null, values.get(0));
 			filterArray.add(filter);
 			break;
