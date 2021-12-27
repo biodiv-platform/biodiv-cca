@@ -27,6 +27,11 @@ public class GeometryFieldValue extends CCAFieldValue {
 		return value.getCentroid();
 	}
 
+	@Override
+	public String computeDiff(CCAFieldValue value) {
+		return null;
+	}
+
 	public GeometryFieldValue(String dataValue) {
 		String[] points = dataValue.split(",");
 		Double point1 = Double.parseDouble(points[0]);

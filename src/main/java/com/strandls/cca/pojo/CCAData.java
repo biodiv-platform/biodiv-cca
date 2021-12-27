@@ -7,7 +7,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.strandls.cca.pojo.fields.value.GeometryFieldValue;
 import com.strandls.cca.service.impl.LogActivities;
@@ -71,22 +70,24 @@ public class CCAData extends BaseEntity {
 	}
 
 	public CCAData overrideFieldData(HttpServletRequest request, CCAData ccaData, ObjectMapper objectMapper,
-			LogActivities logActivities) throws JsonProcessingException {
+			LogActivities logActivities) {
 
-		Map<String, CCAFieldValue> fieldsMap = ccaData.getCcaFieldValues();
+		Map<String, CCAFieldValue> fieldsMap = getCcaFieldValues();
 
 		for (Map.Entry<String, CCAFieldValue> e : ccaData.getCcaFieldValues().entrySet()) {
 			if (fieldsMap.containsKey(e.getKey())) {
-				String inputValue = objectMapper.writeValueAsString(e.getValue());
-				String dbValue = objectMapper.writeValueAsString(this.ccaFieldValues.get(e.getKey()));
-				if (!inputValue.equals(dbValue)) {
-					this.ccaFieldValues.put(e.getKey(), e.getValue());
 
-					// Log the difference
-					String desc = "Data updated with template : " + dbValue + " to : " + inputValue;
-					logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, ccaData.getId(),
+				CCAFieldValue dbFieldValue = this.ccaFieldValues.get(e.getKey());
+				CCAFieldValue inputFieldValue = e.getValue();
+
+				String diff = dbFieldValue.computeDiff(inputFieldValue);
+				if (diff != null) {
+					logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), diff, ccaData.getId(),
 							ccaData.getId(), "ccaData", ccaData.getId(), "Data updated");
 				}
+				// Persist in DB
+				this.ccaFieldValues.put(e.getKey(), e.getValue());
+
 			} else {
 				this.ccaFieldValues.put(e.getKey(), e.getValue());
 

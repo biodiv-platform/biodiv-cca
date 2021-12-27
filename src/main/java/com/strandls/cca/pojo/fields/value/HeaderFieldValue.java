@@ -14,6 +14,11 @@ public class HeaderFieldValue extends CCAFieldValue {
 		return null;
 	}
 
+	@Override
+	public String computeDiff(CCAFieldValue value) {
+		return null;
+	}
+
 	public void setValue(Object t) {
 		throw new UnsupportedOperationException("Setting header value is not allowed");
 	}

@@ -24,6 +24,18 @@ public class MultiSelectFieldValue extends CCAFieldValue {
 		this.value = value;
 	}
 
+	@Override
+	public String computeDiff(CCAFieldValue value) {
+		MultiSelectFieldValue inputValue = (MultiSelectFieldValue) value;
+		int size = inputValue.getValue().size();
+		if (this.value.size() > size) {
+			return "Few selection removed";
+		} else if (this.value.size() < size) {
+			return "Few selection added";
+		}
+		return null;
+	}
+
 	public MultiSelectFieldValue(String dataValue) {
 		List<ValueWithLabel> output = new ArrayList<>();
 		if (dataValue == null || "".equals(dataValue)) {

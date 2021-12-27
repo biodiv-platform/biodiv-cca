@@ -27,6 +27,26 @@ public class DateFieldValue extends CCAFieldValue {
 		this.value = date;
 	}
 
+	@Override
+	public String computeDiff(CCAFieldValue value) {
+		DateFieldValue inputFieldValue = (DateFieldValue) value;
+		Date inputValue = inputFieldValue.getValue();
+
+		String diff = null;
+		if (this.value == null) {
+			if (inputValue != null)
+				diff = "" + "→" + inputValue.toString();
+		} else {
+			if (inputValue == null) {
+				diff = this.value.toString() + "→" + "";
+			} else if (!this.value.equals(inputValue)) {
+				diff = this.value.toString() + "→" + inputValue.toString();
+			}
+		}
+
+		return diff;
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean validate(CCAField field) {

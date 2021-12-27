@@ -157,11 +157,8 @@ public class CCADataServiceImpl implements CCADataService {
 
 		CCAData dataInMem = ccaDataDao.getById(ccaData.getId());
 
-		try {
-			dataInMem = dataInMem.overrideFieldData(request, ccaData, objectMapper, logActivities);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
+		dataInMem = dataInMem.overrideFieldData(request, ccaData, objectMapper, logActivities);
+
 		dataInMem.reComputeCentroid();
 		return ccaDataDao.replaceOne(dataInMem);
 	}

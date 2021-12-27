@@ -25,6 +25,16 @@ public class FileFieldValue extends CCAFieldValue {
 		this.value = fileMetas;
 	}
 
+	@Override
+	public String computeDiff(CCAFieldValue value) {
+		if (this.value.size() > ((FileFieldValue) value).getValue().size()) {
+			return "File removed";
+		} else if (this.value.size() < ((FileFieldValue) value).getValue().size()) {
+			return "File added";
+		}
+		return null;
+	}
+
 	public List<FileMeta> getValue() {
 		return value;
 	}

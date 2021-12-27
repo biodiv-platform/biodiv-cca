@@ -82,4 +82,6 @@ public abstract class CCAFieldValue {
 	public void setType(FieldType type) {
 		this.type = type;
 	}
+
+	public abstract String computeDiff(CCAFieldValue value);
 }

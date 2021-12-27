@@ -15,6 +15,29 @@ public class NumberRangeFieldValue extends CCAFieldValue {
 	public NumberRangeFieldValue() {
 	}
 
+	@Override
+	public String computeDiff(CCAFieldValue value) {
+		NumberRangeFieldValue inputValue = (NumberRangeFieldValue) value;
+		int dbSize = this.value.size();
+		int inSize = inputValue.getValue().size();
+
+		if (dbSize != inSize) {
+			if (dbSize > inSize) {
+				return "Value deleted : " + this.value.get(0) + " - " + this.value.get(1);
+			} else {
+				return "Value Added : " + inputValue.getValue().get(0) + " - " + inputValue.getValue().get(1);
+			}
+		} else if (dbSize == 0) {
+			// Do nothing
+		} else if (!this.value.get(0).equals(inputValue.getValue().get(0))
+				|| !this.value.get(1).equals(inputValue.getValue().get(1))) {
+			return "[" + this.value.get(0) + "-" + this.value.get(1) + "] → [" + inputValue.getValue().get(0) + "-"
+					+ inputValue.getValue().get(1) + "]";
+		}
+
+		return null;
+	}
+
 	public NumberRangeFieldValue(String dataValue) {
 		if (dataValue == null || "".equals(dataValue))
 			this.value = new ArrayList<>();

@@ -13,6 +13,14 @@ public class SingleSelectFieldValue extends CCAFieldValue {
 	public SingleSelectFieldValue() {
 	}
 
+	@Override
+	public String computeDiff(CCAFieldValue value) {
+		SingleSelectFieldValue singleSelectFieldValue = (SingleSelectFieldValue) value;
+		if (!this.value.getValue().equals(singleSelectFieldValue.getValue().getValue()))
+			return "Value changed";
+		return null;
+	}
+
 	public SingleSelectFieldValue(String dataValue) {
 		if (dataValue != null && !"".equals(dataValue)) {
 			String[] values = dataValue.split(CCAUtil.COLUMN_SEPARATOR);

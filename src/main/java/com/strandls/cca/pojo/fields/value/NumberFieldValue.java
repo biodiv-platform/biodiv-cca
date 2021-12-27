@@ -25,6 +25,25 @@ public class NumberFieldValue extends CCAFieldValue {
 		this.value = value;
 	}
 
+	@Override
+	public String computeDiff(CCAFieldValue value) {
+		NumberFieldValue inputFieldValue = (NumberFieldValue) value;
+		Double inputValue = inputFieldValue.getValue();
+		String diff = null;
+		if (this.value == null) {
+			if (inputValue != null)
+				diff = "" + "→" + inputValue.toString();
+		} else {
+			if (inputValue == null) {
+				diff = this.value.toString() + "→" + "";
+			} else if (!this.value.equals(inputValue)) {
+				diff = this.value.toString() + "→" + inputValue.toString();
+			}
+		}
+
+		return diff;
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean validate(CCAField field) {
