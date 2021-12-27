@@ -41,9 +41,9 @@ public class MultiSelectFieldValue extends CCAFieldValue {
 			// Do nothing
 		} else {
 			if (!this.value.equals(inputValue.getValue())) {
-				diff += "Before values : ";
+				diff += "Before : ";
 				diff += this.getValue();
-				diff += "\nAfter values :";
+				diff += "\nAfter :";
 				diff += inputValue.getValue();
 			}
 		}
