@@ -19,9 +19,9 @@ public class SingleSelectFieldValue extends CCAFieldValue {
 
 		SingleSelectFieldValue singleSelectFieldValue = (SingleSelectFieldValue) value;
 		if (!this.value.getValue().equals(singleSelectFieldValue.getValue().getValue())) {
-			diff += "Before values : \n";
+			diff += "Before values :";
 			diff += this.getValue();
-			diff += "\nAfter values : \n";
+			diff += "\nAfter values :";
 			diff += singleSelectFieldValue.getValue();
 		}
 		return diff.equals("") ? null : diff;
