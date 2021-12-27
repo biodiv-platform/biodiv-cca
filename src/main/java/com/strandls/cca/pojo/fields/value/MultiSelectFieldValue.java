@@ -33,9 +33,9 @@ public class MultiSelectFieldValue extends CCAFieldValue {
 
 		String diff = "";
 		if (inSize != dbSize) {
-			diff += "Before values\n";
+			diff += "Before : ";
 			diff += this.getValue();
-			diff += "After values\n";
+			diff += "\nAfter : ";
 			diff += inputValue.getValue();
 		} else if (dbSize == 0) {
 			// Do nothing
@@ -43,7 +43,7 @@ public class MultiSelectFieldValue extends CCAFieldValue {
 			if (!this.value.equals(inputValue.getValue())) {
 				diff += "Before : ";
 				diff += this.getValue();
-				diff += "\nAfter :";
+				diff += "\nAfter : ";
 				diff += inputValue.getValue();
 			}
 		}
