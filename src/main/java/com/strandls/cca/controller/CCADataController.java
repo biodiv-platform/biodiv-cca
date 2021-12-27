@@ -21,6 +21,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.hibernate.ObjectNotFoundException;
 
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.cca.ApiConstants;
@@ -72,10 +73,15 @@ public class CCADataController {
 	public Response getCCAData(@Context HttpServletRequest request, @PathParam("id") Long id) {
 		try {
 			CCAData ccaData = ccaDataService.findById(id);
+			if (ccaData == null)
+				throw new ObjectNotFoundException(id, id.toString());
 			return Response.status(Status.OK).entity(ccaData).build();
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(
 					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
+		} catch (ObjectNotFoundException e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.NOT_FOUND).entity("Data Not found").build());
 		} catch (Exception e) {
 			throw new WebApplicationException(
 					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
