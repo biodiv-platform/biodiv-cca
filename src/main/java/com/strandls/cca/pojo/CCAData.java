@@ -91,7 +91,7 @@ public class CCAData extends BaseEntity {
 				this.ccaFieldValues.put(e.getKey(), e.getValue());
 
 				// Log newly added data entries
-				String desc = e.getValue().getName() + ":  added";
+				String desc = "Added : " + e.getValue().getName();
 				logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, ccaData.getId(),
 						ccaData.getId(), "ccaData", ccaData.getId(), "Data created");
 			}

@@ -2,6 +2,7 @@ package com.strandls.cca.pojo.fields.value;
 
 import java.util.Date;
 
+import com.strandls.cca.CCAConstants;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.fields.RangableField;
@@ -32,19 +33,20 @@ public class DateFieldValue extends CCAFieldValue {
 		DateFieldValue inputFieldValue = (DateFieldValue) value;
 		Date inputValue = inputFieldValue.getValue();
 
-		String diff = null;
+		String diff = "";
 		if (this.value == null) {
-			if (inputValue != null)
-				diff = "→" + inputValue.toString();
+			if (inputValue != null) {
+				diff += CCAConstants.BEFORE + CCAConstants.AFTER + inputValue.toString();
+			}
 		} else {
 			if (inputValue == null) {
-				diff = this.value.toString() + "→" + "";
+				diff += CCAConstants.BEFORE + this.value.toString() + CCAConstants.AFTER;
 			} else if (!this.value.equals(inputValue)) {
-				diff = this.value.toString() + "→" + inputValue.toString();
+				diff += CCAConstants.BEFORE + this.value.toString() + CCAConstants.AFTER + inputValue.toString();
 			}
 		}
 
-		return diff;
+		return "".equals(diff) ? null : diff;
 	}
 
 	@SuppressWarnings("unchecked")

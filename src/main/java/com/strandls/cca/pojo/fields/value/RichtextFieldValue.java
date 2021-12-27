@@ -25,7 +25,7 @@ public class RichtextFieldValue extends CCAFieldValue {
 	public String computeDiff(CCAFieldValue value) {
 		RichtextFieldValue inputValue = (RichtextFieldValue) value;
 		if (!this.value.equals(inputValue.getValue())) {
-			return "Text updated";
+			return "Updated";
 		}
 		return null;
 	}

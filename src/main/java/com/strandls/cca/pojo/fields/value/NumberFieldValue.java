@@ -1,5 +1,6 @@
 package com.strandls.cca.pojo.fields.value;
 
+import com.strandls.cca.CCAConstants;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.fields.RangableField;
@@ -29,19 +30,19 @@ public class NumberFieldValue extends CCAFieldValue {
 	public String computeDiff(CCAFieldValue value) {
 		NumberFieldValue inputFieldValue = (NumberFieldValue) value;
 		Double inputValue = inputFieldValue.getValue();
-		String diff = null;
+		String diff = "";
 		if (this.value == null) {
 			if (inputValue != null)
-				diff = "" + "→" + inputValue.toString();
+				diff += CCAConstants.BEFORE + CCAConstants.AFTER + this.value;
 		} else {
 			if (inputValue == null) {
-				diff = this.value.toString() + "→" + "";
+				diff += CCAConstants.BEFORE + this.value + CCAConstants.AFTER;
 			} else if (!this.value.equals(inputValue)) {
-				diff = this.value.toString() + "→" + inputValue.toString();
+				diff += CCAConstants.BEFORE + this.value + CCAConstants.AFTER + inputValue;
 			}
 		}
 
-		return diff;
+		return "".equals(diff) ? null : diff;
 	}
 
 	@SuppressWarnings("unchecked")

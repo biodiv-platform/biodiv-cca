@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.strandls.cca.CCAConstants;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.fields.RangableField;
@@ -30,22 +31,21 @@ public class DateRangeFieldValue extends CCAFieldValue {
 		int dbSize = this.value.size();
 		int inSize = inputValue.getValue().size();
 
+		String diff = "";
 		if (dbSize != inSize) {
 			if (dbSize > inSize) {
-				return "Value deleted : " + this.value.get(0) + " - " + this.value.get(1);
+				diff += CCAConstants.BEFORE + this.value + CCAConstants.AFTER;
 			} else {
-				return "Value Added : " + inputValue.getValue().get(0) + " - " + inputValue.getValue().get(1);
+				diff += CCAConstants.BEFORE + CCAConstants.AFTER + inputValue.getValue();
 			}
-		} else if(dbSize == 0) {
+		} else if (dbSize == 0) {
 			// Do nothing
-		} 
-		else if (!this.value.get(0).equals(inputValue.getValue().get(0))
+		} else if (!this.value.get(0).equals(inputValue.getValue().get(0))
 				|| !this.value.get(1).equals(inputValue.getValue().get(1))) {
-			return "[" + this.value.get(0) + "-" + this.value.get(1) + "] → [" + inputValue.getValue().get(0) + "-"
-					+ inputValue.getValue().get(1) + "]";
+			return diff += CCAConstants.BEFORE + this.value + CCAConstants.AFTER + inputValue.getValue();
 		}
 
-		return null;
+		return "".equals(diff) ? null : diff;
 	}
 
 	public DateRangeFieldValue(String dataValue) {

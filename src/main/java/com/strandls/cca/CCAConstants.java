@@ -21,4 +21,6 @@ public final class CCAConstants {
 	public static final String USER_ID = "userId";
 	public static final String ID = "id";
 	public static final String COLLECTION_NAME = "collectionName";
+	public static final String BEFORE = "Before : ";
+	public static final String AFTER = "\nAfter : ";
 }
