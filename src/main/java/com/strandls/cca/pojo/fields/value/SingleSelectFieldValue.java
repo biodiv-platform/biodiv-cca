@@ -15,10 +15,16 @@ public class SingleSelectFieldValue extends CCAFieldValue {
 
 	@Override
 	public String computeDiff(CCAFieldValue value) {
+		String diff = "";
+
 		SingleSelectFieldValue singleSelectFieldValue = (SingleSelectFieldValue) value;
-		if (!this.value.getValue().equals(singleSelectFieldValue.getValue().getValue()))
-			return "Value changed";
-		return null;
+		if (!this.value.getValue().equals(singleSelectFieldValue.getValue().getValue())) {
+			diff += "Before values\n";
+			diff += this.getValue();
+			diff += "After values\n";
+			diff += singleSelectFieldValue.getValue();
+		}
+		return diff.equals("") ? null : diff;
 	}
 
 	public SingleSelectFieldValue(String dataValue) {

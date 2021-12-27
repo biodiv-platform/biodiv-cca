@@ -48,7 +48,7 @@ public class ValueWithLabel {
 
 	@Override
 	public String toString() {
-		return "[ label : " + this.label + ", value : " + this.value + "]";
+		return "[label : " + this.label + ", value : " + this.value + "]";
 	}
 
 	public String getLabel() {

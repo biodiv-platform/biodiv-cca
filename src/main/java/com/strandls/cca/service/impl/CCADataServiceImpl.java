@@ -128,12 +128,14 @@ public class CCADataServiceImpl implements CCADataService {
 
 		ccaData.setUserId(profile.getId());
 
-		String desc = "Data created with template : " + ccaData.getShortName();
+		ccaData.reComputeCentroid();
+		ccaData = ccaDataDao.save(ccaData);
+
+		String desc = "Data created from : " + ccaData.getShortName();
 		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, ccaData.getId(),
 				ccaData.getId(), "ccaData", ccaData.getId(), "Data created");
 
-		ccaData.reComputeCentroid();
-		return ccaDataDao.save(ccaData);
+		return ccaData;
 	}
 
 	@Override
