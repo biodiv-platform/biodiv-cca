@@ -27,13 +27,13 @@ public class NumberRangeFieldValue extends CCAFieldValue {
 			if (dbSize > inSize) {
 				diff += CCAConstants.BEFORE + this.value + CCAConstants.AFTER;
 			} else {
-				diff += CCAConstants.BEFORE + CCAConstants.AFTER + inputValue;
+				diff += CCAConstants.BEFORE + CCAConstants.AFTER + inputValue.getValue();
 			}
 		} else if (dbSize == 0) {
 			// Do nothing
 		} else if (!this.value.get(0).equals(inputValue.getValue().get(0))
 				|| !this.value.get(1).equals(inputValue.getValue().get(1))) {
-			diff += CCAConstants.BEFORE + this.value + CCAConstants.AFTER + inputValue;
+			diff += CCAConstants.BEFORE + this.value + CCAConstants.AFTER + inputValue.getValue();
 
 		}
 
