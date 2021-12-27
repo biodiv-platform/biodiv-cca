@@ -140,9 +140,9 @@ public abstract class CCAField implements IChildable<CCAField> {
 		// Nothing to do here
 	}
 
-	public boolean equals(Object obj, String language) {
+	public String equals(Object obj, String language) {
 		if (!(obj instanceof CCAField))
-			return false;
+			return null;
 
 		if (language == null)
 			language = CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE);
@@ -151,12 +151,24 @@ public abstract class CCAField implements IChildable<CCAField> {
 
 		CCAFieldTranslations fieldTranslations = getTranslations().get(language);
 		if (fieldTranslations == null)
-			return false;
+			return null;
 
-		return fieldTranslations.equalsTo(field) && getIsRequired().equals(field.getIsRequired())
-				&& getIsMasterField().equals(field.getIsMasterField())
-				&& getIsSummaryField().equals(field.getIsSummaryField())
-				&& getIsFilterable().equals(field.getIsFilterable());
+		String diff = "";
+
+		diff += fieldTranslations.equalsTo(field);
+
+		diff += getIsRequired().equals(field.getIsRequired()) ? "" : getIsRequired() + "→" + field.getIsRequired();
+
+		diff += getIsMasterField().equals(field.getIsMasterField()) ? ""
+				: getIsMasterField() + "→" + field.getIsMasterField();
+
+		diff += getIsSummaryField().equals(field.getIsSummaryField()) ? ""
+				: getIsSummaryField() + "→" + field.getIsSummaryField();
+
+		diff += getIsFilterable().equals(field.getIsFilterable()) ? ""
+				: getIsFilterable() + "→" + field.getIsFilterable();
+
+		return diff.equals("") ? null : diff;
 
 	}
 

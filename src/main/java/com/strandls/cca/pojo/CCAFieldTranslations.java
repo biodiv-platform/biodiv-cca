@@ -46,9 +46,12 @@ public class CCAFieldTranslations {
 		this.setHelpText(ccaField.getHelpText());
 	}
 
-	public boolean equalsTo(CCAField field) {
-		return getName().equals(field.getName()) && getQuestion().equals(field.getQuestion())
-				&& getHelpText().equals(field.getHelpText());
+	public String equalsTo(CCAField field) {
+		String diff = "";
+		diff += getName().equals(field.getName()) ? "" : getName() + "→" + field.getName();
+		diff += getQuestion().equals(field.getQuestion()) ? "" : getQuestion() + "→" + field.getQuestion();
+		diff += getHelpText().equals(field.getHelpText()) ? "" : getHelpText() + "→" + field.getHelpText();
+		return diff;
 	}
 
 }

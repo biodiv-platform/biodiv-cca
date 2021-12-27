@@ -32,6 +32,11 @@ public class ValueWithLabel {
 	}
 
 	@Override
+	public int hashCode() {
+		return super.hashCode();
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof ValueWithLabel))
 			return false;
@@ -39,6 +44,11 @@ public class ValueWithLabel {
 		ValueWithLabel field = (ValueWithLabel) obj;
 
 		return getValue().equals(field.getValue());
+	}
+
+	@Override
+	public String toString() {
+		return "[ label : " + this.label + ", value : " + this.value + "]";
 	}
 
 	public String getLabel() {
@@ -72,8 +82,10 @@ public class ValueWithLabel {
 				&& OTHER_VALUE.equals(getValue().toLowerCase().replaceAll("\\s", "")))
 			return true;
 		return getValue().toLowerCase().trim().equals(valueWithLabel.getValue().toLowerCase().trim());
-		//String labelInDB = getTranslations().get(CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE));
-		//return labelInDB.toLowerCase().trim().equals(valueWithLabel.getLabel().toLowerCase().trim());
+		// String labelInDB =
+		// getTranslations().get(CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE));
+		// return
+		// labelInDB.toLowerCase().trim().equals(valueWithLabel.getLabel().toLowerCase().trim());
 	}
 
 }

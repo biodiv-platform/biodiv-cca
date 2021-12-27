@@ -35,7 +35,7 @@ public class DateFieldValue extends CCAFieldValue {
 		String diff = null;
 		if (this.value == null) {
 			if (inputValue != null)
-				diff = "" + "→" + inputValue.toString();
+				diff = "→" + inputValue.toString();
 		} else {
 			if (inputValue == null) {
 				diff = this.value.toString() + "→" + "";

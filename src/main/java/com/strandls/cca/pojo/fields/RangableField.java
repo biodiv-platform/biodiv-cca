@@ -49,15 +49,26 @@ public abstract class RangableField<T extends Comparable<T>> extends CCAField {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean equals(Object obj, String language) {
-		if (!super.equals(obj, language))
-			return false;
+	public String equals(Object obj, String language) {
+		String diff = super.equals(obj, language);
 
 		if (!(obj instanceof RangableField<?>))
-			return false;
+			return null;
 
 		RangableField<T> field = (RangableField<T>) obj;
-		return getMinMax().equals(field.getMinMax());
+
+		int dbSize = this.minMax.size();
+		int inSize = field.getMinMax().size();
+		if (dbSize != inSize) {
+			diff += "Range chanded from " + getMinMax() + " to " + field.getMinMax();
+		} else if (dbSize == 0) {
+			// Do nothing
+		} else {
+			if (!getMinMax().equals(field.getMinMax())) {
+				diff += "Range chanded from " + getMinMax() + " to " + field.getMinMax();
+			}
+		}
+		return diff.equals("") ? null : diff;
 	}
 
 	@JsonIgnore

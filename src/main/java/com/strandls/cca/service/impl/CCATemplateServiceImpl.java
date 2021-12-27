@@ -13,8 +13,6 @@ import javax.ws.rs.core.HttpHeaders;
 
 import org.pac4j.core.profile.CommonProfile;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.cca.ApiConstants;
@@ -39,9 +37,6 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 
 	@Inject
 	private LogActivities logActivities;
-
-	@Inject
-	private ObjectMapper objectMapper;
 
 	@Inject
 	public CCATemplateServiceImpl() {
@@ -91,11 +86,7 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 		if (language == null)
 			language = CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE);
 
-		try {
-			logActivityForUpdate(request, context, template, language);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
+		logActivityForUpdate(request, context, template, language);
 
 		context.addUpdateTranslation(template, language);
 
@@ -106,7 +97,7 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 	}
 
 	private void logActivityForUpdate(HttpServletRequest request, CCATemplate context, CCATemplate template,
-			String language) throws JsonProcessingException {
+			String language) {
 		Map<String, CCAField> inputFields = context.getAllFields();
 		Map<String, CCAField> dbFields = template.getAllFields();
 
@@ -115,17 +106,15 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 			CCAField dbField = e.getValue();
 			if (inputFields.containsKey(fieldId)) {
 				CCAField inputField = inputFields.get(fieldId);
+				String desc = dbField.equals(inputField, language);
 				// Condition to get the difference of the field in case of found
-				if (!dbField.equals(inputField, language)) {
-					String desc = "Field updated from  : " + objectMapper.writeValueAsString(dbField) + " to : "
-							+ objectMapper.writeValueAsString(inputField);
+				if (desc != null) {
 					logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, context.getId(),
 							context.getId(), "ccaTempate", context.getId(), "Field updated");
 				}
 			} else {
 				// This field is not available in the input.. Got deleted from the template
-				String desc = "Field deleted with name : " + dbField.getName() + " value : "
-						+ objectMapper.writeValueAsString(dbField);
+				String desc = "Field deleted with name : " + dbField.getName();
 				logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, context.getId(),
 						context.getId(), "ccaTempate", context.getId(), "Field deleted");
 			}
@@ -136,8 +125,7 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 			String fieldId = e.getKey();
 			CCAField f = e.getValue();
 			if (!dbFields.containsKey(fieldId)) {
-				String desc = "Field Added with name : " + f.getName() + " value : "
-						+ objectMapper.writeValueAsString(f);
+				String desc = "Field Added with name : " + f.getName();
 				logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, context.getId(),
 						context.getId(), "ccaTempate", context.getId(), "Field created");
 			}

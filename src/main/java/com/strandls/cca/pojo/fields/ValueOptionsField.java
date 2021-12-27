@@ -89,16 +89,27 @@ public abstract class ValueOptionsField extends CCAField {
 	}
 
 	@Override
-	public boolean equals(Object obj, String language) {
-		if (!super.equals(obj, language))
-			return false;
+	public String equals(Object obj, String language) {
+		String diff = super.equals(obj, language);
 
 		if (!(obj instanceof ValueOptionsField))
-			return false;
+			return null;
 
 		ValueOptionsField field = (ValueOptionsField) obj;
 
-		return getValueOptions().equals(field.getValueOptions());
+		int dbSize = this.valueOptions.size();
+		int inSize = field.getValueOptions().size();
+
+		if (dbSize != inSize) {
+			diff += "Value changed " + getValueOptions() + " to " + field.getValueOptions();
+		} else if (dbSize == 0) {
+			// NO nothing
+		} else {
+			if (!getValueOptions().equals(field.getValueOptions()))
+				diff += "Value changed " + getValueOptions() + " to " + field.getValueOptions();
+		}
+
+		return diff.equals("") ? null : diff;
 	}
 
 	public List<ValueWithLabel> getValueOptions() {
