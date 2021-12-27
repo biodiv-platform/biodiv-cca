@@ -2,8 +2,10 @@ package com.strandls.cca.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.core.MultivaluedMap;
@@ -33,8 +35,8 @@ public class CCAFilterUtil {
 	}
 
 	public static Bson getAllFilters(MultivaluedMap<String, String> queryParameter, CCATemplateDao templateDao,
-			ObjectMapper objectMapper, String userId) throws JsonProcessingException {
-
+			ObjectMapper objectMapper, String userId, Set<String> excludeFieldFromFilter)
+			throws JsonProcessingException {
 		List<Bson> filters = new ArrayList<>();
 		filters.addAll(getShortNameFilter(queryParameter));
 		filters.addAll(getUserIdFilter(userId));
@@ -42,10 +44,16 @@ public class CCAFilterUtil {
 		filters.addAll(getIsDeleteFilter());
 
 		// Create the And filter from all the fields.
-		List<Bson> filter = CCAFilterUtil.getFilterFromFields(queryParameter, templateDao, objectMapper);
+		List<Bson> filter = CCAFilterUtil.getFilterFromFields(queryParameter, templateDao, objectMapper,
+				excludeFieldFromFilter);
 		filters.addAll(filter);
 
 		return Filters.and(filters);
+	}
+
+	public static Bson getAllFilters(MultivaluedMap<String, String> queryParameter, CCATemplateDao templateDao,
+			ObjectMapper objectMapper, String userId) throws JsonProcessingException {
+		return getAllFilters(queryParameter, templateDao, objectMapper, userId, new HashSet<>());
 
 	}
 
@@ -87,7 +95,8 @@ public class CCAFilterUtil {
 	}
 
 	public static List<Bson> getFilterFromFields(MultivaluedMap<String, String> queryParameter,
-			CCATemplateDao templateDao, ObjectMapper objectMapper) throws JsonProcessingException {
+			CCATemplateDao templateDao, ObjectMapper objectMapper, Set<String> excludeFieldFromFilter)
+			throws JsonProcessingException {
 		// Take a master template as reference and create the filter
 		String filterTemplate;
 		if (queryParameter.containsKey(CCAConstants.FILTER_TEMPLATE)) {
@@ -104,7 +113,7 @@ public class CCAFilterUtil {
 			CCAField field = templateIt.next();
 			String fieldId = field.getFieldId();
 
-			if (queryParameter.containsKey(fieldId)) {
+			if (queryParameter.containsKey(fieldId) && !excludeFieldFromFilter.contains(fieldId)) {
 				List<String> value = queryParameter.get(fieldId);
 				filterArray.addAll(getFilters(value, field));
 			}
@@ -242,7 +251,7 @@ public class CCAFilterUtil {
 	}
 
 	public static Bson getFacetListForFilterableFields(MultivaluedMap<String, String> queryParameter,
-			CCATemplateDao templateDao) {
+			CCATemplateDao templateDao, ObjectMapper objectMapper, String userId) throws JsonProcessingException {
 		// Take a master template as reference and create the filter
 		String filterTemplate;
 		if (queryParameter.containsKey(CCAConstants.FILTER_TEMPLATE)) {
@@ -258,7 +267,7 @@ public class CCAFilterUtil {
 
 			CCAField field = templateIt.next();
 			if (field.getIsFilterable().booleanValue()) {
-				Facet facet = field.getGroupAggregation();
+				Facet facet = field.getGroupAggregation(queryParameter, templateDao, objectMapper, userId);
 				facets.add(facet);
 			}
 		}

@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.core.MultivaluedMap;
+
 import org.bson.codecs.pojo.annotations.BsonDiscriminator;
 import org.bson.codecs.pojo.annotations.BsonIgnore;
 import org.bson.codecs.pojo.annotations.BsonProperty;
@@ -14,10 +16,13 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.model.Facet;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.CCAConfig;
 import com.strandls.cca.FieldConstants;
+import com.strandls.cca.dao.CCATemplateDao;
 import com.strandls.cca.pojo.fields.CheckboxField;
 import com.strandls.cca.pojo.fields.DateField;
 import com.strandls.cca.pojo.fields.DateRangeField;
@@ -79,16 +84,16 @@ public abstract class CCAField implements IChildable<CCAField> {
 	@BsonProperty("translations")
 	private Map<String, CCAFieldTranslations> translations = new HashMap<>();
 
-	
 	@JsonIgnore
 	@BsonIgnore
 	public String getFieldHierarchy() {
 		return IFilter.CCA_FIELD_VALUES + "." + getFieldId() + ".value";
 	}
-	
+
 	@JsonIgnore
 	@BsonIgnore
-	public Facet getGroupAggregation() {
+	public Facet getGroupAggregation(MultivaluedMap<String, String> queryParameter, CCATemplateDao templateDao,
+			ObjectMapper objectMapper, String userId) throws JsonProcessingException {
 		return null;
 	}
 

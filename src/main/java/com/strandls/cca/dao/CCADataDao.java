@@ -16,7 +16,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Aggregates;
 import com.strandls.cca.CCAConstants;
 import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.util.BsonProjectionUtil;
@@ -39,11 +38,9 @@ public class CCADataDao extends AbstractDao<CCAData> {
 	public AggregateIterable<Map> getAggregation(UriInfo uriInfo, String userId) throws JsonProcessingException {
 		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
 
-		Bson filters = CCAFilterUtil.getAllFilters(queryParameter, templateDao, objectMapper, userId);
-		Bson facet = CCAFilterUtil.getFacetListForFilterableFields(queryParameter, templateDao);
+		Bson facet = CCAFilterUtil.getFacetListForFilterableFields(queryParameter, templateDao, objectMapper, userId);
 
-		Bson match = Aggregates.match(filters);
-		return dbCollection.aggregate(Arrays.asList(match, facet), Map.class);
+		return dbCollection.aggregate(Arrays.asList(facet), Map.class);
 	}
 
 	/**
