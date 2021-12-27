@@ -60,10 +60,6 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 	public CCATemplate save(HttpServletRequest request, CCATemplate context) {
 		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 
-		if (context.getId() == null) {
-			Long id = ccaTemplateDao.getNextValue();
-			context.setId(id);
-		}
 		CCATemplate template = ccaTemplateDao.findByProperty(CCAConstants.SHORT_NAME, context.getShortName());
 		if (template != null)
 			throw new IllegalArgumentException(
