@@ -131,8 +131,7 @@ public class CCADataServiceImpl implements CCADataService {
 		ccaData.reComputeCentroid();
 		ccaData = ccaDataDao.save(ccaData);
 
-		String desc = "Data created from : " + ccaData.getShortName();
-		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, ccaData.getId(),
+		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), "", ccaData.getId(),
 				ccaData.getId(), "ccaData", ccaData.getId(), "Data created");
 
 		return ccaData;
