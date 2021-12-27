@@ -7,7 +7,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.strandls.cca.pojo.fields.value.GeometryFieldValue;
 import com.strandls.cca.service.impl.LogActivities;
 
@@ -69,8 +68,7 @@ public class CCAData extends BaseEntity {
 		this.ccaFieldValues = ccaFieldValues;
 	}
 
-	public CCAData overrideFieldData(HttpServletRequest request, CCAData ccaData, ObjectMapper objectMapper,
-			LogActivities logActivities) {
+	public CCAData overrideFieldData(HttpServletRequest request, CCAData ccaData, LogActivities logActivities) {
 
 		Map<String, CCAFieldValue> fieldsMap = getCcaFieldValues();
 

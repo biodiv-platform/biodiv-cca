@@ -18,7 +18,6 @@ import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.pac4j.core.profile.CommonProfile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.AggregateIterable;
 import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.cca.ApiConstants;
@@ -47,9 +46,6 @@ public class CCADataServiceImpl implements CCADataService {
 
 	@Inject
 	private LogActivities logActivities;
-
-	@Inject
-	private ObjectMapper objectMapper;
 
 	@Inject
 	public CCADataServiceImpl() {
@@ -157,7 +153,7 @@ public class CCADataServiceImpl implements CCADataService {
 
 		CCAData dataInMem = ccaDataDao.getById(ccaData.getId());
 
-		dataInMem = dataInMem.overrideFieldData(request, ccaData, objectMapper, logActivities);
+		dataInMem = dataInMem.overrideFieldData(request, ccaData, logActivities);
 
 		dataInMem.reComputeCentroid();
 		return ccaDataDao.replaceOne(dataInMem);
