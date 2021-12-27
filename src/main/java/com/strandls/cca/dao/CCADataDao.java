@@ -80,13 +80,13 @@ public class CCADataDao extends AbstractDao<CCAData> {
 
 	public CCAData restore(Long id) {
 		CCAData data = dbCollection.find(getIdFilter(id)).first();
-		data.setIsDeleted(true);
+		data.setIsDeleted(false);
 		return replaceOne(data);
 	}
 
 	public CCAData remove(Long id) {
 		CCAData data = dbCollection.find(getIdFilter(id)).first();
-		data.setIsDeleted(false);
+		data.setIsDeleted(true);
 		return replaceOne(data);
 	}
 
