@@ -157,16 +157,17 @@ public abstract class CCAField implements IChildable<CCAField> {
 
 		diff += fieldTranslations.equalsTo(field);
 
-		diff += getIsRequired().equals(field.getIsRequired()) ? "" : getIsRequired() + "→" + field.getIsRequired();
+		diff += getIsRequired().equals(field.getIsRequired()) ? ""
+				: "Required : " + getIsRequired() + "→" + field.getIsRequired() + "\n";
 
 		diff += getIsMasterField().equals(field.getIsMasterField()) ? ""
-				: getIsMasterField() + "→" + field.getIsMasterField();
+				: "Master field : " + getIsMasterField() + "→" + field.getIsMasterField() + "\n";
 
 		diff += getIsSummaryField().equals(field.getIsSummaryField()) ? ""
-				: getIsSummaryField() + "→" + field.getIsSummaryField();
+				: "Summary field : " + getIsSummaryField() + "→" + field.getIsSummaryField() + "\n";
 
 		diff += getIsFilterable().equals(field.getIsFilterable()) ? ""
-				: getIsFilterable() + "→" + field.getIsFilterable();
+				: "Filterable : " + getIsFilterable() + "→" + field.getIsFilterable() + "\n";
 
 		return diff.equals("") ? null : diff;
 

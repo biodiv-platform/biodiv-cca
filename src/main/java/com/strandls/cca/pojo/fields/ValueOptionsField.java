@@ -101,12 +101,12 @@ public abstract class ValueOptionsField extends CCAField {
 		int inSize = field.getValueOptions().size();
 
 		if (dbSize != inSize) {
-			diff += "Value changed " + getValueOptions() + " to " + field.getValueOptions();
+			diff += "Value : " + getValueOptions() + "→" + field.getValueOptions() + "\n";
 		} else if (dbSize == 0) {
 			// NO nothing
 		} else {
 			if (!getValueOptions().equals(field.getValueOptions()))
-				diff += "Value changed " + getValueOptions() + " to " + field.getValueOptions();
+				diff += "Value : " + getValueOptions() + "→" + field.getValueOptions() + "\n";
 		}
 
 		return diff.equals("") ? null : diff;

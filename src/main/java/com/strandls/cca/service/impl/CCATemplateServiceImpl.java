@@ -109,12 +109,13 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 				String desc = dbField.equals(inputField, language);
 				// Condition to get the difference of the field in case of found
 				if (desc != null) {
+					desc = "Field updated : " + inputField.getName() + "\n" + desc;
 					logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, context.getId(),
 							context.getId(), "ccaTempate", context.getId(), "Field updated");
 				}
 			} else {
 				// This field is not available in the input.. Got deleted from the template
-				String desc = "Field deleted with name : " + dbField.getName();
+				String desc = "Field deleted : " + dbField.getName();
 				logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, context.getId(),
 						context.getId(), "ccaTempate", context.getId(), "Field deleted");
 			}
@@ -125,7 +126,7 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 			String fieldId = e.getKey();
 			CCAField f = e.getValue();
 			if (!dbFields.containsKey(fieldId)) {
-				String desc = "Field Added with name : " + f.getName();
+				String desc = "Field Added : " + f.getName();
 				logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, context.getId(),
 						context.getId(), "ccaTempate", context.getId(), "Field created");
 			}

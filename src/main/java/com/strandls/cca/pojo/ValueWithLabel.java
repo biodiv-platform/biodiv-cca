@@ -75,17 +75,11 @@ public class ValueWithLabel {
 		this.translations = labelTranslations;
 	}
 
-	// TODO : Need to make change for take into consideration the othe language as
-	// well.
 	public boolean belongs(ValueWithLabel valueWithLabel) {
 		if (OTHER_VALUE.equals(valueWithLabel.getValue().toLowerCase().replaceAll("\\s", ""))
 				&& OTHER_VALUE.equals(getValue().toLowerCase().replaceAll("\\s", "")))
 			return true;
 		return getValue().toLowerCase().trim().equals(valueWithLabel.getValue().toLowerCase().trim());
-		// String labelInDB =
-		// getTranslations().get(CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE));
-		// return
-		// labelInDB.toLowerCase().trim().equals(valueWithLabel.getLabel().toLowerCase().trim());
 	}
 
 }

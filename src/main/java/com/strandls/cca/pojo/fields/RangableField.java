@@ -60,12 +60,12 @@ public abstract class RangableField<T extends Comparable<T>> extends CCAField {
 		int dbSize = this.minMax.size();
 		int inSize = field.getMinMax().size();
 		if (dbSize != inSize) {
-			diff += "Range chanded from " + getMinMax() + " to " + field.getMinMax();
+			diff += "Range : " + getMinMax() + "→" + field.getMinMax() + "\n";
 		} else if (dbSize == 0) {
 			// Do nothing
 		} else {
 			if (!getMinMax().equals(field.getMinMax())) {
-				diff += "Range chanded from " + getMinMax() + " to " + field.getMinMax();
+				diff += "Range : " + getMinMax() + "→" + field.getMinMax() + "\n";
 			}
 		}
 		return diff.equals("") ? null : diff;
