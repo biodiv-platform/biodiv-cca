@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.strandls.cca.pojo.CCAData;
+import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.fields.value.FileFieldValue;
 import com.strandls.cca.pojo.fields.value.FileMeta;
@@ -26,7 +27,7 @@ public class CCADataList {
 	private List<FileMeta> files;
 	private List<CCAFieldValue> values;
 
-	public CCADataList(CCAData ccaData) {
+	public CCADataList(CCAData ccaData, Map<String, CCAField> translatedFields) {
 		this.id = ccaData.getId();
 		this.shortName = ccaData.getShortName();
 		this.userId = ccaData.getUserId();
@@ -39,10 +40,10 @@ public class CCADataList {
 		this.geometry = new GeometryFieldValue();
 		this.files = new ArrayList<>();
 		this.values = new ArrayList<>();
-		init(ccaData);
+		init(ccaData, translatedFields);
 	}
 
-	private void init(CCAData ccaData) {
+	private void init(CCAData ccaData, Map<String, CCAField> translatedFields) {
 		for (Map.Entry<String, CCAFieldValue> e : ccaData.getCcaFieldValues().entrySet()) {
 			CCAFieldValue fieldValue = e.getValue();
 
@@ -56,6 +57,10 @@ public class CCADataList {
 				files.addAll(fileMetas);
 				break;
 			default:
+				if (translatedFields.containsKey(e.getKey())) {
+					CCAField translatedField = translatedFields.get(e.getKey());
+					fieldValue.translate(translatedField);
+				}
 				values.add(fieldValue);
 				break;
 			}

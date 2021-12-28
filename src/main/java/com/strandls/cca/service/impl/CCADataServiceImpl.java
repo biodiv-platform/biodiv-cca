@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -79,7 +80,16 @@ public class CCADataServiceImpl implements CCADataService {
 		}
 
 		List<CCAData> ccaDatas = ccaDataDao.getAll(uriInfo, false, userId);
-		List<CCADataList> ccaDataList = mergeToCCADataList(ccaDatas);
+
+		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
+		String language = queryParams.getFirst(CCAConstants.LANGUAGE);
+		if (language == null)
+			language = CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE);
+
+		Map<String, CCAField> translatedFields = ccaTemplateService.getCCAByShortName("master", language)
+				.getAllFields();
+
+		List<CCADataList> ccaDataList = mergeToCCADataList(ccaDatas, translatedFields);
 
 		AggregateIterable<Map> aggregation = ccaDataDao.getAggregation(uriInfo, userId);
 
@@ -89,10 +99,11 @@ public class CCADataServiceImpl implements CCADataService {
 		return aggregationResponse;
 	}
 
-	private List<CCADataList> mergeToCCADataList(List<CCAData> ccaDatas) {
+	private List<CCADataList> mergeToCCADataList(List<CCAData> ccaDatas, Map<String, CCAField> translatedFields) {
+
 		List<CCADataList> result = new ArrayList<>();
 		for (CCAData ccaData : ccaDatas) {
-			CCADataList listCard = new CCADataList(ccaData);
+			CCADataList listCard = new CCADataList(ccaData, translatedFields);
 			result.add(listCard);
 		}
 		return result;

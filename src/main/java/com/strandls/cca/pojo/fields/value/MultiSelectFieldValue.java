@@ -1,11 +1,14 @@
 package com.strandls.cca.pojo.fields.value;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.ValueWithLabel;
+import com.strandls.cca.pojo.fields.MultiSelectField;
 import com.strandls.cca.pojo.fields.ValueOptionsField;
 import com.strandls.cca.util.CCAUtil;
 
@@ -22,6 +25,25 @@ public class MultiSelectFieldValue extends CCAFieldValue {
 
 	public void setValue(List<ValueWithLabel> value) {
 		this.value = value;
+	}
+
+	@Override
+	public void translate(CCAField translatedField) {
+		super.translate(translatedField);
+
+		MultiSelectField field = (MultiSelectField) translatedField;
+
+		Map<String, String> valueToLabel = new HashMap<>();
+		for (ValueWithLabel valueWithLabel : field.getValueOptions()) {
+			valueToLabel.put(valueWithLabel.getValue(), valueWithLabel.getLabel());
+		}
+		for (ValueWithLabel valueWithLabel : getValue()) {
+			String v = valueWithLabel.getValue();
+			if (valueToLabel.containsKey(v)) {
+				String label = valueToLabel.get(valueWithLabel.getValue());
+				valueWithLabel.setLabel(label);
+			}
+		}
 	}
 
 	@Override

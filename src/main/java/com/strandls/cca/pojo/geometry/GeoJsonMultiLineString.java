@@ -3,6 +3,7 @@ package com.strandls.cca.pojo.geometry;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mongodb.client.model.geojson.Geometry;
 import com.mongodb.client.model.geojson.MultiLineString;
 import com.mongodb.client.model.geojson.Position;
@@ -37,6 +38,7 @@ public class GeoJsonMultiLineString extends GeoJsonGeometry {
 	}
 
 	@Override
+	@JsonIgnore
 	public List<Double> getCentroid() {
 		return GeometryUtil.computeCentroid3D(coordinates);
 	}

@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mongodb.client.model.geojson.Geometry;
 import com.mongodb.client.model.geojson.Point;
 import com.mongodb.client.model.geojson.Position;
@@ -23,6 +24,7 @@ public class GeometryFieldValue extends CCAFieldValue {
 		this.value = new FeatureCollection();
 	}
 
+	@JsonIgnore
 	public List<Double> getCentroid() {
 		return value.getCentroid();
 	}

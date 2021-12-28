@@ -24,6 +24,7 @@ public abstract class GeoJsonGeometry {
 
 	protected GeometryType type;
 
+	@JsonIgnore
 	public abstract List<Double> getCentroid();
 
 	@JsonIgnore

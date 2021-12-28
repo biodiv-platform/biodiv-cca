@@ -14,6 +14,12 @@ public class SingleSelectFieldValue extends CCAFieldValue {
 	}
 
 	@Override
+	public void translate(CCAField translatedField, String language) {
+		super.translate(translatedField, language);
+		value.translate(language);
+	}
+
+	@Override
 	public String computeDiff(CCAFieldValue value) {
 		String diff = "";
 

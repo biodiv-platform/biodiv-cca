@@ -15,6 +15,7 @@ public class FeatureCollection {
 		this.features = new ArrayList<>();
 	}
 
+	@JsonIgnore
 	public List<Double> getCentroid() {
 		List<Double> centroid = new ArrayList<>();
 		Double x = 0.0;

@@ -84,4 +84,8 @@ public abstract class CCAFieldValue {
 	}
 
 	public abstract String computeDiff(CCAFieldValue value);
+
+	public void translate(CCAField translatedField) {
+		setName(translatedField.getName());
+	}
 }

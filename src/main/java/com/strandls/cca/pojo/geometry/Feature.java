@@ -4,12 +4,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class Feature {
 
 	private String type = "Feature";
 	private Map<String, String> properties = new HashMap<>();
 	private GeoJsonGeometry geometry;
 
+	@JsonIgnore
 	public List<Double> getCentroid() {
 		return geometry.getCentroid();
 	}
