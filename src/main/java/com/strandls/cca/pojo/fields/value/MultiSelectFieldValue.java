@@ -14,7 +14,7 @@ import com.strandls.cca.util.CCAUtil;
 
 public class MultiSelectFieldValue extends CCAFieldValue {
 
-	private List<ValueWithLabel> value;
+	private List<ValueWithLabel> value = new ArrayList<>();
 
 	public MultiSelectFieldValue() {
 	}
