@@ -3,6 +3,7 @@ package com.strandls.cca.pojo.fields.value;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.ValueWithLabel;
+import com.strandls.cca.pojo.fields.SingleSelectField;
 import com.strandls.cca.pojo.fields.ValueOptionsField;
 import com.strandls.cca.util.CCAUtil;
 
@@ -14,9 +15,15 @@ public class SingleSelectFieldValue extends CCAFieldValue {
 	}
 
 	@Override
-	public void translate(CCAField translatedField, String language) {
-		super.translate(translatedField, language);
-		value.translate(language);
+	public void translate(CCAField translatedField) {
+		super.translate(translatedField);
+
+		SingleSelectField field = (SingleSelectField) translatedField;
+		for (ValueWithLabel valueWithLabel : field.getValueOptions()) {
+			if (this.value.getValue().equals(valueWithLabel.getValue())) {
+				this.value.setLabel(valueWithLabel.getLabel());
+			}
+		}
 	}
 
 	@Override
