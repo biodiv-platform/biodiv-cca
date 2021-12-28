@@ -68,7 +68,7 @@ public abstract class RangableField<T extends Comparable<T>> extends CCAField {
 				diff += "Range : " + getMinMax() + "→" + field.getMinMax() + "\n";
 			}
 		}
-		return diff.equals("") ? null : diff;
+		return "".equals(diff) ? null : diff;
 	}
 
 	@JsonIgnore
