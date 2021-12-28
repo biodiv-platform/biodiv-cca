@@ -24,7 +24,7 @@ public class SingleSelectFieldValue extends CCAFieldValue {
 			diff += "\nAfter : ";
 			diff += singleSelectFieldValue.getValue();
 		}
-		return diff.equals("") ? null : diff;
+		return "".equals(diff) ? null : diff;
 	}
 
 	public SingleSelectFieldValue(String dataValue) {

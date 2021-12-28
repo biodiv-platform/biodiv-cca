@@ -109,7 +109,7 @@ public abstract class ValueOptionsField extends CCAField {
 				diff += "Value : " + getValueOptions() + "→" + field.getValueOptions() + "\n";
 		}
 
-		return diff.equals("") ? null : diff;
+		return "".equals(diff) ? null : diff;
 	}
 
 	public List<ValueWithLabel> getValueOptions() {

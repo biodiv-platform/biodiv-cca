@@ -48,7 +48,7 @@ public class MultiSelectFieldValue extends CCAFieldValue {
 			}
 		}
 
-		return diff.equals("") ? null : diff;
+		return "".equals(diff) ? null : diff;
 	}
 
 	public MultiSelectFieldValue(String dataValue) {
