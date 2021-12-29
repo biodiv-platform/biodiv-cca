@@ -13,6 +13,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -70,9 +71,10 @@ public class CCADataController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get the cca data", notes = "Returns CCA data fields", response = CCAData.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
-	public Response getCCAData(@Context HttpServletRequest request, @PathParam("id") Long id) {
+	public Response getCCAData(@Context HttpServletRequest request, @PathParam("id") Long id,
+			@QueryParam("language") String language) {
 		try {
-			CCAData ccaData = ccaDataService.findById(id);
+			CCAData ccaData = ccaDataService.findById(id, language);
 			if (ccaData == null)
 				throw new ObjectNotFoundException(id, id.toString());
 			return Response.status(Status.OK).entity(ccaData).build();

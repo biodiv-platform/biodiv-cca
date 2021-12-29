@@ -31,6 +31,9 @@ public class MultiSelectFieldValue extends CCAFieldValue {
 	public void translate(CCAField translatedField) {
 		super.translate(translatedField);
 
+		if (this.value == null || this.value.isEmpty())
+			return;
+
 		MultiSelectField field = (MultiSelectField) translatedField;
 
 		Map<String, String> valueToLabel = new HashMap<>();

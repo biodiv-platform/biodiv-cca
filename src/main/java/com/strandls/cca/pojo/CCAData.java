@@ -99,4 +99,16 @@ public class CCAData extends BaseEntity {
 		return this;
 	}
 
+	public void translate(CCATemplate template) {
+		Map<String, CCAField> translatedFields = template.getAllFields();
+		for (Map.Entry<String, CCAFieldValue> e : getCcaFieldValues().entrySet()) {
+			String fieldId = e.getKey();
+			CCAFieldValue ccaFieldValue = e.getValue();
+			if (translatedFields.containsKey(fieldId)) {
+				CCAField field = translatedFields.get(fieldId);
+				ccaFieldValue.translate(field);
+			}
+		}
+	}
+
 }

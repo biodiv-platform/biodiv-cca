@@ -17,10 +17,13 @@ public class SingleSelectFieldValue extends CCAFieldValue {
 	@Override
 	public void translate(CCAField translatedField) {
 		super.translate(translatedField);
+		
+		if (this.value == null)
+			return;
 
 		SingleSelectField field = (SingleSelectField) translatedField;
 		for (ValueWithLabel valueWithLabel : field.getValueOptions()) {
-			if (this.value.getValue().equals(valueWithLabel.getValue())) {
+			if (valueWithLabel.getValue().equals(this.value.getValue())) {
 				this.value.setLabel(valueWithLabel.getLabel());
 			}
 		}

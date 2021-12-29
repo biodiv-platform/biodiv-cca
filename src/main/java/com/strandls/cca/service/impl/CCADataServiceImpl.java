@@ -54,8 +54,15 @@ public class CCADataServiceImpl implements CCADataService {
 	}
 
 	@Override
-	public CCAData findById(Long id) {
-		return ccaDataDao.findByProperty(CCAConstants.ID, id);
+	public CCAData findById(Long id, String language) {
+		CCAData ccaData = ccaDataDao.findByProperty(CCAConstants.ID, id);
+
+		if (language == null)
+			language = CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE);
+		CCATemplate template = ccaTemplateService.getCCAByShortName(ccaData.getShortName(), language);
+
+		ccaData.translate(template);
+		return ccaData;
 	}
 
 	@Override
@@ -86,10 +93,7 @@ public class CCADataServiceImpl implements CCADataService {
 		if (language == null)
 			language = CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE);
 
-		Map<String, CCAField> translatedFields = ccaTemplateService.getCCAByShortName("master", language)
-				.getAllFields();
-
-		List<CCADataList> ccaDataList = mergeToCCADataList(ccaDatas, translatedFields);
+		List<CCADataList> ccaDataList = mergeToCCADataList(ccaDatas, language);
 
 		AggregateIterable<Map> aggregation = ccaDataDao.getAggregation(uriInfo, userId);
 
@@ -99,11 +103,13 @@ public class CCADataServiceImpl implements CCADataService {
 		return aggregationResponse;
 	}
 
-	private List<CCADataList> mergeToCCADataList(List<CCAData> ccaDatas, Map<String, CCAField> translatedFields) {
+	private List<CCADataList> mergeToCCADataList(List<CCAData> ccaDatas, String language) {
 
 		List<CCADataList> result = new ArrayList<>();
 		for (CCAData ccaData : ccaDatas) {
-			CCADataList listCard = new CCADataList(ccaData, translatedFields);
+			CCATemplate template = ccaTemplateService.getCCAByShortName(ccaData.getShortName(), language);
+			ccaData.translate(template);
+			CCADataList listCard = new CCADataList(ccaData);
 			result.add(listCard);
 		}
 		return result;

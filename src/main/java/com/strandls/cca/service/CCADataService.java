@@ -19,7 +19,7 @@ public interface CCADataService {
 
 	public CCAData save(HttpServletRequest request, CCAData ccaData);
 
-	public CCAData findById(Long id);
+	public CCAData findById(Long id, String language);
 
 	public CCAData update(HttpServletRequest request, CCAData ccaData);
 
