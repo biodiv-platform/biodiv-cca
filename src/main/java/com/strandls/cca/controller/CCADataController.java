@@ -161,7 +161,8 @@ public class CCADataController {
 	public Response updateCCAData(@Context HttpServletRequest request, @ApiParam("ccaData") CCAData ccaData) {
 		try {
 			if (AuthorizationUtil.checkAuthorization(request,
-					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), ccaData.getId())) {
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR),
+					Long.parseLong(ccaData.getUserId()))) {
 				ccaData = ccaDataService.update(request, ccaData);
 				return Response.status(Status.OK).entity(ccaData).build();
 			} else {
