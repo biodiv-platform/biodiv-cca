@@ -164,6 +164,38 @@ public class CCATemplateController {
 		}
 	}
 
+	@GET
+	@Path("/pullMasterTranslation")
+
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+
+	@ApiOperation(value = "Update translation from master template", notes = "Returns CCA Template and its fields", response = CCATemplate.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 404, message = "Could not update the CCA Template translation", response = String.class) })
+
+	public Response pullTranslationFromMaster(@Context HttpServletRequest request,
+			@QueryParam("templateId") Long templateId, @QueryParam("language") String language) {
+		try {
+			if (AuthorizationUtil.checkAuthorization(request,
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_TEMPLATECURATOR), null)) {
+				CCATemplate ccaTemplate = ccaContextService.pullTranslationFromMaster(request, templateId, language);
+				return Response.status(Status.OK).entity(ccaTemplate).build();
+			} else {
+				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
+						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
+			}
+		} catch (IllegalArgumentException e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
+		} catch (Exception e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+		}
+	}
+
 	@PUT
 	@Path("/update")
 

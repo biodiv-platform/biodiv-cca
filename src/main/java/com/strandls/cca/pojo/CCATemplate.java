@@ -12,6 +12,7 @@ import org.bson.codecs.pojo.annotations.BsonProperty;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.CCAConfig;
+import com.strandls.cca.CCAConstants;
 import com.strandls.cca.util.DFSTreeIterator;
 import com.strandls.cca.util.Permissions;
 
@@ -62,6 +63,28 @@ public class CCATemplate extends BaseEntity {
 			throw new IllegalArgumentException(
 					"No translation support for given language and default language as well for " + this.shortName);
 		return ccaTemplateTranslations.translate(this);
+	}
+
+	public CCATemplate pullTranslationFromMaster(CCATemplate master, String language) {
+
+		// If the current template is master then no need to populate translation
+		if (CCAConstants.MASTER.equals(this.getShortName()))
+			return this;
+
+		Map<String, CCAField> masterFields = master.getAllFields();
+
+		// For the field if it is new then
+		Iterator<CCAField> it = iterator();
+		while (it.hasNext()) {
+			CCAField field = it.next();
+			String fieldId = field.getFieldId();
+			CCAField masterField = masterFields.get(fieldId);
+			// Field is of master type, copied from master and it is not present in the DB.
+			if (masterField != null && field.getIsMasterField().booleanValue()) {
+				field.pullTranslationFromMaster(masterField, language);
+			}
+		}
+		return this;
 	}
 
 	/**

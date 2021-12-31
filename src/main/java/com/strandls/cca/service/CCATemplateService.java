@@ -17,6 +17,8 @@ public interface CCATemplateService {
 
 	public CCATemplate getCCAByShortName(String ccaId, String language);
 
+	public CCATemplate pullTranslationFromMaster(HttpServletRequest request, Long templateId, String language);
+
 	public CCATemplate update(HttpServletRequest request, CCATemplate ccaMetaData);
 
 	public CCATemplate save(HttpServletRequest request, CCATemplate ccaMasterField);

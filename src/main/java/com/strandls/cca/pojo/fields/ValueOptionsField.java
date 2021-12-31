@@ -51,6 +51,28 @@ public abstract class ValueOptionsField extends CCAField {
 		return this;
 	}
 
+	@Override
+	public void pullTranslationFromMaster(CCAField ccaField, String language) {
+		super.pullTranslationFromMaster(ccaField, language);
+
+		ValueOptionsField valueOptionsField = (ValueOptionsField) ccaField;
+
+		// take previous translations
+		Map<String, ValueWithLabel> valueOptionsMap = new HashMap<>();
+		if (valueOptionsField != null)
+			for (ValueWithLabel valueWithLabel : valueOptionsField.getValueOptions()) {
+				valueOptionsMap.put(valueWithLabel.getValue(), valueWithLabel);
+			}
+
+		for (ValueWithLabel valueWithLabel : getValueOptions()) {
+			String value = valueWithLabel.getValue();
+			ValueWithLabel masterValueWithLabel = valueOptionsMap.get(value);
+			if (masterValueWithLabel != null) {
+				valueWithLabel.setLabel(masterValueWithLabel.getLabel());
+			}
+		}
+	}
+
 	/**
 	 * Update all the label before doing the field translation. This method take
 	 * care translation for all the value option fields.
@@ -67,7 +89,8 @@ public abstract class ValueOptionsField extends CCAField {
 			}
 
 		for (ValueWithLabel valueWithLabel : getValueOptions()) {
-			valueWithLabel.addUpdateTranslation(valueOptionsMap.get(valueWithLabel.getValue()), language);
+			if (valueOptionsMap.containsKey(valueWithLabel.getValue()))
+				valueWithLabel.addUpdateTranslation(valueOptionsMap.get(valueWithLabel.getValue()), language);
 		}
 		super.addUpdateTranslation(ccaField, language);
 		return translate(language);

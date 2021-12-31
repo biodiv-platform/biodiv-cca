@@ -136,6 +136,12 @@ public abstract class CCAField implements IChildable<CCAField> {
 		return translate(language);
 	}
 
+	public void pullTranslationFromMaster(CCAField ccaField, String language) {
+		this.name = ccaField.getName();
+		this.helpText = ccaField.getHelpText();
+		this.question = ccaField.getQuestion();
+	}
+
 	public void validate() {
 		// Nothing to do here
 	}
@@ -276,5 +282,4 @@ public abstract class CCAField implements IChildable<CCAField> {
 	public void setTranslations(Map<String, CCAFieldTranslations> translations) {
 		this.translations = translations;
 	}
-
 }

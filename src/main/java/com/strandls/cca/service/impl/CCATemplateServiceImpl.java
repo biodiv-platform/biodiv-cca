@@ -77,6 +77,28 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 	}
 
 	@Override
+	public CCATemplate pullTranslationFromMaster(HttpServletRequest request, Long templateId, String language) {
+		if (language == null)
+			throw new IllegalArgumentException("Please specify the language");
+
+		CCATemplate context = ccaTemplateDao.findByProperty(CCAConstants.ID, templateId);
+		if (context == null)
+			throw new IllegalArgumentException("Template with Id : " + templateId + " doesn't exits");
+
+		CCATemplate masterTemplate = ccaTemplateDao.findByProperty(CCAConstants.SHORT_NAME, CCAConstants.MASTER);
+		if (masterTemplate == null)
+			throw new IllegalArgumentException("No master template, create master template first");
+
+		masterTemplate.translate(language);
+		context.pullTranslationFromMaster(masterTemplate, language);
+
+		context.translate(language);
+		context.setLanguage(language);
+
+		return context;
+	}
+
+	@Override
 	public CCATemplate update(HttpServletRequest request, CCATemplate context) {
 		CCATemplate template = ccaTemplateDao.findByProperty(CCAConstants.SHORT_NAME, context.getShortName());
 		if (template == null)
