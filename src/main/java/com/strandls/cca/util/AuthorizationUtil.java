@@ -35,7 +35,7 @@ public class AuthorizationUtil {
 		return permissions;
 	}
 
-	public static boolean checkAuthorization(HttpServletRequest request, List<Permissions> list, Long objectId) {
+	public static boolean checkAuthorization(HttpServletRequest request, List<Permissions> list, String userId) {
 		if (request == null)
 			return false;
 
@@ -52,8 +52,8 @@ public class AuthorizationUtil {
 		if (!permittedRoles.isEmpty())
 			return true;
 
-		if (objectId != null)
-			return objectId.toString().equals(profile.getId());
+		if (userId != null)
+			return userId.equals(profile.getId());
 
 		return false;
 	}

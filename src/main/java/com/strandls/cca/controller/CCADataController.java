@@ -161,8 +161,7 @@ public class CCADataController {
 	public Response updateCCAData(@Context HttpServletRequest request, @ApiParam("ccaData") CCAData ccaData) {
 		try {
 			if (AuthorizationUtil.checkAuthorization(request,
-					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR),
-					Long.parseLong(ccaData.getUserId()))) {
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), ccaData.getUserId())) {
 				ccaData = ccaDataService.update(request, ccaData);
 				return Response.status(Status.OK).entity(ccaData).build();
 			} else {
@@ -245,7 +244,7 @@ public class CCADataController {
 	public Response restoreCCAData(@Context HttpServletRequest request, @PathParam("id") Long id) {
 		try {
 			if (AuthorizationUtil.checkAuthorization(request,
-					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), id)) {
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), null)) {
 				CCAData ccaData = ccaDataService.restore(id);
 				return Response.status(Status.OK).entity(ccaData).build();
 			} else {
@@ -275,7 +274,7 @@ public class CCADataController {
 	public Response removeCCAData(@Context HttpServletRequest request, @PathParam("id") Long id) {
 		try {
 			if (AuthorizationUtil.checkAuthorization(request,
-					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), id)) {
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), null)) {
 				CCAData ccaData = ccaDataService.remove(id);
 				return Response.status(Status.OK).entity(ccaData).build();
 			} else {

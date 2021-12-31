@@ -130,7 +130,7 @@ public class CCADataServiceImpl implements CCADataService {
 		CCATemplate ccaTemplate = ccaTemplateService.getCCAByShortName(shortName,
 				CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE));
 
-		if (!AuthorizationUtil.checkAuthorization(request, ccaTemplate.getPermissions(), ccaData.getId())) {
+		if (!AuthorizationUtil.checkAuthorization(request, ccaTemplate.getPermissions(), ccaData.getUserId())) {
 			throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
 					.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
 		}
