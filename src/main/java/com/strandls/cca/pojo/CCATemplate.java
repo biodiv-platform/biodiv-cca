@@ -65,7 +65,7 @@ public class CCATemplate extends BaseEntity {
 		return ccaTemplateTranslations.translate(this);
 	}
 
-	public CCATemplate pullTranslationFromMaster(CCATemplate master, String language) {
+	public CCATemplate pullTranslationFromMaster(CCATemplate master) {
 
 		// If the current template is master then no need to populate translation
 		if (CCAConstants.MASTER.equals(this.getShortName()))
@@ -81,7 +81,7 @@ public class CCATemplate extends BaseEntity {
 			CCAField masterField = masterFields.get(fieldId);
 			// Field is of master type, copied from master and it is not present in the DB.
 			if (masterField != null && field.getIsMasterField().booleanValue()) {
-				field.pullTranslationFromMaster(masterField, language);
+				field.pullTranslationFromMaster(masterField);
 			}
 		}
 		return this;

@@ -136,7 +136,7 @@ public abstract class CCAField implements IChildable<CCAField> {
 		return translate(language);
 	}
 
-	public void pullTranslationFromMaster(CCAField ccaField, String language) {
+	public void pullTranslationFromMaster(CCAField ccaField) {
 		this.name = ccaField.getName();
 		this.helpText = ccaField.getHelpText();
 		this.question = ccaField.getQuestion();

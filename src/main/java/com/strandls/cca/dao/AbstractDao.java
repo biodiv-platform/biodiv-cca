@@ -73,9 +73,9 @@ public abstract class AbstractDao<T extends IdInterface> {
 		if (t.getId() == null) {
 			Long id = getNextValue();
 			t.setId(id);
-			ObjectId bsonId = new ObjectId();
-			t.setBasonId(bsonId.toHexString());
 		}
+		ObjectId bsonId = new ObjectId();
+		t.setBasonId(bsonId.toHexString());
 		dbCollection.insertOne(t);
 		return t;
 	}

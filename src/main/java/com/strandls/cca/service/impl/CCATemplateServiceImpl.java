@@ -90,9 +90,9 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 			throw new IllegalArgumentException("No master template, create master template first");
 
 		masterTemplate.translate(language);
-		context.pullTranslationFromMaster(masterTemplate, language);
-
 		context.translate(language);
+		
+		context.pullTranslationFromMaster(masterTemplate);
 		context.setLanguage(language);
 
 		return context;

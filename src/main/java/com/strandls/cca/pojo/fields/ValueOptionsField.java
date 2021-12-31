@@ -52,8 +52,8 @@ public abstract class ValueOptionsField extends CCAField {
 	}
 
 	@Override
-	public void pullTranslationFromMaster(CCAField ccaField, String language) {
-		super.pullTranslationFromMaster(ccaField, language);
+	public void pullTranslationFromMaster(CCAField ccaField) {
+		super.pullTranslationFromMaster(ccaField);
 
 		ValueOptionsField valueOptionsField = (ValueOptionsField) ccaField;
 
