@@ -27,6 +27,8 @@ public class CCATemplate extends BaseEntity {
 	private String description;
 
 	private String shortName;
+	
+	private String parentName;
 
 	private List<Permissions> permissions = new ArrayList<>();
 
@@ -161,6 +163,14 @@ public class CCATemplate extends BaseEntity {
 	public void setShortName(String shortName) {
 		this.shortName = shortName;
 	}
+	
+	public String getParentName() {
+		return parentName;
+	}
+
+	public void setParentName(String parentName) {
+		this.parentName = parentName;
+	}
 
 	public List<Permissions> getPermissions() {
 		return permissions;
@@ -201,5 +211,4 @@ public class CCATemplate extends BaseEntity {
 	public void setLanguage(String language) {
 		this.language = language;
 	}
-
 }
