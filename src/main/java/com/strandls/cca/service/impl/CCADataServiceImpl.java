@@ -68,7 +68,7 @@ public class CCADataServiceImpl implements CCADataService {
 	@Override
 	public List<CCAData> getAllCCAData(HttpServletRequest request, UriInfo uriInfo) throws JsonProcessingException {
 		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
-		return ccaDataDao.getAll(uriInfo, true, queryParameter.get(CCAConstants.USER_ID).get(0).toString());
+		return ccaDataDao.getAll(uriInfo, true, queryParameter.get(CCAConstants.USER_ID).get(0));
 	}
 
 	@Override
