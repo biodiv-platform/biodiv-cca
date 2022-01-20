@@ -70,6 +70,7 @@ public class CCAData extends BaseEntity {
 
 	public CCAData overrideFieldData(HttpServletRequest request, CCAData ccaData, LogActivities logActivities) {
 
+		this.shortName = ccaData.shortName;
 		Map<String, CCAFieldValue> fieldsMap = getCcaFieldValues();
 
 		for (Map.Entry<String, CCAFieldValue> e : ccaData.getCcaFieldValues().entrySet()) {
