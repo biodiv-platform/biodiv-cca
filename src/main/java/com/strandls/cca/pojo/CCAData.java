@@ -13,7 +13,7 @@ import com.strandls.cca.service.impl.LogActivities;
 public class CCAData extends BaseEntity {
 
 	private String shortName;
-	
+
 	private List<Double> centroid = new ArrayList<>();
 
 	private Map<String, CCAFieldValue> ccaFieldValues;
@@ -43,7 +43,7 @@ public class CCAData extends BaseEntity {
 		centroid.add(x);
 		centroid.add(y);
 	}
-	
+
 	public String getShortName() {
 		return shortName;
 	}
@@ -71,7 +71,6 @@ public class CCAData extends BaseEntity {
 	public CCAData overrideFieldData(HttpServletRequest request, CCAData ccaData, LogActivities logActivities) {
 
 		this.shortName = ccaData.shortName;
-		
 		Map<String, CCAFieldValue> fieldsMap = getCcaFieldValues();
 
 		for (Map.Entry<String, CCAFieldValue> e : ccaData.getCcaFieldValues().entrySet()) {
