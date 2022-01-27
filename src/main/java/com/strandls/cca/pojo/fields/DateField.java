@@ -1,6 +1,5 @@
 package com.strandls.cca.pojo.fields;
 
-import java.time.Instant;
 import java.util.Date;
 
 public class DateField extends RangableField<Date> {
@@ -8,7 +7,7 @@ public class DateField extends RangableField<Date> {
 	@Override
 	public Date fetchMinRange() {
 		if (!isMinMaxSet() ||  getMinMax().get(0) == null)
-			return Date.from(Instant.EPOCH);
+			return new Date(Long.MIN_VALUE);
 		return getMinMax().get(0);
 	}
 

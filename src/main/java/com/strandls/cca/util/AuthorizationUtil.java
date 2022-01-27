@@ -2,6 +2,7 @@ package com.strandls.cca.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -47,7 +48,9 @@ public class AuthorizationUtil {
 		if (roles.contains(Permissions.ROLE_ADMIN.value))
 			return true;
 
-		List<Object> permittedRoles = roles.stream().filter(list::contains).collect(Collectors.toList());
+		Set<String> stringList = list.stream().map(Permissions::name).collect(Collectors.toSet());
+
+		List<Object> permittedRoles = roles.stream().filter(stringList::contains).collect(Collectors.toList());
 
 		if (!permittedRoles.isEmpty())
 			return true;
