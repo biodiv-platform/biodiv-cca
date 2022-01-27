@@ -57,11 +57,11 @@ public class CCAFilterUtil {
 
 	}
 
-	private static List<Bson> getIsDeleteFilter(Boolean isDeleted) {
+	private static List<Bson> getIsDeleteFilter(Boolean isDeletedData) {
 		// Add isDeleted filter here
 		List<Bson> filters = new ArrayList<>();
-		Bson isDeleted = Filters.or(Filters.exists(CCAConstants.IS_DELETED, isDeleted),
-				Filters.eq(CCAConstants.IS_DELETED, isDeleted));
+		Bson isDeleted = Filters.or(Filters.exists(CCAConstants.IS_DELETED, isDeletedData),
+				Filters.eq(CCAConstants.IS_DELETED, isDeletedData));
 		filters.add(isDeleted);
 		return filters;
 	}

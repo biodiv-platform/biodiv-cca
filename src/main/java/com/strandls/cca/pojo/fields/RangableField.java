@@ -31,7 +31,7 @@ public abstract class RangableField<T extends Comparable<T>> extends CCAField {
 			ObjectMapper objectMapper, String userId) throws JsonProcessingException {
 		String fieldHierarchy = "$" + getFieldHierarchy();
 		Bson match = Aggregates.match(CCAFilterUtil.getAllFilters(queryParameter, templateDao, objectMapper, userId,
-				new HashSet<>(Arrays.asList(getFieldId()))));
+				new HashSet<>(Arrays.asList(getFieldId())), false));
 		Bson group = Aggregates.group(null, Accumulators.min("min", fieldHierarchy),
 				Accumulators.max("max", fieldHierarchy));
 		return new Facet(getFieldId(), match, group);
