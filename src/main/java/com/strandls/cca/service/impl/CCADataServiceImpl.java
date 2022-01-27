@@ -66,9 +66,24 @@ public class CCADataServiceImpl implements CCADataService {
 	}
 
 	@Override
-	public List<CCAData> getAllCCAData(HttpServletRequest request, UriInfo uriInfo) throws JsonProcessingException {
+	public List<CCAData> getAllCCAData(HttpServletRequest request, UriInfo uriInfo, Boolean isDeletedData) throws JsonProcessingException {
 		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
-		return ccaDataDao.getAll(uriInfo, true, queryParameter.get(CCAConstants.USER_ID).get(0));
+		String userId = queryParameter.containsKey(CCAConstants.USER_ID) ? queryParameter.get(CCAConstants.USER_ID).get(0): null;
+		return ccaDataDao.getAll(uriInfo, false, userId, isDeletedData);
+	}
+
+	@Override
+	public List<CCAData> getCCADataByShortName(HttpServletRequest request, UriInfo uriInfo, String shortName, Boolean isDeletedData)
+			throws JsonProcessingException {
+		List<CCAData> temp = this.getAllCCAData(request, uriInfo, isDeletedData);
+		List<CCAData> result = new ArrayList<>();
+		for(int i = 0; i < temp.size(); i++) {
+			if(temp.get(i).getShortName().equals(shortName)) {
+				result.add(temp.get(i));
+			}
+		}
+
+		return result;
 	}
 
 	@Override
@@ -82,14 +97,16 @@ public class CCADataServiceImpl implements CCADataService {
 	public AggregationResponse getCCADataList(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly)
 			throws JsonProcessingException {
 		String userId = null;
+		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
 		if (myListOnly) {
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			userId = profile.getId();
+		} else if(queryParams.containsKey(CCAConstants.USER_ID)) {
+			userId = queryParams.get(CCAConstants.USER_ID).get(0);
 		}
 
-		List<CCAData> ccaDatas = ccaDataDao.getAll(uriInfo, false, userId);
+		List<CCAData> ccaDatas = ccaDataDao.getAll(uriInfo, false, userId, false);
 
-		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
 		String language = queryParams.getFirst(CCAConstants.LANGUAGE);
 		if (language == null)
 			language = CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE);

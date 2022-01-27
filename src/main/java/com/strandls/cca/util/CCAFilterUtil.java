@@ -35,13 +35,13 @@ public class CCAFilterUtil {
 	}
 
 	public static Bson getAllFilters(MultivaluedMap<String, String> queryParameter, CCATemplateDao templateDao,
-			ObjectMapper objectMapper, String userId, Set<String> excludeFieldFromFilter)
+			ObjectMapper objectMapper, String userId, Set<String> excludeFieldFromFilter, Boolean isDeletedData)
 			throws JsonProcessingException {
 		List<Bson> filters = new ArrayList<>();
 		filters.addAll(getShortNameFilter(queryParameter));
 		filters.addAll(getUserIdFilter(userId));
 		filters.addAll(getDataIdsFilter(queryParameter));
-		filters.addAll(getIsDeleteFilter());
+		filters.addAll(getIsDeleteFilter(isDeletedData));
 
 		// Create the And filter from all the fields.
 		List<Bson> filter = CCAFilterUtil.getFilterFromFields(queryParameter, templateDao, objectMapper,
@@ -52,16 +52,16 @@ public class CCAFilterUtil {
 	}
 
 	public static Bson getAllFilters(MultivaluedMap<String, String> queryParameter, CCATemplateDao templateDao,
-			ObjectMapper objectMapper, String userId) throws JsonProcessingException {
-		return getAllFilters(queryParameter, templateDao, objectMapper, userId, new HashSet<>());
+			ObjectMapper objectMapper, String userId, Boolean isDeleteData) throws JsonProcessingException {
+		return getAllFilters(queryParameter, templateDao, objectMapper, userId, new HashSet<>(), isDeleteData);
 
 	}
 
-	private static List<Bson> getIsDeleteFilter() {
+	private static List<Bson> getIsDeleteFilter(Boolean isDeleted) {
 		// Add isDeleted filter here
 		List<Bson> filters = new ArrayList<>();
-		Bson isDeleted = Filters.or(Filters.exists(CCAConstants.IS_DELETED, false),
-				Filters.eq(CCAConstants.IS_DELETED, false));
+		Bson isDeleted = Filters.or(Filters.exists(CCAConstants.IS_DELETED, isDeleted),
+				Filters.eq(CCAConstants.IS_DELETED, isDeleted));
 		filters.add(isDeleted);
 		return filters;
 	}
