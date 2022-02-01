@@ -17,6 +17,7 @@ import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.CCAConfig;
 import com.strandls.cca.CCAConstants;
+import com.strandls.cca.dao.CCADataDao;
 import com.strandls.cca.dao.CCATemplateDao;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCATemplate;
@@ -36,6 +37,9 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 
 	@Inject
 	private LogActivities logActivities;
+
+	@Inject
+	private CCADataDao ccaDataDao;
 
 	@Inject
 	public CCATemplateServiceImpl() {
@@ -216,12 +220,21 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 
 	@Override
 	public CCATemplate restore(HttpServletRequest request, String shortName) {
-		return ccaTemplateDao.restore(shortName);
+		CCATemplate ccaTemplate = ccaTemplateDao.restore(shortName);
+		if(Boolean.FALSE.equals(ccaTemplate.getIsDeleted())) {
+			ccaDataDao.removeOrRestoreManyCCDataByShortName(shortName, false);
+		}
+		return ccaTemplate;
 	}
 
 	@Override
 	public CCATemplate remove(HttpServletRequest request, String shortName) {
-		return ccaTemplateDao.remove(shortName);
+		CCATemplate ccaTemplate = ccaTemplateDao.remove(shortName);
+		if(Boolean.TRUE.equals(ccaTemplate.getIsDeleted())) {
+			ccaDataDao.removeOrRestoreManyCCDataByShortName(shortName, true);
+		}
+
+		return ccaTemplate;
 	}
 
 	@Override

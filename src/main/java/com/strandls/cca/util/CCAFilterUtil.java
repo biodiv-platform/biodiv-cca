@@ -60,7 +60,7 @@ public class CCAFilterUtil {
 	private static List<Bson> getIsDeleteFilter(Boolean isDeletedData) {
 		// Add isDeleted filter here
 		List<Bson> filters = new ArrayList<>();
-		Bson isDeleted = Filters.or(Filters.exists(CCAConstants.IS_DELETED, isDeletedData),
+		Bson isDeleted = Filters.or(Filters.exists(CCAConstants.IS_DELETED, false),
 				Filters.eq(CCAConstants.IS_DELETED, isDeletedData));
 		filters.add(isDeleted);
 		return filters;
@@ -69,7 +69,7 @@ public class CCAFilterUtil {
 	public static List<Bson> getDataIdsFilter(MultivaluedMap<String, String> queryParameter) {
 		List<Bson> filters = new ArrayList<>();
 		if (queryParameter.containsKey(CCAConstants.ID)) {
-			String[] stringIds = ((String) queryParameter.get(CCAConstants.ID).get(0)).split(",");
+			String[] stringIds = (queryParameter.get(CCAConstants.ID).get(0)).split(",");
 			List<Long> ids = Arrays.stream(stringIds).map(Long::parseLong).collect(Collectors.toList());
 			Bson idFilter = Filters.in(CCAConstants.ID, ids);
 			filters.add(idFilter);

@@ -16,6 +16,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
 import com.strandls.cca.CCAConstants;
 import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.util.BsonProjectionUtil;
@@ -85,6 +87,12 @@ public class CCADataDao extends AbstractDao<CCAData> {
 		CCAData data = dbCollection.find(getIdFilter(id)).first();
 		data.setIsDeleted(true);
 		return replaceOne(data);
+	}
+
+	public void removeOrRestoreManyCCDataByShortName(String shortName, Boolean isDeleted) {
+		Bson update = Updates.set(CCAConstants.IS_DELETED, isDeleted);
+		Bson filter = Filters.eq(CCAConstants.SHORT_NAME, shortName);
+		dbCollection.updateMany(filter, update);
 	}
 
 	public CCAData deepRemove(Long id) {

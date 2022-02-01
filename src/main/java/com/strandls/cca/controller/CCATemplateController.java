@@ -24,11 +24,9 @@ import javax.ws.rs.core.Response.Status;
 
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.cca.ApiConstants;
-import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.cca.pojo.Platform;
-import com.strandls.cca.service.CCADataService;
 import com.strandls.cca.service.CCATemplateService;
 import com.strandls.cca.util.AuthorizationUtil;
 import com.strandls.cca.util.Permissions;
@@ -45,10 +43,6 @@ public class CCATemplateController {
 
 	@Inject
 	private CCATemplateService ccaContextService;
-
-	@Inject
-	private CCADataService ccaDataService;
-
 
 	@GET
 	@Path("/ping")
@@ -247,18 +241,11 @@ public class CCATemplateController {
 	@ApiResponses(value = {
 			@ApiResponse(code = 404, message = "Could not delete the CCA Template", response = String.class) })
 
-	public Response restoreCCATemplate(@Context HttpServletRequest request, @PathParam("shortName") String shortName, @Context UriInfo uriInfo) {
+	public Response restoreCCATemplate(@Context HttpServletRequest request, @PathParam("shortName") String shortName) {
 		try {
 			if (AuthorizationUtil.checkAuthorization(request,
 					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_TEMPLATECURATOR), null)) {
 				CCATemplate ccaMasterField = ccaContextService.restore(request, shortName);
-
-				if(Boolean.TRUE.equals(ccaMasterField.getIsDeleted())) {
-					List<CCAData> ccaDataList = ccaDataService.getCCADataByShortName(request, uriInfo, shortName, true);
-					for(int i = 0; i < ccaDataList.size(); i++) {
-						ccaDataService.restore(ccaDataList.get(i).getId());
-					}
-				}
 				return Response.status(Status.OK).entity(ccaMasterField).build();
 			} else {
 				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
@@ -285,19 +272,11 @@ public class CCATemplateController {
 	@ApiResponses(value = {
 			@ApiResponse(code = 404, message = "Could not delete the CCA Template", response = String.class) })
 
-	public Response removeCCATemplate(@Context HttpServletRequest request, @PathParam("shortName") String shortName, @Context UriInfo uriInfo) {
+	public Response removeCCATemplate(@Context HttpServletRequest request, @PathParam("shortName") String shortName) {
 		try {
 			if (AuthorizationUtil.checkAuthorization(request,
 					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_TEMPLATECURATOR), null)) {
 				CCATemplate ccaMasterField = ccaContextService.remove(request, shortName);
-
-				if(Boolean.TRUE.equals(ccaMasterField.getIsDeleted())) {
-						List<CCAData> ccaDataList = ccaDataService.getCCADataByShortName(request, uriInfo, shortName, false);
-
-						for(int i = 0; i < ccaDataList.size(); i++) {
-							ccaDataService.remove(ccaDataList.get(i).getId());
-						}
-				}
 				return Response.status(Status.OK).entity(ccaMasterField).build();
 			} else {
 				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
