@@ -33,7 +33,7 @@ public abstract class ValueOptionsField extends CCAField {
 			ObjectMapper objectMapper, String userId) throws JsonProcessingException {
 		String fieldHierarchy = getFieldHierarchy();
 		Bson match = Aggregates.match(CCAFilterUtil.getAllFilters(queryParameter, templateDao, objectMapper, userId,
-				new HashSet<>(Arrays.asList(getFieldId()))));
+				new HashSet<>(Arrays.asList(getFieldId())), false));
 		Bson unwind = Aggregates.unwind("$" + fieldHierarchy);
 		Bson group = Aggregates.group("$" + fieldHierarchy + ".value", Accumulators.sum("count", 1));
 		return new Facet(getFieldId(), match, unwind, group);

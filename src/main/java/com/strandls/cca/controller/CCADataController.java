@@ -136,7 +136,7 @@ public class CCADataController {
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
 	public Response getCCADataDump(@Context HttpServletRequest request, @Context UriInfo uriInfo) {
 		try {
-			List<CCAData> ccaData = ccaDataService.getAllCCAData(request, uriInfo);
+			List<CCAData> ccaData = ccaDataService.getAllCCAData(request, uriInfo, false);
 			return Response.status(Status.OK).entity(ccaData).build();
 		} catch (IllegalArgumentException e) {
 			throw new WebApplicationException(
