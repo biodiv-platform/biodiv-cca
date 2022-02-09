@@ -25,6 +25,7 @@ import com.strandls.cca.pojo.fields.value.TextFieldValue;
 @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "type", visible = true)
 @JsonSubTypes({ @JsonSubTypes.Type(value = CheckboxFieldValue.class, name = FieldConstants.CHECKBOX),
 		@JsonSubTypes.Type(value = DateFieldValue.class, name = FieldConstants.DATE),
+		@JsonSubTypes.Type(value = DateFieldValue.class, name = FieldConstants.YEAR),
 		@JsonSubTypes.Type(value = DateRangeFieldValue.class, name = FieldConstants.DATE_RANGE),
 		@JsonSubTypes.Type(value = FileFieldValue.class, name = FieldConstants.FILE),
 		@JsonSubTypes.Type(value = GeometryFieldValue.class, name = FieldConstants.GEOMETRY),
