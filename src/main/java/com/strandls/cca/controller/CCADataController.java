@@ -162,6 +162,38 @@ public class CCADataController {
 		try {
 			CCAData originalDocs = ccaDataService.findById(ccaData.getId(), null);
 			if (AuthorizationUtil.checkAuthorization(request,
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR),
+					originalDocs.getUserId(), ccaData)) {
+				ccaData = ccaDataService.update(request, ccaData);
+				return Response.status(Status.OK).entity(ccaData).build();
+			} else {
+				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
+						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
+			}
+		} catch (IllegalArgumentException e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
+		} catch (Exception e) {
+			throw new WebApplicationException(
+					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+		}
+	}
+
+	@PUT
+	@Path("/update/permission")
+
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+
+	@ApiOperation(value = "Update the cca data permission", notes = "Returns CCA data fields", response = CCAData.class)
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not save the data", response = String.class) })
+
+	public Response updatePermissionCCAData(@Context HttpServletRequest request, @ApiParam("ccaData") CCAData ccaData) {
+		try {
+			CCAData originalDocs = ccaDataService.findById(ccaData.getId(), null);
+			if (AuthorizationUtil.checkAuthorization(request,
 					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), originalDocs.getUserId())) {
 				ccaData = ccaDataService.update(request, ccaData);
 				return Response.status(Status.OK).entity(ccaData).build();

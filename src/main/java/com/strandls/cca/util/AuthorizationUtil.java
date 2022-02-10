@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.pac4j.core.profile.CommonProfile;
 
 import com.strandls.authentication_utility.util.AuthUtil;
+import com.strandls.cca.pojo.CCAData;
 
 import net.minidev.json.JSONArray;
 
@@ -59,5 +60,10 @@ public class AuthorizationUtil {
 			return userId.equals(profile.getId());
 
 		return false;
+	}
+
+	public static boolean checkAuthorization(HttpServletRequest request, List<Permissions> list, String userId, CCAData ccaData) {
+
+		return checkAuthorization(request, list, userId) || ccaData.getAllowedUsers().contains(userId);
 	}
 }
