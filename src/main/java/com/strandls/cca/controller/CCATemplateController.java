@@ -23,6 +23,7 @@ import javax.ws.rs.core.Response.Status;
 
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.cca.ApiConstants;
+import com.strandls.cca.exception.CCAException;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.cca.pojo.Platform;
@@ -69,16 +70,11 @@ public class CCATemplateController {
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "CCA field not found", response = String.class) })
 
 	public Response getFilterableFields(@Context HttpServletRequest request, @QueryParam("shortName") String shortName,
-			@QueryParam("language") String language) {
+			@QueryParam("language") String language) throws CCAException {
 		try {
-			List<CCAField> ccaFields = ccaContextService.getFilterableFields(request, shortName, language);
-			return Response.status(Status.OK).entity(ccaFields).build();
-		} catch (IllegalArgumentException e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
+			return Response.status(Status.OK).entity(ccaContextService.getFilterableFields(request, shortName, language)).build();
 		} catch (Exception e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+			throw new CCAException(e);
 		}
 	}
 
@@ -95,17 +91,12 @@ public class CCATemplateController {
 
 	public Response getAllCCATemplate(@Context HttpServletRequest request, @QueryParam("platform") Platform plateform,
 			@QueryParam("language") String language,
-			@DefaultValue("true") @QueryParam("excludeFields") Boolean excludeFields) {
+			@DefaultValue("true") @QueryParam("excludeFields") Boolean excludeFields) throws CCAException {
 		try {
-			List<CCATemplate> ccaTemplate = ccaContextService.getAllCCATemplate(request, plateform, language,
-					excludeFields);
-			return Response.status(Status.OK).entity(ccaTemplate).build();
-		} catch (IllegalArgumentException e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
+			return Response.status(Status.OK).entity(ccaContextService.getAllCCATemplate(request, plateform, 
+					language, excludeFields)).build();
 		} catch (Exception e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+			throw new CCAException(e);
 		}
 	}
 
@@ -119,16 +110,11 @@ public class CCATemplateController {
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "CCA field not found", response = String.class) })
 
 	public Response getCCATemplateById(@Context HttpServletRequest request, @PathParam("shortName") String shortName,
-			@DefaultValue("en") @QueryParam("language") String language) {
+			@DefaultValue("en") @QueryParam("language") String language) throws CCAException {
 		try {
-			CCATemplate ccaTemplate = ccaContextService.getCCAByShortName(shortName, language);
-			return Response.status(Status.OK).entity(ccaTemplate).build();
-		} catch (IllegalArgumentException e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
+			return Response.status(Status.OK).entity(ccaContextService.getCCAByShortName(shortName, language)).build();
 		} catch (Exception e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+			throw new CCAException(e);
 		}
 	}
 
@@ -145,22 +131,13 @@ public class CCATemplateController {
 			@ApiResponse(code = 404, message = "Could not create the CCA template", response = String.class) })
 
 	public Response createCCATemplate(@Context HttpServletRequest request,
-			@ApiParam("ccaTemplate") CCATemplate ccaTemplate) {
+			@ApiParam("ccaTemplate") CCATemplate ccaTemplate) throws CCAException {
 		try {
-			if (AuthorizationUtil.checkAuthorization(request,
-					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_TEMPLATECURATOR), null)) {
-				ccaTemplate = ccaContextService.save(request, ccaTemplate);
-				return Response.status(Status.OK).entity(ccaTemplate).build();
-			} else {
-				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
-						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
-			}
-		} catch (IllegalArgumentException e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
+			AuthorizationUtil.handleAuthorization(request,
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_TEMPLATECURATOR), null);
+			return Response.status(Status.OK).entity(ccaContextService.save(request, ccaTemplate)).build();
 		} catch (Exception e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+			throw new CCAException(e);
 		}
 	}
 
@@ -177,22 +154,13 @@ public class CCATemplateController {
 			@ApiResponse(code = 404, message = "Could not update the CCA Template translation", response = String.class) })
 
 	public Response pullTranslationFromMaster(@Context HttpServletRequest request,
-			@QueryParam("templateId") Long templateId, @QueryParam("language") String language) {
+			@QueryParam("templateId") Long templateId, @QueryParam("language") String language) throws CCAException {
 		try {
-			if (AuthorizationUtil.checkAuthorization(request,
-					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_TEMPLATECURATOR), null)) {
-				CCATemplate ccaTemplate = ccaContextService.pullTranslationFromMaster(request, templateId, language);
-				return Response.status(Status.OK).entity(ccaTemplate).build();
-			} else {
-				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
-						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
-			}
-		} catch (IllegalArgumentException e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
+			AuthorizationUtil.handleAuthorization(request,
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_TEMPLATECURATOR), null);
+			return Response.status(Status.OK).entity(ccaContextService.pullTranslationFromMaster(request, templateId, language)).build();			
 		} catch (Exception e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+			throw new CCAException(e);
 		}
 	}
 
@@ -209,22 +177,13 @@ public class CCATemplateController {
 			@ApiResponse(code = 404, message = "Could not save the CCA Template", response = String.class) })
 
 	public Response updateCCATemplate(@Context HttpServletRequest request,
-			@ApiParam("ccaTemplate") CCATemplate ccaTemplate) {
+			@ApiParam("ccaTemplate") CCATemplate ccaTemplate) throws CCAException {
 		try {
-			if (AuthorizationUtil.checkAuthorization(request,
-					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_TEMPLATECURATOR), null)) {
-				ccaTemplate = ccaContextService.update(request, ccaTemplate);
-				return Response.status(Status.OK).entity(ccaTemplate).build();
-			} else {
-				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
-						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
-			}
-		} catch (IllegalArgumentException e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
+			AuthorizationUtil.handleAuthorization(request,
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_TEMPLATECURATOR), null);
+			return Response.status(Status.OK).entity(ccaContextService.update(request, ccaTemplate)).build();
 		} catch (Exception e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+			throw new CCAException(e);
 		}
 	}
 
@@ -240,22 +199,13 @@ public class CCATemplateController {
 	@ApiResponses(value = {
 			@ApiResponse(code = 404, message = "Could not delete the CCA Template", response = String.class) })
 
-	public Response restoreCCATemplate(@Context HttpServletRequest request, @PathParam("shortName") String shortName) {
+	public Response restoreCCATemplate(@Context HttpServletRequest request, @PathParam("shortName") String shortName) throws CCAException {
 		try {
-			if (AuthorizationUtil.checkAuthorization(request,
-					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_TEMPLATECURATOR), null)) {
-				CCATemplate ccaMasterField = ccaContextService.restore(request, shortName);
-				return Response.status(Status.OK).entity(ccaMasterField).build();
-			} else {
-				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
-						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
-			}
-		} catch (IllegalArgumentException e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
+			AuthorizationUtil.handleAuthorization(request,
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_TEMPLATECURATOR), null);
+			return Response.status(Status.OK).entity(ccaContextService.restore(request, shortName)).build();
 		} catch (Exception e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+			throw new CCAException(e);
 		}
 	}
 
@@ -271,22 +221,14 @@ public class CCATemplateController {
 	@ApiResponses(value = {
 			@ApiResponse(code = 404, message = "Could not delete the CCA Template", response = String.class) })
 
-	public Response removeCCATemplate(@Context HttpServletRequest request, @PathParam("shortName") String shortName) {
+	public Response removeCCATemplate(@Context HttpServletRequest request, @PathParam("shortName") String shortName) throws CCAException {
 		try {
-			if (AuthorizationUtil.checkAuthorization(request,
-					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_TEMPLATECURATOR), null)) {
-				CCATemplate ccaMasterField = ccaContextService.remove(request, shortName);
-				return Response.status(Status.OK).entity(ccaMasterField).build();
-			} else {
-				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
-						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
-			}
-		} catch (IllegalArgumentException e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
+			AuthorizationUtil.handleAuthorization(request,
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_TEMPLATECURATOR), null);
+			CCATemplate ccaMasterField = ccaContextService.remove(request, shortName);
+			return Response.status(Status.OK).entity(ccaMasterField).build();
 		} catch (Exception e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+			throw new CCAException(e);
 		}
 	}
 
@@ -303,21 +245,12 @@ public class CCATemplateController {
 			@ApiResponse(code = 404, message = "Could not delete the CCA Template", response = String.class) })
 
 	public Response deepRemoveCCATemplate(@Context HttpServletRequest request,
-			@PathParam("shortName") String shortName) {
+			@PathParam("shortName") String shortName) throws CCAException {
 		try {
-			if (AuthorizationUtil.checkAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN), null)) {
-				CCATemplate ccaMasterField = ccaContextService.deepRemove(request, shortName);
-				return Response.status(Status.OK).entity(ccaMasterField).build();
-			} else {
-				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
-						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
-			}
-		} catch (IllegalArgumentException e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
+			AuthorizationUtil.handleAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN), null);
+			return Response.status(Status.OK).entity(ccaContextService.deepRemove(request, shortName)).build();
 		} catch (Exception e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+			throw new CCAException(e);
 		}
 	}
 
