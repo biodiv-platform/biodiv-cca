@@ -26,6 +26,7 @@ import org.hibernate.ObjectNotFoundException;
 
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.cca.ApiConstants;
+import com.strandls.cca.exception.CCAException;
 import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.response.AggregationResponse;
 import com.strandls.cca.service.CCADataService;
@@ -53,15 +54,11 @@ public class CCADataController {
 	@ApiOperation(value = "Ping pong", notes = "", response = String.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "", response = String.class) })
 
-	public Response ping() {
+	public Response ping() throws CCAException {
 		try {
 			return Response.status(Status.OK).entity("Pong").build();
-		} catch (IllegalArgumentException e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
 		} catch (Exception e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+			throw new CCAException(e);
 		}
 	}
 
@@ -72,21 +69,14 @@ public class CCADataController {
 	@ApiOperation(value = "Get the cca data", notes = "Returns CCA data fields", response = CCAData.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
 	public Response getCCAData(@Context HttpServletRequest request, @PathParam("id") Long id,
-			@QueryParam("language") String language) {
+			@QueryParam("language") String language) throws CCAException {
 		try {
 			CCAData ccaData = ccaDataService.findById(id, language);
 			if (ccaData == null)
 				throw new ObjectNotFoundException(id, id.toString());
 			return Response.status(Status.OK).entity(ccaData).build();
-		} catch (IllegalArgumentException e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
-		} catch (ObjectNotFoundException e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.NOT_FOUND).entity("Data Not found").build());
 		} catch (Exception e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+			throw new CCAException(e);
 		}
 	}
 
@@ -96,16 +86,12 @@ public class CCADataController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get the cca data contributed by me", notes = "Returns CCA data contributed by me", response = AggregationResponse.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
-	public Response getMyCCADataList(@Context HttpServletRequest request, @Context UriInfo uriInfo) {
+	public Response getMyCCADataList(@Context HttpServletRequest request, @Context UriInfo uriInfo) throws CCAException {
 		try {
 			AggregationResponse ccaData = ccaDataService.getMyCCADataList(request, uriInfo);
 			return Response.status(Status.OK).entity(ccaData).build();
-		} catch (IllegalArgumentException e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
 		} catch (Exception e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+			throw new CCAException(e);
 		}
 	}
 
@@ -115,16 +101,12 @@ public class CCADataController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get the cca data", notes = "Returns CCA data fields", response = AggregationResponse.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
-	public Response getCCADataList(@Context HttpServletRequest request, @Context UriInfo uriInfo) {
+	public Response getCCADataList(@Context HttpServletRequest request, @Context UriInfo uriInfo) throws CCAException {
 		try {
 			AggregationResponse ccaData = ccaDataService.getCCADataList(request, uriInfo, false);
 			return Response.status(Status.OK).entity(ccaData).build();
-		} catch (IllegalArgumentException e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
 		} catch (Exception e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+			throw new CCAException(e);
 		}
 	}
 
@@ -134,16 +116,12 @@ public class CCADataController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get the cca data", notes = "Returns CCA data along with all the fields", response = CCAData.class, responseContainer = "List")
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
-	public Response getCCADataDump(@Context HttpServletRequest request, @Context UriInfo uriInfo) {
+	public Response getCCADataDump(@Context HttpServletRequest request, @Context UriInfo uriInfo) throws CCAException {
 		try {
 			List<CCAData> ccaData = ccaDataService.getAllCCAData(request, uriInfo, false);
 			return Response.status(Status.OK).entity(ccaData).build();
-		} catch (IllegalArgumentException e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
 		} catch (Exception e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+			throw new CCAException(e);
 		}
 	}
 
@@ -158,7 +136,7 @@ public class CCADataController {
 	@ApiOperation(value = "Update the cca data", notes = "Returns CCA data fields", response = CCAData.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not save the data", response = String.class) })
 
-	public Response updateCCAData(@Context HttpServletRequest request, @ApiParam("ccaData") CCAData ccaData) {
+	public Response updateCCAData(@Context HttpServletRequest request, @ApiParam("ccaData") CCAData ccaData) throws CCAException {
 		try {
 			CCAData originalDocs = ccaDataService.findById(ccaData.getId(), null);
 			if (AuthorizationUtil.checkAuthorization(request,
@@ -170,12 +148,8 @@ public class CCADataController {
 				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
 						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
 			}
-		} catch (IllegalArgumentException e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
 		} catch (Exception e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+			throw new CCAException(e);
 		}
 	}
 
@@ -190,7 +164,7 @@ public class CCADataController {
 	@ApiOperation(value = "Update the cca data permission", notes = "Returns CCA data fields", response = CCAData.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not save the data", response = String.class) })
 
-	public Response updatePermissionCCAData(@Context HttpServletRequest request, @ApiParam("ccaData") CCAData ccaData) {
+	public Response updatePermissionCCAData(@Context HttpServletRequest request, @ApiParam("ccaData") CCAData ccaData) throws CCAException {
 		try {
 			CCAData originalDocs = ccaDataService.findById(ccaData.getId(), null);
 			if (AuthorizationUtil.checkAuthorization(request,
@@ -201,12 +175,8 @@ public class CCADataController {
 				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
 						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
 			}
-		} catch (IllegalArgumentException e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
 		} catch (Exception e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+			throw new CCAException(e);
 		}
 	}
 
@@ -221,16 +191,12 @@ public class CCADataController {
 	@ApiOperation(value = "Save the cca data", notes = "Returns CCA data fields", response = CCAData.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not save the data", response = String.class) })
 
-	public Response saveCCAData(@Context HttpServletRequest request, @ApiParam("ccaData") CCAData ccaData) {
+	public Response saveCCAData(@Context HttpServletRequest request, @ApiParam("ccaData") CCAData ccaData) throws CCAException {
 		try {
 			ccaData = ccaDataService.save(request, ccaData);
 			return Response.status(Status.OK).entity(ccaData).build();
-		} catch (IllegalArgumentException e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
 		} catch (Exception e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+			throw new CCAException(e);
 		}
 	}
 
@@ -245,7 +211,7 @@ public class CCADataController {
 	@ApiOperation(value = "Upload cca data from the file", notes = "Returns CCA data list", response = CCAData.class, responseContainer = "List")
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not save the data", response = String.class) })
 
-	public Response uploadCCADataFromFile(@Context HttpServletRequest request, final FormDataMultiPart multiPart) {
+	public Response uploadCCADataFromFile(@Context HttpServletRequest request, final FormDataMultiPart multiPart) throws CCAException {
 		try {
 			if (AuthorizationUtil.checkAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN), null)) {
 				List<CCAData> ccaData = ccaDataService.uploadCCADataFromFile(request, multiPart);
@@ -254,12 +220,8 @@ public class CCADataController {
 				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
 						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
 			}
-		} catch (IllegalArgumentException e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
 		} catch (Exception e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+			throw new CCAException(e);
 		}
 	}
 
@@ -274,7 +236,7 @@ public class CCADataController {
 	@ApiOperation(value = "Delete the cca data (Mark as read)", notes = "Returns CCA Deleted cca", response = CCAData.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not delete the data", response = String.class) })
 
-	public Response restoreCCAData(@Context HttpServletRequest request, @PathParam("id") Long id) {
+	public Response restoreCCAData(@Context HttpServletRequest request, @PathParam("id") Long id) throws CCAException {
 		try {
 			if (AuthorizationUtil.checkAuthorization(request,
 					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), null)) {
@@ -284,12 +246,8 @@ public class CCADataController {
 				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
 						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
 			}
-		} catch (IllegalArgumentException e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
 		} catch (Exception e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+			throw new CCAException(e);
 		}
 	}
 
@@ -304,7 +262,7 @@ public class CCADataController {
 	@ApiOperation(value = "Delete the cca data (Mark as read)", notes = "Returns CCA Deleted cca", response = CCAData.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not delete the data", response = String.class) })
 
-	public Response removeCCAData(@Context HttpServletRequest request, @PathParam("id") Long id) {
+	public Response removeCCAData(@Context HttpServletRequest request, @PathParam("id") Long id) throws CCAException {
 		try {
 			if (AuthorizationUtil.checkAuthorization(request,
 					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), null)) {
@@ -314,12 +272,8 @@ public class CCADataController {
 				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
 						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
 			}
-		} catch (IllegalArgumentException e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
 		} catch (Exception e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+			throw new CCAException(e);
 		}
 	}
 
@@ -334,7 +288,7 @@ public class CCADataController {
 	@ApiOperation(value = "Delete the cca data completely", notes = "Returns CCA Deleted cca", response = CCAData.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not delete the data", response = String.class) })
 
-	public Response deepRemoveCCAData(@Context HttpServletRequest request, @PathParam("id") Long id) {
+	public Response deepRemoveCCAData(@Context HttpServletRequest request, @PathParam("id") Long id) throws CCAException {
 		try {
 			if (AuthorizationUtil.checkAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN), null)) {
 				CCAData ccaData = ccaDataService.deepRemove(id);
@@ -343,12 +297,8 @@ public class CCADataController {
 				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
 						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
 			}
-		} catch (IllegalArgumentException e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
 		} catch (Exception e) {
-			throw new WebApplicationException(
-					Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build());
+			throw new CCAException(e);
 		}
 	}
 }
