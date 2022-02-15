@@ -1,8 +1,6 @@
 package com.strandls.cca.controller;
 
 import java.util.Arrays;
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -14,7 +12,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -88,8 +85,7 @@ public class CCADataController {
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
 	public Response getMyCCADataList(@Context HttpServletRequest request, @Context UriInfo uriInfo) throws CCAException {
 		try {
-			AggregationResponse ccaData = ccaDataService.getMyCCADataList(request, uriInfo);
-			return Response.status(Status.OK).entity(ccaData).build();
+			return Response.status(Status.OK).entity(ccaDataService.getMyCCADataList(request, uriInfo)).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
@@ -103,8 +99,7 @@ public class CCADataController {
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
 	public Response getCCADataList(@Context HttpServletRequest request, @Context UriInfo uriInfo) throws CCAException {
 		try {
-			AggregationResponse ccaData = ccaDataService.getCCADataList(request, uriInfo, false);
-			return Response.status(Status.OK).entity(ccaData).build();
+			return Response.status(Status.OK).entity(ccaDataService.getCCADataList(request, uriInfo, false)).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
@@ -118,8 +113,7 @@ public class CCADataController {
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
 	public Response getCCADataDump(@Context HttpServletRequest request, @Context UriInfo uriInfo) throws CCAException {
 		try {
-			List<CCAData> ccaData = ccaDataService.getAllCCAData(request, uriInfo, false);
-			return Response.status(Status.OK).entity(ccaData).build();
+			return Response.status(Status.OK).entity(ccaDataService.getAllCCAData(request, uriInfo, false)).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
@@ -141,8 +135,7 @@ public class CCADataController {
 			CCAData originalDocs = ccaDataService.findById(ccaData.getId(), null);
 			AuthorizationUtil.checkAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN, 
 							Permissions.ROLE_DATACURATOR), originalDocs.getUserId(), ccaData);
-			ccaData = ccaDataService.update(request, ccaData);
-			return Response.status(Status.OK).entity(ccaData).build();
+			return Response.status(Status.OK).entity(ccaDataService.update(request, ccaData)).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
@@ -158,8 +151,7 @@ public class CCADataController {
 
 	public Response saveCCAData(@Context HttpServletRequest request, @ApiParam("ccaData") CCAData ccaData) throws CCAException {
 		try {
-			ccaData = ccaDataService.save(request, ccaData);
-			return Response.status(Status.OK).entity(ccaData).build();
+			return Response.status(Status.OK).entity(ccaDataService.save(request, ccaData)).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
@@ -176,8 +168,7 @@ public class CCADataController {
 	public Response uploadCCADataFromFile(@Context HttpServletRequest request, final FormDataMultiPart multiPart) throws CCAException {
 		try {
 			AuthorizationUtil.handleAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN), null);
-			List<CCAData> ccaData = ccaDataService.uploadCCADataFromFile(request, multiPart);
-			return Response.status(Status.OK).entity(ccaData).build();
+			return Response.status(Status.OK).entity(ccaDataService.uploadCCADataFromFile(request, multiPart)).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
@@ -195,8 +186,7 @@ public class CCADataController {
 		try {
 			AuthorizationUtil.handleAuthorization(request,
 					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), null);
-			CCAData ccaData = ccaDataService.restore(id);
-			return Response.status(Status.OK).entity(ccaData).build();
+			return Response.status(Status.OK).entity(ccaDataService.restore(id)).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
@@ -215,8 +205,7 @@ public class CCADataController {
 			CCAData originalDocs = ccaDataService.findById(ccaData.getId(), null);
 			AuthorizationUtil.handleAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN, 
 					Permissions.ROLE_DATACURATOR), originalDocs.getUserId());
-			ccaData = ccaDataService.update(request, ccaData);
-			return Response.status(Status.OK).entity(ccaData).build();
+			return Response.status(Status.OK).entity(ccaDataService.update(request, ccaData)).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
@@ -234,8 +223,7 @@ public class CCADataController {
 		try {
 			AuthorizationUtil.handleAuthorization(request,
 					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), null);
-			CCAData ccaData = ccaDataService.remove(id);
-			return Response.status(Status.OK).entity(ccaData).build();
+			return Response.status(Status.OK).entity(ccaDataService.remove(id)).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
@@ -252,8 +240,7 @@ public class CCADataController {
 	public Response deepRemoveCCAData(@Context HttpServletRequest request, @PathParam("id") Long id) throws CCAException {
 		try {
 			AuthorizationUtil.handleAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN), null);
-			CCAData ccaData = ccaDataService.deepRemove(id);
-			return Response.status(Status.OK).entity(ccaData).build();
+			return Response.status(Status.OK).entity(ccaDataService.deepRemove(id)).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
