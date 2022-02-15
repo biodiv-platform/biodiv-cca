@@ -139,39 +139,10 @@ public class CCADataController {
 	public Response updateCCAData(@Context HttpServletRequest request, @ApiParam("ccaData") CCAData ccaData) throws CCAException {
 		try {
 			CCAData originalDocs = ccaDataService.findById(ccaData.getId(), null);
-			if (AuthorizationUtil.checkAuthorization(request,
-					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR),
-					originalDocs.getUserId(), ccaData)) {
-				ccaData = ccaDataService.update(request, ccaData);
-				return Response.status(Status.OK).entity(ccaData).build();
-			} else {
-				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
-						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
-			}
-		} catch (Exception e) {
-			throw new CCAException(e);
-		}
-	}
-
-	@PUT
-	@Path("/update/permission")
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	@ValidateUser
-	@ApiOperation(value = "Update the cca data permission", notes = "Returns CCA data fields with permission info", response = CCAData.class)
-	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not save permission data", response = String.class) })
-
-	public Response updatePermissionCCAData(@Context HttpServletRequest request, @ApiParam("ccaData") CCAData ccaData) throws CCAException {
-		try {
-			CCAData originalDocs = ccaDataService.findById(ccaData.getId(), null);
-			if (AuthorizationUtil.checkAuthorization(request,
-					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), originalDocs.getUserId())) {
-				ccaData = ccaDataService.update(request, ccaData);
-				return Response.status(Status.OK).entity(ccaData).build();
-			} else {
-				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
-						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
-			}
+			AuthorizationUtil.checkAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN, 
+							Permissions.ROLE_DATACURATOR), originalDocs.getUserId(), ccaData);
+			ccaData = ccaDataService.update(request, ccaData);
+			return Response.status(Status.OK).entity(ccaData).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
@@ -204,13 +175,9 @@ public class CCADataController {
 
 	public Response uploadCCADataFromFile(@Context HttpServletRequest request, final FormDataMultiPart multiPart) throws CCAException {
 		try {
-			if (AuthorizationUtil.checkAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN), null)) {
-				List<CCAData> ccaData = ccaDataService.uploadCCADataFromFile(request, multiPart);
-				return Response.status(Status.OK).entity(ccaData).build();
-			} else {
-				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
-						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
-			}
+			AuthorizationUtil.handleAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN), null);
+			List<CCAData> ccaData = ccaDataService.uploadCCADataFromFile(request, multiPart);
+			return Response.status(Status.OK).entity(ccaData).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
@@ -226,19 +193,35 @@ public class CCADataController {
 
 	public Response restoreCCAData(@Context HttpServletRequest request, @PathParam("id") Long id) throws CCAException {
 		try {
-			if (AuthorizationUtil.checkAuthorization(request,
-					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), null)) {
-				CCAData ccaData = ccaDataService.restore(id);
-				return Response.status(Status.OK).entity(ccaData).build();
-			} else {
-				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
-						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
-			}
+			AuthorizationUtil.handleAuthorization(request,
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), null);
+			CCAData ccaData = ccaDataService.restore(id);
+			return Response.status(Status.OK).entity(ccaData).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
 	}
 
+	@PUT
+	@Path("/update/permission")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ValidateUser
+	@ApiOperation(value = "Update the cca data permission", notes = "Returns CCA data fields with permission info", response = CCAData.class)
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not save permission data", response = String.class) })
+
+	public Response updatePermissionCCAData(@Context HttpServletRequest request, @ApiParam("ccaData") CCAData ccaData) throws CCAException {
+		try {
+			CCAData originalDocs = ccaDataService.findById(ccaData.getId(), null);
+			AuthorizationUtil.handleAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN, 
+					Permissions.ROLE_DATACURATOR), originalDocs.getUserId());
+			ccaData = ccaDataService.update(request, ccaData);
+			return Response.status(Status.OK).entity(ccaData).build();
+		} catch (Exception e) {
+			throw new CCAException(e);
+		}
+	}
+	
 	@DELETE
 	@Path("/delete/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -249,14 +232,10 @@ public class CCADataController {
 
 	public Response removeCCAData(@Context HttpServletRequest request, @PathParam("id") Long id) throws CCAException {
 		try {
-			if (AuthorizationUtil.checkAuthorization(request,
-					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), null)) {
-				CCAData ccaData = ccaDataService.remove(id);
-				return Response.status(Status.OK).entity(ccaData).build();
-			} else {
-				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
-						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
-			}
+			AuthorizationUtil.handleAuthorization(request,
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), null);
+			CCAData ccaData = ccaDataService.remove(id);
+			return Response.status(Status.OK).entity(ccaData).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
@@ -272,13 +251,9 @@ public class CCADataController {
 
 	public Response deepRemoveCCAData(@Context HttpServletRequest request, @PathParam("id") Long id) throws CCAException {
 		try {
-			if (AuthorizationUtil.checkAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN), null)) {
-				CCAData ccaData = ccaDataService.deepRemove(id);
-				return Response.status(Status.OK).entity(ccaData).build();
-			} else {
-				throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
-						.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
-			}
+			AuthorizationUtil.handleAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN), null);
+			CCAData ccaData = ccaDataService.deepRemove(id);
+			return Response.status(Status.OK).entity(ccaData).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
