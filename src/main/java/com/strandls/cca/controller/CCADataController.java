@@ -155,14 +155,11 @@ public class CCADataController {
 
 	@PUT
 	@Path("/update/permission")
-
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-
 	@ValidateUser
-
-	@ApiOperation(value = "Update the cca data permission", notes = "Returns CCA data fields", response = CCAData.class)
-	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not save the data", response = String.class) })
+	@ApiOperation(value = "Update the cca data permission", notes = "Returns CCA data fields with permission info", response = CCAData.class)
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not save permission data", response = String.class) })
 
 	public Response updatePermissionCCAData(@Context HttpServletRequest request, @ApiParam("ccaData") CCAData ccaData) throws CCAException {
 		try {
@@ -182,12 +179,9 @@ public class CCADataController {
 
 	@POST
 	@Path("/save")
-
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-
 	@ValidateUser
-
 	@ApiOperation(value = "Save the cca data", notes = "Returns CCA data fields", response = CCAData.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not save the data", response = String.class) })
 
@@ -202,12 +196,9 @@ public class CCADataController {
 
 	@POST
 	@Path("/upload")
-
 	@Consumes({ MediaType.MULTIPART_FORM_DATA })
 	@Produces(MediaType.APPLICATION_JSON)
-
 	@ValidateUser
-
 	@ApiOperation(value = "Upload cca data from the file", notes = "Returns CCA data list", response = CCAData.class, responseContainer = "List")
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not save the data", response = String.class) })
 
@@ -227,12 +218,9 @@ public class CCADataController {
 
 	@PUT
 	@Path("/restore/{id}")
-
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-
 	@ValidateUser
-
 	@ApiOperation(value = "Delete the cca data (Mark as read)", notes = "Returns CCA Deleted cca", response = CCAData.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not delete the data", response = String.class) })
 
@@ -253,12 +241,9 @@ public class CCADataController {
 
 	@DELETE
 	@Path("/delete/{id}")
-
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-
 	@ValidateUser
-
 	@ApiOperation(value = "Delete the cca data (Mark as read)", notes = "Returns CCA Deleted cca", response = CCAData.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not delete the data", response = String.class) })
 
@@ -279,12 +264,9 @@ public class CCADataController {
 
 	@DELETE
 	@Path("/delete/deep/{id}")
-
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-
 	@ValidateUser
-
 	@ApiOperation(value = "Delete the cca data completely", notes = "Returns CCA Deleted cca", response = CCAData.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not delete the data", response = String.class) })
 
