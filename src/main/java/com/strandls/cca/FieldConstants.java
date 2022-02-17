@@ -17,6 +17,7 @@ public class FieldConstants {
 	public static final String NUMBER = "NUMBER";
 	public static final String NUMBER_RANGE = "NUMBER_RANGE";
 	public static final String DATE = "DATE";
+	public static final String YEAR = "YEAR";
 	public static final String DATE_RANGE = "DATE_RANGE";
 	public static final String RADIO = "RADIO";
 	public static final String CHECKBOX = "CHECKBOX";
