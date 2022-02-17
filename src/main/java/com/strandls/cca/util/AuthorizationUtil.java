@@ -6,10 +6,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 
 import org.pac4j.core.profile.CommonProfile;
 
 import com.strandls.authentication_utility.util.AuthUtil;
+import com.strandls.cca.pojo.CCAData;
 
 import net.minidev.json.JSONArray;
 
@@ -59,5 +62,19 @@ public class AuthorizationUtil {
 			return userId.equals(profile.getId());
 
 		return false;
+	}
+
+	public static void handleAuthorization(HttpServletRequest request, List<Permissions> list, String userId) {
+		if(!checkAuthorization(request, list, userId)) {
+			throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
+					.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
+		}
+	}
+
+	public static void checkAuthorization(HttpServletRequest request, List<Permissions> list, String userId, CCAData ccaData) {
+		if(!checkAuthorization(request, list, userId) || !ccaData.getAllowedUsers().contains(userId)) {
+			throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
+					.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
+		}
 	}
 }
