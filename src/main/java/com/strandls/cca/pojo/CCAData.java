@@ -1,8 +1,10 @@
 package com.strandls.cca.pojo;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
@@ -15,6 +17,8 @@ public class CCAData extends BaseEntity {
 	private String shortName;
 
 	private List<Double> centroid = new ArrayList<>();
+
+	private Set<String> allowedUsers = new HashSet<> ();
 
 	private Map<String, CCAFieldValue> ccaFieldValues;
 
@@ -42,6 +46,14 @@ public class CCAData extends BaseEntity {
 		y /= n;
 		centroid.add(x);
 		centroid.add(y);
+	}
+
+	public Set<String> getAllowedUsers() {
+		return allowedUsers;
+	}
+
+	public void setAllowedUsers(Set<String> allowedUsers) {
+		this.allowedUsers = allowedUsers;
 	}
 
 	public String getShortName() {
