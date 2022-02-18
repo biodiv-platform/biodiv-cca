@@ -43,7 +43,7 @@ public class MultiSelectFieldValue extends CCAFieldValue {
 		for (ValueWithLabel valueWithLabel : getValue()) {
 			String v = valueWithLabel.getValue();
 			if (valueToLabel.containsKey(v)) {
-				String label = valueToLabel.get(valueWithLabel.getValue());
+				String label = v.contains("?") ? valueWithLabel.getLabel() : valueToLabel.get(valueWithLabel.getValue());
 				valueWithLabel.setLabel(label);
 			}
 		}

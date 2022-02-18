@@ -19,6 +19,7 @@ public class CCAFieldValueFactory {
 			fieldValue = new CheckboxFieldValue(dataValue);
 			break;
 		case DATE:
+		case YEAR:
 			fieldValue = new DateFieldValue(dataValue);
 			break;
 		case DATE_RANGE:
