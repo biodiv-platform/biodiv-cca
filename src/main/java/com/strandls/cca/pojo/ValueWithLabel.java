@@ -9,8 +9,9 @@ import com.strandls.cca.CCAConfig;
 
 public class ValueWithLabel {
 
-	private static final String OTHER_VALUE = "others|?";
+	//private static final String OTHER_VALUE = "others|?";
 
+	private String valueId;
 	private String label;
 	private String value;
 
@@ -51,6 +52,14 @@ public class ValueWithLabel {
 		return this.label;
 	}
 
+	public void setValueId(String valueId) {
+		this.valueId = valueId;
+	}
+
+	public String getValueId() {
+		return valueId;
+	}
+
 	public String getLabel() {
 		return label;
 	}
@@ -76,10 +85,7 @@ public class ValueWithLabel {
 	}
 
 	public boolean belongs(ValueWithLabel valueWithLabel) {
-		if (OTHER_VALUE.equals(valueWithLabel.getValue().toLowerCase().replaceAll("\\s", ""))
-				&& OTHER_VALUE.equals(getValue().toLowerCase().replaceAll("\\s", "")))
-			return true;
-		return getValue().toLowerCase().trim().equals(valueWithLabel.getValue().toLowerCase().trim());
+		return valueId.equals(valueWithLabel.getValueId());
 	}
 
 }
