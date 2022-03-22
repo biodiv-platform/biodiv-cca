@@ -138,8 +138,8 @@ public class CCADataController {
 	public Response updateCCAData(@Context HttpServletRequest request, @ApiParam("ccaData") CCAData ccaData) throws CCAException {
 		try {
 			CCAData originalDocs = ccaDataService.findById(ccaData.getId(), null);
-			AuthorizationUtil.handleAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN, 
-					Permissions.ROLE_DATACURATOR), originalDocs.getUserId());
+			AuthorizationUtil.checkAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN, 
+					Permissions.ROLE_DATACURATOR), originalDocs.getUserId(), originalDocs);
 			return Response.status(Status.OK).entity(ccaDataService.update(request, ccaData)).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
@@ -208,8 +208,8 @@ public class CCADataController {
 	public Response updatePermissionCCAData(@Context HttpServletRequest request, @ApiParam("permission") Permission permission) throws CCAException {
 		try {
 			CCAData originalDocs = ccaDataService.findById(permission.getId(), null);
-			AuthorizationUtil.checkAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN, 
-					Permissions.ROLE_DATACURATOR), originalDocs.getUserId(), originalDocs);
+			AuthorizationUtil.handleAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN, 
+					Permissions.ROLE_DATACURATOR), originalDocs.getUserId());
 			Set<String> s = new HashSet<>();
 			s.addAll(permission.getAllowedUsers());
 			originalDocs.setAllowedUsers(s);
