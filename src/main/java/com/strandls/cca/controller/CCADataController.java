@@ -1,6 +1,10 @@
 package com.strandls.cca.controller;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -25,6 +29,7 @@ import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.exception.CCAException;
 import com.strandls.cca.pojo.CCAData;
+import com.strandls.cca.pojo.Permission;
 import com.strandls.cca.pojo.response.AggregationResponse;
 import com.strandls.cca.service.CCADataService;
 import com.strandls.cca.util.AuthorizationUtil;
@@ -191,7 +196,7 @@ public class CCADataController {
 			throw new CCAException(e);
 		}
 	}
-
+	
 	@PUT
 	@Path("/update/permission")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -200,12 +205,15 @@ public class CCADataController {
 	@ApiOperation(value = "Update the cca data permission", notes = "Returns CCA data fields with permission info", response = CCAData.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not save permission data", response = String.class) })
 
-	public Response updatePermissionCCAData(@Context HttpServletRequest request, @ApiParam("ccaData") CCAData ccaData) throws CCAException {
+	public Response updatePermissionCCAData(@Context HttpServletRequest request, @ApiParam("permission") Permission permission) throws CCAException {
 		try {
-			CCAData originalDocs = ccaDataService.findById(ccaData.getId(), null);
+			CCAData originalDocs = ccaDataService.findById(permission.getId(), null);
 			AuthorizationUtil.checkAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN, 
-					Permissions.ROLE_DATACURATOR), originalDocs.getUserId(), ccaData);
-			return Response.status(Status.OK).entity(ccaDataService.update(request, ccaData)).build();
+					Permissions.ROLE_DATACURATOR), originalDocs.getUserId(), originalDocs);
+			Set<String> s = new HashSet<>();
+			s.addAll(permission.getAllowedUsers());
+			originalDocs.setAllowedUsers(s);
+			return Response.status(Status.OK).entity(ccaDataService.update(request, originalDocs)).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
