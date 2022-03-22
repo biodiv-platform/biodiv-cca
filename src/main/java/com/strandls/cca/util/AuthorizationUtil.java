@@ -72,7 +72,7 @@ public class AuthorizationUtil {
 	}
 
 	public static void checkAuthorization(HttpServletRequest request, List<Permissions> list, String userId, CCAData ccaData) {
-		if(!checkAuthorization(request, list, userId) || !ccaData.getAllowedUsers().contains(userId)) {
+		if(!checkAuthorization(request, list, userId) && !ccaData.getAllowedUsers().contains(userId)) {
 			throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
 					.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
 		}
