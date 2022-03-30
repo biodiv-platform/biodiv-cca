@@ -2,7 +2,6 @@ package com.strandls.cca.controller;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -140,7 +139,7 @@ public class CCADataController {
 			CCAData originalDocs = ccaDataService.findById(ccaData.getId(), null);
 			AuthorizationUtil.checkAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN, 
 					Permissions.ROLE_DATACURATOR), originalDocs.getUserId(), originalDocs);
-			return Response.status(Status.OK).entity(ccaDataService.update(request, ccaData)).build();
+			return Response.status(Status.OK).entity(ccaDataService.update(request, ccaData, "Data")).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
@@ -213,7 +212,7 @@ public class CCADataController {
 			Set<String> s = new HashSet<>();
 			s.addAll(permission.getAllowedUsers());
 			originalDocs.setAllowedUsers(s);
-			return Response.status(Status.OK).entity(ccaDataService.update(request, originalDocs)).build();
+			return Response.status(Status.OK).entity(ccaDataService.update(request, originalDocs, "Permission")).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}

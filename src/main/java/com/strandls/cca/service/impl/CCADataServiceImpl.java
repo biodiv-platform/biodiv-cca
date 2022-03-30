@@ -173,7 +173,7 @@ public class CCADataServiceImpl implements CCADataService {
 	}
 
 	@Override
-	public CCAData update(HttpServletRequest request, CCAData ccaData) {
+	public CCAData update(HttpServletRequest request, CCAData ccaData, String type) {
 
 		String shortName = ccaData.getShortName();
 		CCATemplate ccaTemplate = ccaTemplateService.getCCAByShortName(shortName,
@@ -189,7 +189,7 @@ public class CCADataServiceImpl implements CCADataService {
 
 		CCAData dataInMem = ccaDataDao.getById(ccaData.getId());
 
-		dataInMem = dataInMem.overrideFieldData(request, ccaData, logActivities);
+		dataInMem = dataInMem.overrideFieldData(request, ccaData, logActivities, type);
 
 		dataInMem.reComputeCentroid();
 		return ccaDataDao.replaceOne(dataInMem);
