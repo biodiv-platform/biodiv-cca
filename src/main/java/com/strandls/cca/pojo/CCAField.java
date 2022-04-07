@@ -75,6 +75,7 @@ public abstract class CCAField implements IChildable<CCAField> {
 	private Boolean isMasterField = false;
 	private Boolean isSummaryField = false;
 	private Boolean isFilterable = false;
+	private Boolean isTitleColumn = false;
 
 	private FieldType type;
 	private Date createdOn;
@@ -242,6 +243,14 @@ public abstract class CCAField implements IChildable<CCAField> {
 
 	public void setIsFilterable(Boolean isFilterable) {
 		this.isFilterable = isFilterable;
+	}
+
+	public Boolean getIsTitleColumn() {
+		return isTitleColumn;
+	}
+
+	public void setIsTitleColumn(Boolean isTitleColumn) {
+		this.isTitleColumn = isTitleColumn;
 	}
 
 	public FieldType getType() {
