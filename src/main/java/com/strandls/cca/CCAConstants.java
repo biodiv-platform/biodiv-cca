@@ -24,4 +24,5 @@ public final class CCAConstants {
 	public static final String BEFORE = "Before : ";
 	public static final String AFTER = "\nAfter : ";
 	public static final String LANGUAGE = "language";
+	public static final String RICH_TEXT_COUNT = "richTextCount";
 }

@@ -42,6 +42,7 @@ public class CCAFilterUtil {
 		filters.addAll(getUserIdFilter(userId));
 		filters.addAll(getDataIdsFilter(queryParameter));
 		filters.addAll(getIsDeleteFilter(isDeletedData));
+		filters.addAll(getFieldCountFilters(queryParameter));
 
 		// Create the And filter from all the fields.
 		List<Bson> filter = CCAFilterUtil.getFilterFromFields(queryParameter, templateDao, objectMapper,
@@ -63,6 +64,18 @@ public class CCAFilterUtil {
 		Bson isDeleted = Filters.or(Filters.exists(CCAConstants.IS_DELETED, false),
 				Filters.eq(CCAConstants.IS_DELETED, isDeletedData));
 		filters.add(isDeleted);
+		return filters;
+	}
+	
+	private static List<Bson> getFieldCountFilters(MultivaluedMap<String, String> queryParameter) {
+		List<Bson> filters = new ArrayList<>();
+		if (queryParameter.containsKey(CCAConstants.RICH_TEXT_COUNT)) {
+			Bson idFilter = Filters.gte(CCAConstants.RICH_TEXT_COUNT, queryParameter.get(CCAConstants.RICH_TEXT_COUNT));
+			filters.add(idFilter);
+		}
+		
+		// In future, will add filter condition for traits and text field filter.
+		
 		return filters;
 	}
 

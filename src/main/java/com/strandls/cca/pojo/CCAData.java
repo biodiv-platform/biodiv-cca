@@ -9,10 +9,9 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
 
-import org.apache.commons.math3.analysis.function.Constant;
-
 import com.strandls.cca.pojo.fields.value.GeometryFieldValue;
 import com.strandls.cca.service.impl.LogActivities;
+import com.strandls.cca.util.CCAUtil;
 
 public class CCAData extends BaseEntity {
 
@@ -21,6 +20,8 @@ public class CCAData extends BaseEntity {
 	private List<Double> centroid = new ArrayList<>();
 
 	private Set<String> allowedUsers = new HashSet<> ();
+	
+	private int richTextCount, textFieldCount , traitsFieldCount;
 
 	private Map<String, CCAFieldValue> ccaFieldValues;
 
@@ -58,6 +59,30 @@ public class CCAData extends BaseEntity {
 		this.allowedUsers = allowedUsers;
 	}
 
+	public int getTextFieldCount() {
+		return textFieldCount;
+	}
+	
+	public void setTextFieldCount(int textFieldCount) {
+		this.textFieldCount = textFieldCount;
+	}
+
+	public int getRichTextCount() {
+		return richTextCount;
+	}
+
+	public void setRichTextCount(int richTextCount) {
+		this.richTextCount = richTextCount;
+	}
+
+	public int getTraitsFieldCount() {
+		return traitsFieldCount;
+	}
+	
+	public void setTraitsFieldCount(int traitsFieldCount) {
+		this.traitsFieldCount = traitsFieldCount;
+	}
+	
 	public String getShortName() {
 		return shortName;
 	}
@@ -89,6 +114,13 @@ public class CCAData extends BaseEntity {
 			this.allowedUsers = ccaData.allowedUsers;
 		
 		Map<String, CCAFieldValue> fieldsMap = getCcaFieldValues();
+		
+		this.richTextCount = CCAUtil.countFieldType(ccaData, FieldType.RICHTEXT);
+		this.textFieldCount = CCAUtil.countFieldType(ccaData, FieldType.TEXT);
+		this.traitsFieldCount = CCAUtil.countFieldType(ccaData, FieldType.RADIO) 
+				+ CCAUtil.countFieldType(ccaData, FieldType.CHECKBOX)
+				+ CCAUtil.countFieldType(ccaData, FieldType.SINGLE_SELECT) 
+				+ CCAUtil.countFieldType(ccaData, FieldType.MULTI_SELECT);
 
 		for (Map.Entry<String, CCAFieldValue> e : ccaData.getCcaFieldValues().entrySet()) {
 			if (fieldsMap.containsKey(e.getKey())) {

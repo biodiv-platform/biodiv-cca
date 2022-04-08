@@ -31,11 +31,13 @@ import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.CCATemplate;
+import com.strandls.cca.pojo.FieldType;
 import com.strandls.cca.pojo.response.AggregationResponse;
 import com.strandls.cca.pojo.response.CCADataList;
 import com.strandls.cca.service.CCADataService;
 import com.strandls.cca.service.CCATemplateService;
 import com.strandls.cca.util.AuthorizationUtil;
+import com.strandls.cca.util.CCAUtil;
 
 public class CCADataServiceImpl implements CCADataService {
 
@@ -164,6 +166,14 @@ public class CCADataServiceImpl implements CCADataService {
 		ccaData.setUserId(profile.getId());
 
 		ccaData.reComputeCentroid();
+
+		ccaData.setRichTextCount(CCAUtil.countFieldType(ccaData, FieldType.RICHTEXT));
+		ccaData.setTextFieldCount(CCAUtil.countFieldType(ccaData, FieldType.TEXT));
+		ccaData.setTraitsFieldCount(CCAUtil.countFieldType(ccaData, FieldType.RADIO) 
+				+ CCAUtil.countFieldType(ccaData, FieldType.CHECKBOX)
+				+ CCAUtil.countFieldType(ccaData, FieldType.SINGLE_SELECT) 
+				+ CCAUtil.countFieldType(ccaData, FieldType.MULTI_SELECT));
+
 		ccaData = ccaDataDao.save(ccaData);
 
 		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), "", ccaData.getId(),
