@@ -24,18 +24,18 @@ import com.strandls.cca.pojo.filter.field.TextAreaFilter;
 import com.strandls.cca.pojo.filter.field.TextFilter;
 
 @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "type", visible = true, defaultImpl = CompoundFilter.class)
-@JsonSubTypes({ @JsonSubTypes.Type(value = CheckboxFilter.class, name = FieldConstants.CHECKBOX),
+@JsonSubTypes({ @JsonSubTypes.Type(value = CheckboxFilter.class, name = FieldConstants.MULTI_SELECT_CHECKBOX),
 		@JsonSubTypes.Type(value = DateFilter.class, name = FieldConstants.DATE),
 		@JsonSubTypes.Type(value = DateRangeFilter.class, name = FieldConstants.DATE_RANGE),
 		@JsonSubTypes.Type(value = FileFilter.class, name = FieldConstants.FILE),
 		@JsonSubTypes.Type(value = GeometryFilter.class, name = FieldConstants.GEOMETRY),
 		@JsonSubTypes.Type(value = HeaderFilter.class, name = FieldConstants.HEADING),
-		@JsonSubTypes.Type(value = MultiSelectFilter.class, name = FieldConstants.MULTI_SELECT),
+		@JsonSubTypes.Type(value = MultiSelectFilter.class, name = FieldConstants.MULTI_SELECT_DROPDOWN),
 		@JsonSubTypes.Type(value = NumberFilter.class, name = FieldConstants.NUMBER),
 		@JsonSubTypes.Type(value = NumberRangeFilter.class, name = FieldConstants.NUMBER_RANGE),
-		@JsonSubTypes.Type(value = RadioFilter.class, name = FieldConstants.RADIO),
+		@JsonSubTypes.Type(value = RadioFilter.class, name = FieldConstants.SINGLE_SELECT_RADIO),
 		@JsonSubTypes.Type(value = RichtextFilter.class, name = FieldConstants.RICHTEXT),
-		@JsonSubTypes.Type(value = SingleSelectFilter.class, name = FieldConstants.SINGLE_SELECT),
+		@JsonSubTypes.Type(value = SingleSelectFilter.class, name = FieldConstants.SINGLE_SELECT_DROPDOWN),
 		@JsonSubTypes.Type(value = TextAreaFilter.class, name = FieldConstants.TEXT_AREA),
 		@JsonSubTypes.Type(value = TextFilter.class, name = FieldConstants.TEXT),
 		@JsonSubTypes.Type(value = AndFilter.class, name = FieldConstants.AND),

@@ -117,10 +117,10 @@ public class CCAData extends BaseEntity {
 		
 		this.richTextCount = CCAUtil.countFieldType(ccaData, FieldType.RICHTEXT);
 		this.textFieldCount = CCAUtil.countFieldType(ccaData, FieldType.TEXT);
-		this.traitsFieldCount = CCAUtil.countFieldType(ccaData, FieldType.RADIO) 
-				+ CCAUtil.countFieldType(ccaData, FieldType.CHECKBOX)
-				+ CCAUtil.countFieldType(ccaData, FieldType.SINGLE_SELECT) 
-				+ CCAUtil.countFieldType(ccaData, FieldType.MULTI_SELECT);
+		this.traitsFieldCount = CCAUtil.countFieldType(ccaData, FieldType.SINGLE_SELECT_RADIO)
+				+ CCAUtil.countFieldType(ccaData, FieldType.MULTI_SELECT_CHECKBOX)
+				+ CCAUtil.countFieldType(ccaData, FieldType.SINGLE_SELECT_DROPDOWN)
+				+ CCAUtil.countFieldType(ccaData, FieldType.MULTI_SELECT_DROPDOWN);
 
 		for (Map.Entry<String, CCAFieldValue> e : ccaData.getCcaFieldValues().entrySet()) {
 			if (fieldsMap.containsKey(e.getKey())) {

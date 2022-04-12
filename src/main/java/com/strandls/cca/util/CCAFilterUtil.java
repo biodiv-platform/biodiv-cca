@@ -158,10 +158,10 @@ public class CCAFilterUtil {
 
 		JSONObject filter;
 		switch (fieldType) {
-		case CHECKBOX:
-		case MULTI_SELECT:
-		case RADIO:
-		case SINGLE_SELECT:
+		case MULTI_SELECT_CHECKBOX:
+		case MULTI_SELECT_DROPDOWN:
+		case SINGLE_SELECT_RADIO:
+		case SINGLE_SELECT_DROPDOWN:
 			filter = getFilter(fieldId, fieldType, CompareOperator.IN, values);
 			filterArray.add(filter);
 			break;

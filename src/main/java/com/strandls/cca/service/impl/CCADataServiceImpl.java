@@ -169,10 +169,10 @@ public class CCADataServiceImpl implements CCADataService {
 
 		ccaData.setRichTextCount(CCAUtil.countFieldType(ccaData, FieldType.RICHTEXT));
 		ccaData.setTextFieldCount(CCAUtil.countFieldType(ccaData, FieldType.TEXT));
-		ccaData.setTraitsFieldCount(CCAUtil.countFieldType(ccaData, FieldType.RADIO) 
-				+ CCAUtil.countFieldType(ccaData, FieldType.CHECKBOX)
-				+ CCAUtil.countFieldType(ccaData, FieldType.SINGLE_SELECT) 
-				+ CCAUtil.countFieldType(ccaData, FieldType.MULTI_SELECT));
+		ccaData.setTraitsFieldCount(CCAUtil.countFieldType(ccaData, FieldType.SINGLE_SELECT_RADIO)
+				+ CCAUtil.countFieldType(ccaData, FieldType.MULTI_SELECT_CHECKBOX)
+				+ CCAUtil.countFieldType(ccaData, FieldType.SINGLE_SELECT_DROPDOWN)
+				+ CCAUtil.countFieldType(ccaData, FieldType.MULTI_SELECT_DROPDOWN));
 
 		ccaData = ccaDataDao.save(ccaData);
 
