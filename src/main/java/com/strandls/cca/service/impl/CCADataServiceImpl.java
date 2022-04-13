@@ -130,9 +130,23 @@ public class CCADataServiceImpl implements CCADataService {
 			CCATemplate template = ccaTemplateService.getCCAByShortName(ccaData.getShortName(), language);
 			ccaData.translate(template);
 			CCADataList listCard = new CCADataList(ccaData);
+			listCard.setTitlesValues(getTitleFields(ccaData, template));
 			result.add(listCard);
 		}
 		return result;
+	}
+
+	private List<CCAFieldValue> getTitleFields(CCAData ccaData, CCATemplate template) {
+		List<CCAFieldValue> res = new ArrayList<>();
+		Map<String, CCAFieldValue> temp = ccaData.getCcaFieldValues();
+		for(CCAField ccaField : template.getFields()) {
+			for(CCAField ccaFieldChild: ccaField.getChildren()) {
+				if(temp.containsKey(ccaFieldChild.getFieldId()) && ccaFieldChild.getIsTitleColumn()) {
+					res.add(temp.get(ccaFieldChild.getFieldId()));
+				}
+			}
+		}
+		return res;
 	}
 
 	@Override

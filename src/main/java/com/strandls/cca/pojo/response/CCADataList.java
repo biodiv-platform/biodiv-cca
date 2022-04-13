@@ -25,6 +25,7 @@ public class CCADataList {
 	private GeometryFieldValue geometry;
 	private List<FileMeta> files;
 	private List<CCAFieldValue> values;
+	private List<CCAFieldValue> titlesValues;
 
 	public CCADataList(CCAData ccaData) {
 		this.id = ccaData.getId();
@@ -39,6 +40,7 @@ public class CCADataList {
 		this.geometry = new GeometryFieldValue();
 		this.files = new ArrayList<>();
 		this.values = new ArrayList<>();
+		this.titlesValues = new ArrayList<>();
 		init(ccaData);
 	}
 
@@ -134,4 +136,11 @@ public class CCADataList {
 		this.values = values;
 	}
 
+	public List<CCAFieldValue> getTitlesValues() {
+		return titlesValues;
+	}
+
+	public void setTitlesValues(List<CCAFieldValue> titlesValues) {
+		this.titlesValues = titlesValues;
+	}
 }
