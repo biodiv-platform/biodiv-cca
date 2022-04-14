@@ -70,8 +70,7 @@ public class CCAFilterUtil {
 	private static List<Bson> getFieldCountFilters(MultivaluedMap<String, String> queryParameter) {
 		List<Bson> filters = new ArrayList<>();
 		if (queryParameter.containsKey(CCAConstants.RICH_TEXT_COUNT)) {
-			Bson idFilter = Filters.gte(CCAConstants.RICH_TEXT_COUNT, queryParameter.get(CCAConstants.RICH_TEXT_COUNT));
-			filters.add(idFilter);
+			filters.add(Filters.gte(CCAConstants.RICH_TEXT_COUNT, Integer.parseInt(queryParameter.get(CCAConstants.RICH_TEXT_COUNT).get(0))));
 		}
 		
 		// In future, will add filter condition for traits and text field filter.

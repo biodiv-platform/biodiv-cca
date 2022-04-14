@@ -114,13 +114,6 @@ public class CCAData extends BaseEntity {
 			this.allowedUsers = ccaData.allowedUsers;
 		
 		Map<String, CCAFieldValue> fieldsMap = getCcaFieldValues();
-		
-		this.richTextCount = CCAUtil.countFieldType(ccaData, FieldType.RICHTEXT);
-		this.textFieldCount = CCAUtil.countFieldType(ccaData, FieldType.TEXT);
-		this.traitsFieldCount = CCAUtil.countFieldType(ccaData, FieldType.SINGLE_SELECT_RADIO)
-				+ CCAUtil.countFieldType(ccaData, FieldType.MULTI_SELECT_CHECKBOX)
-				+ CCAUtil.countFieldType(ccaData, FieldType.SINGLE_SELECT_DROPDOWN)
-				+ CCAUtil.countFieldType(ccaData, FieldType.MULTI_SELECT_DROPDOWN);
 
 		for (Map.Entry<String, CCAFieldValue> e : ccaData.getCcaFieldValues().entrySet()) {
 			if (fieldsMap.containsKey(e.getKey())) {
@@ -146,6 +139,14 @@ public class CCAData extends BaseEntity {
 						ccaData.getId(), "ccaData", ccaData.getId(), "Data created");
 			}
 		}
+
+		this.richTextCount = CCAUtil.countFieldType(this, FieldType.RICHTEXT);
+		this.textFieldCount = CCAUtil.countFieldType(this, FieldType.TEXT);
+		this.traitsFieldCount = CCAUtil.countFieldType(this, FieldType.SINGLE_SELECT_RADIO)
+				+ CCAUtil.countFieldType(this, FieldType.MULTI_SELECT_CHECKBOX)
+				+ CCAUtil.countFieldType(this, FieldType.SINGLE_SELECT_DROPDOWN)
+				+ CCAUtil.countFieldType(this, FieldType.MULTI_SELECT_DROPDOWN);
+
 		return this;
 	}
 
