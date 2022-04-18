@@ -31,11 +31,13 @@ import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.CCATemplate;
+import com.strandls.cca.pojo.FieldType;
 import com.strandls.cca.pojo.response.AggregationResponse;
 import com.strandls.cca.pojo.response.CCADataList;
 import com.strandls.cca.service.CCADataService;
 import com.strandls.cca.service.CCATemplateService;
 import com.strandls.cca.util.AuthorizationUtil;
+import com.strandls.cca.util.CCAUtil;
 
 public class CCADataServiceImpl implements CCADataService {
 
@@ -128,9 +130,23 @@ public class CCADataServiceImpl implements CCADataService {
 			CCATemplate template = ccaTemplateService.getCCAByShortName(ccaData.getShortName(), language);
 			ccaData.translate(template);
 			CCADataList listCard = new CCADataList(ccaData);
+			listCard.setTitlesValues(getTitleFields(ccaData, template));
 			result.add(listCard);
 		}
 		return result;
+	}
+
+	private List<CCAFieldValue> getTitleFields(CCAData ccaData, CCATemplate template) {
+		List<CCAFieldValue> res = new ArrayList<>();
+		Map<String, CCAFieldValue> temp = ccaData.getCcaFieldValues();
+		for(CCAField ccaField : template.getFields()) {
+			for(CCAField ccaFieldChild: ccaField.getChildren()) {
+				if(temp.containsKey(ccaFieldChild.getFieldId()) && ccaFieldChild.getIsTitleColumn()) {
+					res.add(temp.get(ccaFieldChild.getFieldId()));
+				}
+			}
+		}
+		return res;
 	}
 
 	@Override
@@ -164,6 +180,14 @@ public class CCADataServiceImpl implements CCADataService {
 		ccaData.setUserId(profile.getId());
 
 		ccaData.reComputeCentroid();
+
+		ccaData.setRichTextCount(CCAUtil.countFieldType(ccaData, FieldType.RICHTEXT));
+		ccaData.setTextFieldCount(CCAUtil.countFieldType(ccaData, FieldType.TEXT));
+		ccaData.setTraitsFieldCount(CCAUtil.countFieldType(ccaData, FieldType.SINGLE_SELECT_RADIO)
+				+ CCAUtil.countFieldType(ccaData, FieldType.MULTI_SELECT_CHECKBOX)
+				+ CCAUtil.countFieldType(ccaData, FieldType.SINGLE_SELECT_DROPDOWN)
+				+ CCAUtil.countFieldType(ccaData, FieldType.MULTI_SELECT_DROPDOWN));
+
 		ccaData = ccaDataDao.save(ccaData);
 
 		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), "", ccaData.getId(),
@@ -173,7 +197,7 @@ public class CCADataServiceImpl implements CCADataService {
 	}
 
 	@Override
-	public CCAData update(HttpServletRequest request, CCAData ccaData) {
+	public CCAData update(HttpServletRequest request, CCAData ccaData, String type) {
 
 		String shortName = ccaData.getShortName();
 		CCATemplate ccaTemplate = ccaTemplateService.getCCAByShortName(shortName,
@@ -189,7 +213,7 @@ public class CCADataServiceImpl implements CCADataService {
 
 		CCAData dataInMem = ccaDataDao.getById(ccaData.getId());
 
-		dataInMem = dataInMem.overrideFieldData(request, ccaData, logActivities);
+		dataInMem = dataInMem.overrideFieldData(request, ccaData, logActivities, type);
 
 		dataInMem.reComputeCentroid();
 		return ccaDataDao.replaceOne(dataInMem);

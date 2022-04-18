@@ -19,10 +19,10 @@ public class FieldConstants {
 	public static final String DATE = "DATE";
 	public static final String YEAR = "YEAR";
 	public static final String DATE_RANGE = "DATE_RANGE";
-	public static final String RADIO = "RADIO";
-	public static final String CHECKBOX = "CHECKBOX";
-	public static final String SINGLE_SELECT = "SINGLE_SELECT";
-	public static final String MULTI_SELECT = "MULTI_SELECT";
+	public static final String SINGLE_SELECT_RADIO = "SINGLE_SELECT_RADIO";
+	public static final String MULTI_SELECT_CHECKBOX = "MULTI_SELECT_CHECKBOX";
+	public static final String SINGLE_SELECT_DROPDOWN = "SINGLE_SELECT_DROPDOWN";
+	public static final String MULTI_SELECT_DROPDOWN = "MULTI_SELECT_DROPDOWN";
 	public static final String GEOMETRY = "GEOMETRY";
 	public static final String FILE = "FILE";
 	public static final String HEADING = "HEADING";

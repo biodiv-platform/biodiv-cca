@@ -11,6 +11,7 @@ import javax.ws.rs.core.HttpHeaders;
 
 import com.strandls.cca.pojo.fields.value.GeometryFieldValue;
 import com.strandls.cca.service.impl.LogActivities;
+import com.strandls.cca.util.CCAUtil;
 
 public class CCAData extends BaseEntity {
 
@@ -19,6 +20,8 @@ public class CCAData extends BaseEntity {
 	private List<Double> centroid = new ArrayList<>();
 
 	private Set<String> allowedUsers = new HashSet<> ();
+	
+	private int richTextCount, textFieldCount , traitsFieldCount;
 
 	private Map<String, CCAFieldValue> ccaFieldValues;
 
@@ -56,6 +59,30 @@ public class CCAData extends BaseEntity {
 		this.allowedUsers = allowedUsers;
 	}
 
+	public int getTextFieldCount() {
+		return textFieldCount;
+	}
+	
+	public void setTextFieldCount(int textFieldCount) {
+		this.textFieldCount = textFieldCount;
+	}
+
+	public int getRichTextCount() {
+		return richTextCount;
+	}
+
+	public void setRichTextCount(int richTextCount) {
+		this.richTextCount = richTextCount;
+	}
+
+	public int getTraitsFieldCount() {
+		return traitsFieldCount;
+	}
+	
+	public void setTraitsFieldCount(int traitsFieldCount) {
+		this.traitsFieldCount = traitsFieldCount;
+	}
+	
 	public String getShortName() {
 		return shortName;
 	}
@@ -80,9 +107,12 @@ public class CCAData extends BaseEntity {
 		this.ccaFieldValues = ccaFieldValues;
 	}
 
-	public CCAData overrideFieldData(HttpServletRequest request, CCAData ccaData, LogActivities logActivities) {
+	public CCAData overrideFieldData(HttpServletRequest request, CCAData ccaData, LogActivities logActivities, String type) {
 
 		this.shortName = ccaData.shortName;
+		if(type.equals("Permission"))
+			this.allowedUsers = ccaData.allowedUsers;
+		
 		Map<String, CCAFieldValue> fieldsMap = getCcaFieldValues();
 
 		for (Map.Entry<String, CCAFieldValue> e : ccaData.getCcaFieldValues().entrySet()) {
@@ -109,6 +139,14 @@ public class CCAData extends BaseEntity {
 						ccaData.getId(), "ccaData", ccaData.getId(), "Data created");
 			}
 		}
+
+		this.richTextCount = CCAUtil.countFieldType(this, FieldType.RICHTEXT);
+		this.textFieldCount = CCAUtil.countFieldType(this, FieldType.TEXT);
+		this.traitsFieldCount = CCAUtil.countFieldType(this, FieldType.SINGLE_SELECT_RADIO)
+				+ CCAUtil.countFieldType(this, FieldType.MULTI_SELECT_CHECKBOX)
+				+ CCAUtil.countFieldType(this, FieldType.SINGLE_SELECT_DROPDOWN)
+				+ CCAUtil.countFieldType(this, FieldType.MULTI_SELECT_DROPDOWN);
+
 		return this;
 	}
 

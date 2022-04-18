@@ -15,7 +15,7 @@ public class CCAFieldValueFactory {
 		FieldType dataType = ccaField.getType();
 
 		switch (dataType) {
-		case CHECKBOX:
+		case MULTI_SELECT_CHECKBOX:
 			fieldValue = new CheckboxFieldValue(dataValue);
 			break;
 		case DATE:
@@ -34,7 +34,7 @@ public class CCAFieldValueFactory {
 		case HEADING:
 			fieldValue = new HeaderFieldValue(dataValue);
 			break;
-		case MULTI_SELECT:
+		case MULTI_SELECT_DROPDOWN:
 			fieldValue = new MultiSelectFieldValue(dataValue);
 			break;
 		case NUMBER:
@@ -43,13 +43,13 @@ public class CCAFieldValueFactory {
 		case NUMBER_RANGE:
 			fieldValue = new NumberRangeFieldValue(dataValue);
 			break;
-		case RADIO:
+		case SINGLE_SELECT_RADIO:
 			fieldValue = new RadioFieldValue(dataValue);
 			break;
 		case RICHTEXT:
 			fieldValue = new RichtextFieldValue(dataValue);
 			break;
-		case SINGLE_SELECT:
+		case SINGLE_SELECT_DROPDOWN:
 			fieldValue = new SingleSelectFieldValue(dataValue);
 			break;
 		case TEXT:

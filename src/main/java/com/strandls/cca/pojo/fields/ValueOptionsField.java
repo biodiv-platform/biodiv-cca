@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.ws.rs.core.MultivaluedMap;
 
@@ -61,14 +62,15 @@ public abstract class ValueOptionsField extends CCAField {
 		Map<String, ValueWithLabel> valueOptionsMap = new HashMap<>();
 		if (valueOptionsField != null)
 			for (ValueWithLabel valueWithLabel : valueOptionsField.getValueOptions()) {
-				valueOptionsMap.put(valueWithLabel.getValue(), valueWithLabel);
+				valueOptionsMap.put(valueWithLabel.getValueId(), valueWithLabel);
 			}
 
 		for (ValueWithLabel valueWithLabel : getValueOptions()) {
-			String value = valueWithLabel.getValue();
-			ValueWithLabel masterValueWithLabel = valueOptionsMap.get(value);
+			String valueId = valueWithLabel.getValueId();
+			ValueWithLabel masterValueWithLabel = valueOptionsMap.get(valueId);
 			if (masterValueWithLabel != null) {
 				valueWithLabel.setLabel(masterValueWithLabel.getLabel());
+				valueWithLabel.setValue(masterValueWithLabel.getValue());
 			}
 		}
 	}
@@ -85,11 +87,11 @@ public abstract class ValueOptionsField extends CCAField {
 		Map<String, ValueWithLabel> valueOptionsMap = new HashMap<>();
 		if (valueOptionsField != null)
 			for (ValueWithLabel valueWithLabel : valueOptionsField.getValueOptions()) {
-				valueOptionsMap.put(valueWithLabel.getValue(), valueWithLabel);
+				valueOptionsMap.put(valueWithLabel.getValueId(), valueWithLabel);
 			}
 
 		for (ValueWithLabel valueWithLabel : getValueOptions()) {
-			if (valueOptionsMap.containsKey(valueWithLabel.getValue()))
+			if (valueOptionsMap.containsKey(valueWithLabel.getValueId()))
 				valueWithLabel.addUpdateTranslation(valueOptionsMap.get(valueWithLabel.getValue()), language);
 		}
 		super.addUpdateTranslation(ccaField, language);
@@ -140,6 +142,11 @@ public abstract class ValueOptionsField extends CCAField {
 	}
 
 	public void setValueOptions(List<ValueWithLabel> valueOptions) {
+		for(ValueWithLabel val : valueOptions) {
+			if(val.getValueId() == null) {
+				val.setValueId(UUID.randomUUID().toString());
+			}
+		}
 		this.valueOptions = valueOptions;
 	}
 
