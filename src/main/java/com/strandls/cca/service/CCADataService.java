@@ -21,7 +21,7 @@ public interface CCADataService {
 
 	public CCAData findById(Long id, String language);
 
-	public CCAData update(HttpServletRequest request, CCAData ccaData);
+	public CCAData update(HttpServletRequest request, CCAData ccaData, String type);
 
 	public CCAData restore(Long id);
 

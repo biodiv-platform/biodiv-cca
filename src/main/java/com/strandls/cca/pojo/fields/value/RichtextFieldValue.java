@@ -30,4 +30,12 @@ public class RichtextFieldValue extends CCAFieldValue {
 		return null;
 	}
 
+	@Override
+	public boolean validateValue(CCAFieldValue value) {
+		RichtextFieldValue inputValue = (RichtextFieldValue) value;
+		if(inputValue.getValue() != null && inputValue.getValue().equals("") && inputValue.getValue().equals("<p></p>")) {
+			return true;
+		}
+		return false;
+	}
 }

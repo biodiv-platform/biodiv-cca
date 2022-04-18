@@ -42,6 +42,7 @@ public class CCAFilterUtil {
 		filters.addAll(getUserIdFilter(userId));
 		filters.addAll(getDataIdsFilter(queryParameter));
 		filters.addAll(getIsDeleteFilter(isDeletedData));
+		filters.addAll(getFieldCountFilters(queryParameter));
 
 		// Create the And filter from all the fields.
 		List<Bson> filter = CCAFilterUtil.getFilterFromFields(queryParameter, templateDao, objectMapper,
@@ -63,6 +64,17 @@ public class CCAFilterUtil {
 		Bson isDeleted = Filters.or(Filters.exists(CCAConstants.IS_DELETED, false),
 				Filters.eq(CCAConstants.IS_DELETED, isDeletedData));
 		filters.add(isDeleted);
+		return filters;
+	}
+	
+	private static List<Bson> getFieldCountFilters(MultivaluedMap<String, String> queryParameter) {
+		List<Bson> filters = new ArrayList<>();
+		if (queryParameter.containsKey(CCAConstants.RICH_TEXT_COUNT)) {
+			filters.add(Filters.gte(CCAConstants.RICH_TEXT_COUNT, Integer.parseInt(queryParameter.get(CCAConstants.RICH_TEXT_COUNT).get(0))));
+		}
+		
+		// In future, will add filter condition for traits and text field filter.
+		
 		return filters;
 	}
 
@@ -145,10 +157,10 @@ public class CCAFilterUtil {
 
 		JSONObject filter;
 		switch (fieldType) {
-		case CHECKBOX:
-		case MULTI_SELECT:
-		case RADIO:
-		case SINGLE_SELECT:
+		case MULTI_SELECT_CHECKBOX:
+		case MULTI_SELECT_DROPDOWN:
+		case SINGLE_SELECT_RADIO:
+		case SINGLE_SELECT_DROPDOWN:
 			filter = getFilter(fieldId, fieldType, CompareOperator.IN, values);
 			filterArray.add(filter);
 			break;

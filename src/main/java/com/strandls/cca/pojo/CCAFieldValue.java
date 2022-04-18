@@ -23,19 +23,19 @@ import com.strandls.cca.pojo.fields.value.TextAreaFieldValue;
 import com.strandls.cca.pojo.fields.value.TextFieldValue;
 
 @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "type", visible = true)
-@JsonSubTypes({ @JsonSubTypes.Type(value = CheckboxFieldValue.class, name = FieldConstants.CHECKBOX),
+@JsonSubTypes({ @JsonSubTypes.Type(value = CheckboxFieldValue.class, name = FieldConstants.MULTI_SELECT_CHECKBOX),
 		@JsonSubTypes.Type(value = DateFieldValue.class, name = FieldConstants.DATE),
 		@JsonSubTypes.Type(value = DateFieldValue.class, name = FieldConstants.YEAR),
 		@JsonSubTypes.Type(value = DateRangeFieldValue.class, name = FieldConstants.DATE_RANGE),
 		@JsonSubTypes.Type(value = FileFieldValue.class, name = FieldConstants.FILE),
 		@JsonSubTypes.Type(value = GeometryFieldValue.class, name = FieldConstants.GEOMETRY),
 		@JsonSubTypes.Type(value = HeaderFieldValue.class, name = FieldConstants.HEADING),
-		@JsonSubTypes.Type(value = MultiSelectFieldValue.class, name = FieldConstants.MULTI_SELECT),
+		@JsonSubTypes.Type(value = MultiSelectFieldValue.class, name = FieldConstants.MULTI_SELECT_DROPDOWN),
 		@JsonSubTypes.Type(value = NumberFieldValue.class, name = FieldConstants.NUMBER),
 		@JsonSubTypes.Type(value = NumberRangeFieldValue.class, name = FieldConstants.NUMBER_RANGE),
-		@JsonSubTypes.Type(value = RadioFieldValue.class, name = FieldConstants.RADIO),
+		@JsonSubTypes.Type(value = RadioFieldValue.class, name = FieldConstants.SINGLE_SELECT_RADIO),
 		@JsonSubTypes.Type(value = RichtextFieldValue.class, name = FieldConstants.RICHTEXT),
-		@JsonSubTypes.Type(value = SingleSelectFieldValue.class, name = FieldConstants.SINGLE_SELECT),
+		@JsonSubTypes.Type(value = SingleSelectFieldValue.class, name = FieldConstants.SINGLE_SELECT_DROPDOWN),
 		@JsonSubTypes.Type(value = TextFieldValue.class, name = FieldConstants.TEXT),
 		@JsonSubTypes.Type(value = TextAreaFieldValue.class, name = FieldConstants.TEXT_AREA) })
 @BsonDiscriminator()
@@ -57,6 +57,14 @@ public abstract class CCAFieldValue {
 		if (!fieldValueId.equals(field.getFieldId()))
 			throw new IllegalArgumentException("Invalid template mapping");
 
+		return true;
+	}
+
+	/**
+	 * Default value validation is true for all fields. If some additional value validation are required.
+	 * Then implement it in derived classes.
+	 */
+	public boolean validateValue(CCAFieldValue value) {
 		return true;
 	}
 
