@@ -34,6 +34,8 @@ import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.cca.pojo.FieldType;
 import com.strandls.cca.pojo.response.AggregationResponse;
 import com.strandls.cca.pojo.response.CCADataList;
+import com.strandls.cca.pojo.response.MapInfo;
+import com.strandls.cca.pojo.response.SubsetCCADataList;
 import com.strandls.cca.service.CCADataService;
 import com.strandls.cca.service.CCATemplateService;
 import com.strandls.cca.util.AuthorizationUtil;
@@ -121,6 +123,30 @@ public class CCADataServiceImpl implements CCADataService {
 		aggregationResponse.setCcaDataList(ccaDataList);
 		aggregationResponse.setAggregation(aggregation.first());
 		return aggregationResponse;
+	}
+
+	
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	public Map<String, Object> getCCADataAggregation(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly)
+			throws JsonProcessingException {
+		String userId = null;
+		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
+		if (myListOnly) {
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			userId = profile.getId();
+		} else if(queryParams.containsKey(CCAConstants.USER_ID)) {
+			userId = queryParams.get(CCAConstants.USER_ID).get(0);
+		}
+
+		String language = queryParams.getFirst(CCAConstants.LANGUAGE);
+		if (language == null)
+			language = CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE);
+
+		AggregateIterable<Map> aggregation = ccaDataDao.getAggregation(uriInfo, userId);
+
+		return aggregation.first();
 	}
 
 	private List<CCADataList> mergeToCCADataList(List<CCAData> ccaDatas, String language) {
@@ -275,6 +301,81 @@ public class CCADataServiceImpl implements CCADataService {
 	public List<CCAData> insertBulk(List<CCAData> ccaDatas) {
 		ccaDatas.forEach(CCAData::reComputeCentroid);
 		return ccaDataDao.insertBulk(ccaDatas);
+	}
+
+	private List<SubsetCCADataList> mergeToSubsetCCADataList(List<CCAData> ccaDatas, String language) {
+
+		List<SubsetCCADataList> result = new ArrayList<>();
+		for (CCAData ccaData : ccaDatas) {
+			CCATemplate template = ccaTemplateService.getCCAByShortName(ccaData.getShortName(), language);
+			ccaData.translate(template);
+			
+			SubsetCCADataList listCard = new SubsetCCADataList(ccaData);
+			listCard.setTitlesValues(getTitleFields(ccaData, template));
+			result.add(listCard);
+		}
+		return result;
+	}
+
+	@Override
+	public List<SubsetCCADataList> getCCAPageData(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly)
+			throws JsonProcessingException {
+		
+		String userId = null;
+		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
+		if (myListOnly) {
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			userId = profile.getId();
+		} else if(queryParams.containsKey(CCAConstants.USER_ID)) {
+			userId = queryParams.get(CCAConstants.USER_ID).get(0);
+		}
+
+		List<CCAData> ccaDatas = ccaDataDao.getAll(uriInfo, false, userId, false);
+
+		String language = queryParams.getFirst(CCAConstants.LANGUAGE);
+		if (language == null)
+			language = CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE);
+		
+		int offset = Integer.parseInt(queryParams.get("offset").get(0));
+		int limit = Integer.parseInt(queryParams.get("limit").get(0));
+		
+		return mergeToSubsetCCADataList(ccaDatas, language).subList(offset - 1 , limit + offset - 1);
+	}
+
+	@Override
+	public List<MapInfo> getCCAMapData(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly)
+			throws JsonProcessingException {
+		String userId = null;
+		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
+		if (myListOnly) {
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			userId = profile.getId();
+		} else if(queryParams.containsKey(CCAConstants.USER_ID)) {
+			userId = queryParams.get(CCAConstants.USER_ID).get(0);
+		}
+
+		List<CCAData> ccaDatas = ccaDataDao.getAll(uriInfo, false, userId, false);
+
+		String language = queryParams.getFirst(CCAConstants.LANGUAGE);
+		if (language == null)
+			language = CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE);
+
+		List<CCADataList> ccaDataList = mergeToCCADataList(ccaDatas, language);
+		List<MapInfo> mapInfoList = new ArrayList<>();
+		
+		for(CCADataList ccaData : ccaDataList) {
+			mapInfoList.add(new MapInfo(ccaData.getId(), ccaData.getCentroid().get(0), ccaData.getCentroid().get(1)));
+		}
+		
+		return mapInfoList;
+	}
+
+	@Override
+	public SubsetCCADataList getSummaryData(Long id, String language) {
+		List<CCAData> ccaDatas = new ArrayList<>();
+		ccaDatas.add(this.findById(id, language));
+
+		return mergeToSubsetCCADataList(ccaDatas, language).get(0);
 	}
 
 }

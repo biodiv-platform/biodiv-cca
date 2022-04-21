@@ -30,6 +30,7 @@ import com.strandls.cca.exception.CCAException;
 import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.Permission;
 import com.strandls.cca.pojo.response.AggregationResponse;
+import com.strandls.cca.pojo.response.SubsetCCADataList;
 import com.strandls.cca.service.CCADataService;
 import com.strandls.cca.util.AuthorizationUtil;
 import com.strandls.cca.util.Permissions;
@@ -82,6 +83,24 @@ public class CCADataController {
 	}
 
 	@GET
+	@Path("/summary/{id}")
+
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get the cca data", notes = "Returns CCA data fields", response = CCAData.class)
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
+	public Response getCCADataSummary(@Context HttpServletRequest request, @PathParam("id") Long id,
+			@QueryParam("language") String language) throws CCAException {
+		try {
+			SubsetCCADataList subsetCCAData = ccaDataService.getSummaryData(id, language);
+			if (subsetCCAData == null)
+				throw new ObjectNotFoundException(id, id.toString());
+			return Response.status(Status.OK).entity(subsetCCAData).build();
+		} catch (Exception e) {
+			throw new CCAException(e);
+		}
+	}
+
+	@GET
 	@Path("/myList")
 	@ValidateUser
 	@Produces(MediaType.APPLICATION_JSON)
@@ -109,6 +128,48 @@ public class CCADataController {
 		}
 	}
 
+	@GET
+	@Path("/aggregation")
+
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get the cca data", notes = "Returns CCA data fields", response = AggregationResponse.class)
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
+	public Response getAggregateCCADataList(@Context HttpServletRequest request, @Context UriInfo uriInfo) throws CCAException {
+		try {
+			return Response.status(Status.OK).entity(ccaDataService.getCCADataAggregation(request, uriInfo, false)).build();
+		} catch (Exception e) {
+			throw new CCAException(e);
+		}
+	}
+
+	@GET
+	@Path("/map/info")
+
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get the cca data", notes = "Returns CCA data fields", response = AggregationResponse.class)
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
+	public Response getCCADataMapInfo(@Context HttpServletRequest request, @Context UriInfo uriInfo) throws CCAException {
+		try {
+			return Response.status(Status.OK).entity(ccaDataService.getCCAMapData(request, uriInfo, false)).build();
+		} catch (Exception e) {
+			throw new CCAException(e);
+		}
+	}
+	
+	@GET
+	@Path("/page")
+
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get the cca data", notes = "Returns CCA data fields", response = AggregationResponse.class)
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
+	public Response getCCAData(@Context HttpServletRequest request, @Context UriInfo uriInfo) throws CCAException {
+		try {
+			return Response.status(Status.OK).entity(ccaDataService.getCCAPageData(request, uriInfo, false)).build();
+		} catch (Exception e) {
+			throw new CCAException(e);
+		}
+	}
+	
 	@GET
 	@Path("/all")
 

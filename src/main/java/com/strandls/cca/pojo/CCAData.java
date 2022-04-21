@@ -110,6 +110,8 @@ public class CCAData extends BaseEntity {
 	public CCAData overrideFieldData(HttpServletRequest request, CCAData ccaData, LogActivities logActivities, String type) {
 
 		this.shortName = ccaData.shortName;
+		this.setUpdatedOn(ccaData.getUpdatedOn());
+		
 		if(type.equals("Permission"))
 			this.allowedUsers = ccaData.allowedUsers;
 		
