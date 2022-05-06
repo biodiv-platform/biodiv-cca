@@ -339,10 +339,10 @@ public class CCADataServiceImpl implements CCADataService {
 		int offset = Integer.parseInt(queryParams.get("offset").get(0));
 		int limit = Integer.parseInt(queryParams.get("limit").get(0));
 		
-		int start = offset == 0 ? 0: offset -1;
-		int end = offset == 0 ? limit + offset : limit + offset - 1;
+		List<SubsetCCADataList> list = mergeToSubsetCCADataList(ccaDatas, language);
+		int end = limit + offset;
 
-		return mergeToSubsetCCADataList(ccaDatas, language).subList(start , end);
+		return list.subList(offset, end > list.size() ? list.size() : end);
 	}
 
 	@Override
@@ -367,7 +367,7 @@ public class CCADataServiceImpl implements CCADataService {
 		List<MapInfo> mapInfoList = new ArrayList<>();
 		
 		for(CCADataList ccaData : ccaDataList) {
-			mapInfoList.add(new MapInfo(ccaData.getId(), ccaData.getCentroid().get(0), ccaData.getCentroid().get(1)));
+			mapInfoList.add(new MapInfo(ccaData.getId(), ccaData.getCentroid().get(1), ccaData.getCentroid().get(0)));
 		}
 		
 		return mapInfoList;
