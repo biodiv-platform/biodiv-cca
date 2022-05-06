@@ -339,7 +339,10 @@ public class CCADataServiceImpl implements CCADataService {
 		int offset = Integer.parseInt(queryParams.get("offset").get(0));
 		int limit = Integer.parseInt(queryParams.get("limit").get(0));
 		
-		return mergeToSubsetCCADataList(ccaDatas, language).subList(offset - 1 , limit + offset - 1);
+		int start = offset == 0 ? 0: offset -1;
+		int end = offset == 0 ? limit + offset : limit + offset - 1;
+
+		return mergeToSubsetCCADataList(ccaDatas, language).subList(start , end);
 	}
 
 	@Override
