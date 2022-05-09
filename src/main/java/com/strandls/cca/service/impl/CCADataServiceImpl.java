@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -318,7 +319,7 @@ public class CCADataServiceImpl implements CCADataService {
 	}
 
 	@Override
-	public List<SubsetCCADataList> getCCAPageData(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly)
+	public Map<String, Object> getCCAPageData(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly)
 			throws JsonProcessingException {
 		
 		String userId = null;
@@ -342,7 +343,13 @@ public class CCADataServiceImpl implements CCADataService {
 		List<SubsetCCADataList> list = mergeToSubsetCCADataList(ccaDatas, language);
 		int end = limit + offset;
 
-		return list.subList(offset, end > list.size() ? list.size() : end);
+		Map<String, Object> res = new HashMap<String, Object>();
+		
+		List<SubsetCCADataList> temp = list.subList(offset, end > list.size() ? list.size() : end);
+		res.put("totalCount", temp.size());
+		res.put("data", temp);
+		
+		return res;
 	}
 
 	@Override
