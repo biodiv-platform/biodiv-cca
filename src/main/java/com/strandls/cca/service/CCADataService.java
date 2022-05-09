@@ -10,6 +10,7 @@ import javax.ws.rs.core.UriInfo;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.strandls.activity.pojo.MailData;
 import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.cca.pojo.response.AggregationResponse;
@@ -50,7 +51,7 @@ public interface CCADataService {
 	public Map<String, Object> getCCADataAggregation(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly)
 			throws JsonProcessingException;
 	
-	public List<SubsetCCADataList> getCCAPageData(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly) throws JsonProcessingException;
+	public Map<String, Object> getCCAPageData(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly) throws JsonProcessingException;
 
 	public List<MapInfo> getCCAMapData(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly) throws JsonProcessingException;
 
