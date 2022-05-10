@@ -358,7 +358,16 @@ public class CCADataServiceImpl implements CCADataService {
 	public List<MapInfo> getCCAMapData(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly)
 			throws JsonProcessingException {
 
-		List<CCAData> ccaDataList = ccaDataDao.getAll();
+		String userId = null;
+		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
+		if (myListOnly) {
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			userId = profile.getId();
+		} else if(queryParams.containsKey(CCAConstants.USER_ID)) {
+			userId = queryParams.get(CCAConstants.USER_ID).get(0);
+		}
+		
+		List<CCAData> ccaDataList = ccaDataDao.getAll(uriInfo, false, userId, false);
 		
 		List<MapInfo> mapInfoList = new ArrayList<>();
 		for(CCAData ccaData : ccaDataList) {
