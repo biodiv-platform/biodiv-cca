@@ -346,7 +346,7 @@ public class CCADataServiceImpl implements CCADataService {
 		Map<String, Object> res = new HashMap<String, Object>();
 		
 		List<SubsetCCADataList> temp = list.subList(offset, end > list.size() ? list.size() : end);
-		res.put("totalCount", temp.size());
+		res.put("totalCount", list.size());
 		res.put("data", temp);
 		
 		return res;
@@ -355,25 +355,11 @@ public class CCADataServiceImpl implements CCADataService {
 	@Override
 	public List<MapInfo> getCCAMapData(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly)
 			throws JsonProcessingException {
-		String userId = null;
-		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
-		if (myListOnly) {
-			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
-			userId = profile.getId();
-		} else if(queryParams.containsKey(CCAConstants.USER_ID)) {
-			userId = queryParams.get(CCAConstants.USER_ID).get(0);
-		}
 
-		List<CCAData> ccaDatas = ccaDataDao.getAll(uriInfo, false, userId, false);
-
-		String language = queryParams.getFirst(CCAConstants.LANGUAGE);
-		if (language == null)
-			language = CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE);
-
-		List<CCADataList> ccaDataList = mergeToCCADataList(ccaDatas, language);
-		List<MapInfo> mapInfoList = new ArrayList<>();
+		List<CCAData> ccaDataList = ccaDataDao.getAll();
 		
-		for(CCADataList ccaData : ccaDataList) {
+		List<MapInfo> mapInfoList = new ArrayList<>();
+		for(CCAData ccaData : ccaDataList) {
 			mapInfoList.add(new MapInfo(ccaData.getId(), ccaData.getCentroid().get(1), ccaData.getCentroid().get(0)));
 		}
 		
