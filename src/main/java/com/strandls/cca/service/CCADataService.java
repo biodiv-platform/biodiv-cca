@@ -2,6 +2,7 @@ package com.strandls.cca.service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.UriInfo;
@@ -9,9 +10,12 @@ import javax.ws.rs.core.UriInfo;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.strandls.activity.pojo.MailData;
 import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.cca.pojo.response.AggregationResponse;
+import com.strandls.cca.pojo.response.MapInfo;
+import com.strandls.cca.pojo.response.SubsetCCADataList;
 
 public interface CCADataService {
 
@@ -43,5 +47,14 @@ public interface CCADataService {
 			throws IOException;
 
 	public CCAData deepRemove(Long id);
+
+	public Map<String, Object> getCCADataAggregation(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly)
+			throws JsonProcessingException;
+	
+	public Map<String, Object> getCCAPageData(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly) throws JsonProcessingException;
+
+	public List<MapInfo> getCCAMapData(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly) throws JsonProcessingException;
+
+	public SubsetCCADataList getSummaryData(Long id, String language);
 
 }
