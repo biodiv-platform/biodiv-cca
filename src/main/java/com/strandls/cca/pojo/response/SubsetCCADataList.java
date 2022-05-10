@@ -1,7 +1,6 @@
 package com.strandls.cca.pojo.response;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -9,8 +8,6 @@ import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.fields.value.FileFieldValue;
 import com.strandls.cca.pojo.fields.value.FileMeta;
-import com.strandls.cca.pojo.fields.value.GeometryFieldValue;
-import com.strandls.cca.pojo.geometry.Feature;
 
 public class SubsetCCADataList {
 
@@ -19,6 +16,9 @@ public class SubsetCCADataList {
 	private List<FileMeta> files;
 	private List<CCAFieldValue> values;
 	private List<CCAFieldValue> titlesValues;
+
+	public SubsetCCADataList() {
+	}
 
 	public SubsetCCADataList(CCAData ccaData) {
 		this.id = ccaData.getId();

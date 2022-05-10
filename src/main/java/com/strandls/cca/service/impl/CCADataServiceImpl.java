@@ -33,6 +33,8 @@ import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.cca.pojo.FieldType;
+import com.strandls.cca.pojo.fields.value.FileFieldValue;
+import com.strandls.cca.pojo.fields.value.FileMeta;
 import com.strandls.cca.pojo.response.AggregationResponse;
 import com.strandls.cca.pojo.response.CCADataList;
 import com.strandls.cca.pojo.response.MapInfo;
@@ -368,10 +370,35 @@ public class CCADataServiceImpl implements CCADataService {
 
 	@Override
 	public SubsetCCADataList getSummaryData(Long id, String language) {
-		List<CCAData> ccaDatas = new ArrayList<>();
-		ccaDatas.add(this.findById(id, language));
+		CCAData ccaData = this.findById(id, language);
+		List<CCAFieldValue> res = new ArrayList<>();
+		List<FileMeta> files = new ArrayList<>();
+		List<CCAFieldValue> titlesValues = new ArrayList<>();
+		CCATemplate template = ccaTemplateService.getCCAByShortName(ccaData.getShortName(), language);
 
-		return mergeToSubsetCCADataList(ccaDatas, language).get(0);
+		Map<String, CCAFieldValue> temp = ccaData.getCcaFieldValues();
+		for(CCAField ccaField : template.getFields()) {
+			for(CCAField ccaFieldChild: ccaField.getChildren()) {
+				if(temp.containsKey(ccaFieldChild.getFieldId())) {
+					CCAFieldValue ccaFV = temp.get(ccaFieldChild.getFieldId());
+					if(ccaFieldChild.getIsSummaryField())
+						res.add(ccaFV);
+					if(ccaFieldChild.getIsTitleColumn())
+						titlesValues.add(ccaFV);
+					if(ccaFV.getType() == FieldType.FILE) {
+						List<FileMeta> fileMetas = ((FileFieldValue) ccaFV).getValue();
+						files.addAll(fileMetas);
+					}
+				}
+			}
+		}
+
+		SubsetCCADataList result = new SubsetCCADataList();
+		result.setId(ccaData.getId());
+		result.setFiles(files);
+		result.setTitlesValues(titlesValues);
+		result.setValues(res);
+		return result;
 	}
 
 }
