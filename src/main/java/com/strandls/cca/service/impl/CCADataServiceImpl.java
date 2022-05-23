@@ -33,6 +33,7 @@ import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.cca.pojo.FieldType;
+import com.strandls.cca.pojo.fields.value.FileFieldValue;
 import com.strandls.cca.pojo.fields.value.FileMeta;
 import com.strandls.cca.pojo.response.AggregationResponse;
 import com.strandls.cca.pojo.response.CCADataList;
@@ -389,10 +390,14 @@ public class CCADataServiceImpl implements CCADataService {
 			for(CCAField ccaFieldChild: ccaField.getChildren()) {
 				if(temp.containsKey(ccaFieldChild.getFieldId())) {
 					CCAFieldValue ccaFV = temp.get(ccaFieldChild.getFieldId());
-					if(ccaFieldChild.getIsSummaryField() && !ccaFV.getType().equals(FieldType.FILE) && !ccaFV.getType().equals(FieldType.GEOMETRY))
+					if(ccaFieldChild.getIsSummaryField() && !ccaFV.getType().equals(FieldType.GEOMETRY))
 						res.add(ccaFV);
 					if(ccaFieldChild.getIsTitleColumn())
 						titlesValues.add(ccaFV);
+					if(ccaFV.getType().equals(FieldType.FILE)) {
+						List<FileMeta> fileMetas = ((FileFieldValue) ccaFV).getValue();
+						files.addAll(fileMetas);
+					}
 				}
 			}
 		}
