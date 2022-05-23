@@ -11,6 +11,7 @@ import com.strandls.cca.CCAConstants;
 import com.strandls.cca.dao.CCATemplateDao;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCATemplate;
+import com.strandls.cca.pojo.FieldType;
 
 public class BsonProjectionUtil {
 
@@ -42,7 +43,10 @@ public class BsonProjectionUtil {
 		Iterator<CCAField> it = ccaTemplate.iterator();
 		while (it.hasNext()) {
 			CCAField ccaField = it.next();
-			if (ccaField.getIsSummaryField().booleanValue()) {
+			if(ccaField.getType().equals(FieldType.FILE)) {
+				String fieldName = "ccaFieldValues" + "." + ccaField.getFieldId();
+				fieldNames.add(fieldName);
+			} else if (ccaField.getIsSummaryField().booleanValue()) {
 				String fieldName = "ccaFieldValues" + "." + ccaField.getFieldId();
 				fieldNames.add(fieldName);
 			}
