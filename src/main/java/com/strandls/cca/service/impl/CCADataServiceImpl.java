@@ -390,11 +390,11 @@ public class CCADataServiceImpl implements CCADataService {
 			for(CCAField ccaFieldChild: ccaField.getChildren()) {
 				if(temp.containsKey(ccaFieldChild.getFieldId())) {
 					CCAFieldValue ccaFV = temp.get(ccaFieldChild.getFieldId());
-					if(ccaFieldChild.getIsSummaryField())
+					if(ccaFieldChild.getIsSummaryField() && !ccaFV.getType().equals(FieldType.GEOMETRY))
 						res.add(ccaFV);
 					if(ccaFieldChild.getIsTitleColumn())
 						titlesValues.add(ccaFV);
-					if(ccaFV.getType() == FieldType.FILE) {
+					if(ccaFV.getType().equals(FieldType.FILE)) {
 						List<FileMeta> fileMetas = ((FileFieldValue) ccaFV).getValue();
 						files.addAll(fileMetas);
 					}
