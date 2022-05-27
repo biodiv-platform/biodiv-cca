@@ -92,7 +92,7 @@ public abstract class ValueOptionsField extends CCAField {
 
 		for (ValueWithLabel valueWithLabel : getValueOptions()) {
 			if (valueOptionsMap.containsKey(valueWithLabel.getValueId()))
-				valueWithLabel.addUpdateTranslation(valueOptionsMap.get(valueWithLabel.getValue()), language);
+				valueWithLabel.addUpdateTranslation(valueOptionsMap.get(valueWithLabel.getValueId()), language);
 		}
 		super.addUpdateTranslation(ccaField, language);
 		return translate(language);
