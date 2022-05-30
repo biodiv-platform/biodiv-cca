@@ -116,28 +116,6 @@ public class CCATemplateController {
 			throw new CCAException(e);
 		}
 	}
-
-//	@GET
-//	@Path("/deleted/{shortName}")
-//
-//	@Consumes(MediaType.APPLICATION_JSON)
-//	@Produces(MediaType.APPLICATION_JSON)
-//
-//	@ValidateUser
-//	
-//	@ApiOperation(value = "Get the deleted cca template", notes = "Returns deleted CCA Template", response = CCATemplate.class)
-//	@ApiResponses(value = {
-//			@ApiResponse(code = 404, message = "Could not get the deleted CCA Template.", response = String.class) })
-//
-//	public Response getDeletedCCATemplate(@Context HttpServletRequest request, @PathParam("shortName") String shortName) throws CCAException {
-//		try {
-//			AuthorizationUtil.handleAuthorization(request,
-//					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_TEMPLATECURATOR), null);
-//			return Response.status(Status.OK).entity(ccaContextService.getCCAByShortName(shortName, language)).build();
-//		} catch (Exception e) {
-//			throw new CCAException(e);
-//		}
-//	}
 	
 	@POST
 	@Path("/save")
