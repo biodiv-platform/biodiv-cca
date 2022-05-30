@@ -116,7 +116,7 @@ public class CCAFilterUtil {
 		} else
 			filterTemplate = CCAConstants.MASTER;
 
-		CCATemplate ccaTemplate = templateDao.findByProperty(CCAConstants.SHORT_NAME, filterTemplate);
+		CCATemplate ccaTemplate = templateDao.findByProperty(CCAConstants.SHORT_NAME, filterTemplate, false);
 
 		JSONArray filterArray = new JSONArray();
 		Iterator<CCAField> templateIt = ccaTemplate.iterator();
@@ -271,7 +271,7 @@ public class CCAFilterUtil {
 		} else
 			filterTemplate = CCAConstants.MASTER;
 
-		CCATemplate ccaTemplate = templateDao.findByProperty(CCAConstants.SHORT_NAME, filterTemplate);
+		CCATemplate ccaTemplate = templateDao.findByProperty(CCAConstants.SHORT_NAME, filterTemplate, false);
 
 		List<Facet> facets = new ArrayList<>();
 		Iterator<CCAField> templateIt = ccaTemplate.iterator();

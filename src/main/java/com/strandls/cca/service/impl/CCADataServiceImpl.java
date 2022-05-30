@@ -310,7 +310,7 @@ public class CCADataServiceImpl implements CCADataService {
 
 		List<SubsetCCADataList> result = new ArrayList<>();
 		for (CCAData ccaData : ccaDatas) {
-			CCATemplate template = ccaTemplateService.getCCAByShortName(ccaData.getShortName(), language);
+			CCATemplate template = ccaTemplateService.getCCAByShortName(ccaData.getShortName(), language, false);
 			ccaData.translate(template);
 			
 			SubsetCCADataList listCard = new SubsetCCADataList(ccaData);
@@ -380,7 +380,7 @@ public class CCADataServiceImpl implements CCADataService {
 		List<CCAFieldValue> res = new ArrayList<>();
 		List<FileMeta> files = new ArrayList<>();
 		List<CCAFieldValue> titlesValues = new ArrayList<>();
-		CCATemplate template = ccaTemplateService.getCCAByShortName(ccaData.getShortName(), language);
+		CCATemplate template = ccaTemplateService.getCCAByShortName(ccaData.getShortName(), language, false);
 
 		Map<String, CCAFieldValue> temp = ccaData.getCcaFieldValues();
 		for(CCAField ccaField : template.getFields()) {

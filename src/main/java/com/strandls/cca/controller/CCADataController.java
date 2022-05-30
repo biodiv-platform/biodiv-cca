@@ -290,7 +290,7 @@ public class CCADataController {
 
 	public Response updateCCADataFollowers(@Context HttpServletRequest request, @ApiParam("followers") Follower follower) throws CCAException {
 		try {
-			CCAData originalDocs = ccaDataService.findById(followepermissionr.getId(), null);
+			CCAData originalDocs = ccaDataService.findById(follower.getId(), null);
 			AuthorizationUtil.handleAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN, 
 					Permissions.ROLE_DATACURATOR), originalDocs.getUserId());
 			Set<String> s = new HashSet<>();
