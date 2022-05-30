@@ -47,18 +47,18 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 	}
 
 	@Override
-	public CCATemplate getCCAByShortName(String shortName, String language) {
-		CCATemplate ccaTemplate = ccaTemplateDao.findByProperty(CCAConstants.SHORT_NAME, shortName);
+	public CCATemplate getCCAByShortName(String shortName, String language, boolean isDeleted) {
+		CCATemplate ccaTemplate = ccaTemplateDao.findByProperty(CCAConstants.SHORT_NAME, shortName, isDeleted);
 		if (language == null || "".equals(language))
 			language = CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE);
-		return ccaTemplate.translate(language);
+		return ccaTemplate != null ? ccaTemplate.translate(language) : null;
 	}
 
 	@Override
 	public CCATemplate save(HttpServletRequest request, CCATemplate context) {
 		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 
-		CCATemplate template = ccaTemplateDao.findByProperty(CCAConstants.SHORT_NAME, context.getShortName());
+		CCATemplate template = ccaTemplateDao.findByProperty(CCAConstants.SHORT_NAME, context.getShortName(), false);
 		if (template != null)
 			throw new IllegalArgumentException(
 					"Can't create new with same short name. Either update or create new one");
@@ -84,11 +84,11 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 		if (language == null)
 			throw new IllegalArgumentException("Please specify the language");
 
-		CCATemplate context = ccaTemplateDao.findByProperty(CCAConstants.ID, templateId);
+		CCATemplate context = ccaTemplateDao.findByProperty(CCAConstants.ID, templateId, false);
 		if (context == null)
 			throw new IllegalArgumentException("Template with Id : " + templateId + " doesn't exits");
 
-		CCATemplate masterTemplate = ccaTemplateDao.findByProperty(CCAConstants.SHORT_NAME, CCAConstants.MASTER);
+		CCATemplate masterTemplate = ccaTemplateDao.findByProperty(CCAConstants.SHORT_NAME, CCAConstants.MASTER, false);
 		if (masterTemplate == null)
 			throw new IllegalArgumentException("No master template, create master template first");
 
@@ -103,7 +103,7 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 
 	@Override
 	public CCATemplate update(HttpServletRequest request, CCATemplate context) {
-		CCATemplate template = ccaTemplateDao.findByProperty(CCAConstants.SHORT_NAME, context.getShortName());
+		CCATemplate template = ccaTemplateDao.findByProperty(CCAConstants.SHORT_NAME, context.getShortName(), false);
 		if (template == null)
 			throw new IllegalArgumentException("Can't update the template, template does not exit");
 
@@ -188,7 +188,7 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 		if (shortName == null || "".equals(shortName))
 			shortName = CCAConstants.MASTER;
 
-		CCATemplate ccaTemplate = getCCAByShortName(shortName, language);
+		CCATemplate ccaTemplate = getCCAByShortName(shortName, language, false);
 		Iterator<CCAField> it = ccaTemplate.iterator();
 		List<CCAField> ccaFields = new ArrayList<>();
 		while (it.hasNext()) {

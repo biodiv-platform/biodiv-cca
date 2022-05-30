@@ -48,9 +48,9 @@ public abstract class AbstractDao<T extends IdInterface> {
 	protected Bson getIdFilter(Long id) {
 		return Filters.eq(CCAConstants.ID, id);
 	}
-
-	public T findByProperty(String property, Object value) {
-		Bson isDeleted = Filters.eq(CCAConstants.IS_DELETED, false);
+  
+	public T findByProperty(String property, Object value, boolean isDelete) {
+		Bson isDeleted = Filters.eq(CCAConstants.IS_DELETED, isDelete);
 		Bson filter = Filters.eq(property, value);
 		return dbCollection.find(Filters.and(isDeleted, filter)).first();
 	}

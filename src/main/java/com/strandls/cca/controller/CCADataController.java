@@ -28,6 +28,7 @@ import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.exception.CCAException;
 import com.strandls.cca.pojo.CCAData;
+import com.strandls.cca.pojo.Follower;
 import com.strandls.cca.pojo.Permission;
 import com.strandls.cca.pojo.response.AggregationResponse;
 import com.strandls.cca.pojo.response.SubsetCCADataList;
@@ -274,6 +275,28 @@ public class CCADataController {
 			s.addAll(permission.getAllowedUsers());
 			originalDocs.setAllowedUsers(s);
 			return Response.status(Status.OK).entity(ccaDataService.update(request, originalDocs, "Permission")).build();
+		} catch (Exception e) {
+			throw new CCAException(e);
+		}
+	}
+
+	@PUT
+	@Path("/update/followers")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ValidateUser
+	@ApiOperation(value = "Update the followers cca data", notes = "Returns CCA data fields with permission info", response = CCAData.class)
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not save permission data", response = String.class) })
+
+	public Response updateCCADataFollowers(@Context HttpServletRequest request, @ApiParam("followers") Follower follower) throws CCAException {
+		try {
+			CCAData originalDocs = ccaDataService.findById(followepermissionr.getId(), null);
+			AuthorizationUtil.handleAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN, 
+					Permissions.ROLE_DATACURATOR), originalDocs.getUserId());
+			Set<String> s = new HashSet<>();
+			s.addAll(follower.getfollowers());
+			originalDocs.setFollowers(s);
+			return Response.status(Status.OK).entity(ccaDataService.update(request, originalDocs, "Follower")).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}

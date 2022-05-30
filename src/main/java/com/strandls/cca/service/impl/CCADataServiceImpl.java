@@ -62,11 +62,11 @@ public class CCADataServiceImpl implements CCADataService {
 
 	@Override
 	public CCAData findById(Long id, String language) {
-		CCAData ccaData = ccaDataDao.findByProperty(CCAConstants.ID, id);
+		CCAData ccaData = ccaDataDao.findByProperty(CCAConstants.ID, id, false);
 
 		if (language == null)
 			language = CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE);
-		CCATemplate template = ccaTemplateService.getCCAByShortName(ccaData.getShortName(), language);
+		CCATemplate template = ccaTemplateService.getCCAByShortName(ccaData.getShortName(), language, false);
 
 		ccaData.translate(template);
 		return ccaData;
@@ -156,7 +156,7 @@ public class CCADataServiceImpl implements CCADataService {
 
 		List<CCADataList> result = new ArrayList<>();
 		for (CCAData ccaData : ccaDatas) {
-			CCATemplate template = ccaTemplateService.getCCAByShortName(ccaData.getShortName(), language);
+			CCATemplate template = ccaTemplateService.getCCAByShortName(ccaData.getShortName(), language, false);
 			ccaData.translate(template);
 			CCADataList listCard = new CCADataList(ccaData);
 			listCard.setTitlesValues(getTitleFields(ccaData, template));
@@ -191,7 +191,7 @@ public class CCADataServiceImpl implements CCADataService {
 
 		String shortName = ccaData.getShortName();
 		CCATemplate ccaTemplate = ccaTemplateService.getCCAByShortName(shortName,
-				CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE));
+				CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE), false);
 
 		if (!AuthorizationUtil.checkAuthorization(request, ccaTemplate.getPermissions(), ccaData.getUserId())) {
 			throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
@@ -230,7 +230,7 @@ public class CCADataServiceImpl implements CCADataService {
 
 		String shortName = ccaData.getShortName();
 		CCATemplate ccaTemplate = ccaTemplateService.getCCAByShortName(shortName,
-				CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE));
+				CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE), false);
 
 		validateData(ccaData, ccaTemplate);
 

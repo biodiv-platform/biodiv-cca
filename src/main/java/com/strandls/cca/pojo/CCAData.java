@@ -20,6 +20,8 @@ public class CCAData extends BaseEntity {
 	private List<Double> centroid = new ArrayList<>();
 
 	private Set<String> allowedUsers = new HashSet<> ();
+
+	private Set<String> followers = new HashSet<> ();
 	
 	private int richTextCount, textFieldCount , traitsFieldCount;
 
@@ -57,6 +59,14 @@ public class CCAData extends BaseEntity {
 
 	public void setAllowedUsers(Set<String> allowedUsers) {
 		this.allowedUsers = allowedUsers;
+	}
+
+	public Set<String> getFollowers() {
+		return followers;
+	}
+
+	public void setFollowers(Set<String> followers) {
+		this.followers = followers;
 	}
 
 	public int getTextFieldCount() {
@@ -112,8 +122,12 @@ public class CCAData extends BaseEntity {
 		this.shortName = ccaData.shortName;
 		this.setUpdatedOn(ccaData.getUpdatedOn());
 		
-		if(type.equals("Permission"))
+		if (type.equals("Permission")) {
 			this.allowedUsers = ccaData.allowedUsers;
+			this.followers.addAll(allowedUsers);
+		} else if(type.equals("Follower")) {
+			this.followers = ccaData.followers;
+		}
 		
 		Map<String, CCAFieldValue> fieldsMap = getCcaFieldValues();
 
