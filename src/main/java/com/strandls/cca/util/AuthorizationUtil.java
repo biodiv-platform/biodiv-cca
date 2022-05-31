@@ -72,7 +72,8 @@ public class AuthorizationUtil {
 	}
 
 	public static void checkAuthorization(HttpServletRequest request, List<Permissions> list, String userId, CCAData ccaData) {
-		if(!checkAuthorization(request, list, userId) && !ccaData.getAllowedUsers().contains(userId)) {
+		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+		if(!checkAuthorization(request, list, userId) && !ccaData.getAllowedUsers().contains(profile.getId())) {
 			throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
 					.entity(AuthorizationUtil.UNAUTHORIZED_MESSAGE).build());
 		}

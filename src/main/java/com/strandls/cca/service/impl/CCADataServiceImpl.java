@@ -333,23 +333,20 @@ public class CCADataServiceImpl implements CCADataService {
 			userId = queryParams.get(CCAConstants.USER_ID).get(0);
 		}
 
-		List<CCAData> ccaDatas = ccaDataDao.getAll(uriInfo, false, userId, false);
+		int offset = Integer.parseInt(queryParams.get("offset").get(0));
+		int limit = Integer.parseInt(queryParams.get("limit").get(0));
+
+		List<CCAData> ccaDatas = ccaDataDao.getAll(uriInfo, false, userId, false, limit, offset);
 
 		String language = queryParams.getFirst(CCAConstants.LANGUAGE);
 		if (language == null)
 			language = CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE);
 		
-		int offset = Integer.parseInt(queryParams.get("offset").get(0));
-		int limit = Integer.parseInt(queryParams.get("limit").get(0));
-		
 		List<SubsetCCADataList> list = mergeToSubsetCCADataList(ccaDatas, language);
-		int end = limit + offset;
-
 		Map<String, Object> res = new HashMap<String, Object>();
 		
-		List<SubsetCCADataList> temp = list.subList(offset, end > list.size() ? list.size() : end);
-		res.put("totalCount", list.size());
-		res.put("data", temp);
+		res.put("totalCount", ccaDataDao.totalDataCount(uriInfo));
+		res.put("data", list);
 		
 		return res;
 	}
@@ -371,7 +368,8 @@ public class CCADataServiceImpl implements CCADataService {
 		
 		List<MapInfo> mapInfoList = new ArrayList<>();
 		for(CCAData ccaData : ccaDataList) {
-			mapInfoList.add(new MapInfo(ccaData.getId(), ccaData.getCentroid().get(1), ccaData.getCentroid().get(0)));
+			if(ccaData.getCentroid().size() == 2)
+				mapInfoList.add(new MapInfo(ccaData.getId(), ccaData.getCentroid().get(1), ccaData.getCentroid().get(0)));
 		}
 		
 		return mapInfoList;
