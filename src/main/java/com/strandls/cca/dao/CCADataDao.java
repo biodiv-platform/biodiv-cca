@@ -119,8 +119,9 @@ public class CCADataDao extends AbstractDao<CCAData> {
 		return remove(data);
 	}
 
-	public long totalDataCount() {
-		Bson isDeleted = Filters.eq(CCAConstants.IS_DELETED, false);
-		return dbCollection.countDocuments(isDeleted);
+	public long totalDataCount(UriInfo uriInfo) throws JsonProcessingException {
+		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
+		Bson filters = CCAFilterUtil.getAllFilters(queryParameter, templateDao, objectMapper, null, false);
+		return dbCollection.countDocuments(filters);
 	}
 }
