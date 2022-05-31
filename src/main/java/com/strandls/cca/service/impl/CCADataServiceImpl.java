@@ -368,7 +368,8 @@ public class CCADataServiceImpl implements CCADataService {
 		
 		List<MapInfo> mapInfoList = new ArrayList<>();
 		for(CCAData ccaData : ccaDataList) {
-			mapInfoList.add(new MapInfo(ccaData.getId(), ccaData.getCentroid().get(1), ccaData.getCentroid().get(0)));
+			if(ccaData.getCentroid().size() == 2)
+				mapInfoList.add(new MapInfo(ccaData.getId(), ccaData.getCentroid().get(1), ccaData.getCentroid().get(0)));
 		}
 		
 		return mapInfoList;
