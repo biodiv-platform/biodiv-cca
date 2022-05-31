@@ -118,4 +118,9 @@ public class CCADataDao extends AbstractDao<CCAData> {
 		CCAData data = dbCollection.find(getIdFilter(id)).first();
 		return remove(data);
 	}
+
+	public long totalDataCount() {
+		Bson isDeleted = Filters.eq(CCAConstants.IS_DELETED, false);
+		return dbCollection.countDocuments(isDeleted);
+	}
 }
