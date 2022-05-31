@@ -345,7 +345,7 @@ public class CCADataServiceImpl implements CCADataService {
 		List<SubsetCCADataList> list = mergeToSubsetCCADataList(ccaDatas, language);
 		Map<String, Object> res = new HashMap<String, Object>();
 		
-		res.put("totalCount", list.size());
+		res.put("totalCount", ccaDataDao.totalDataCount());
 		res.put("data", list);
 		
 		return res;
