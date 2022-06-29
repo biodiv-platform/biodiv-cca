@@ -116,7 +116,8 @@ public abstract class ValueOptionsField extends CCAField {
 	@Override
 	public String equals(Object obj, String language) {
 		String diff = super.equals(obj, language);
-
+		diff = diff == null ? "" : diff;
+		
 		if (!(obj instanceof ValueOptionsField))
 			return null;
 

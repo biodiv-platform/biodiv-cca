@@ -3,8 +3,11 @@ package com.strandls.cca.util;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
+import com.strandls.activity.pojo.CCAMailData;
+import com.strandls.activity.pojo.MailData;
 import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.FieldType;
@@ -49,5 +52,40 @@ public class CCAUtil {
 			}
 		}
 		return count;
+	}
+	
+	public static MailData generateMailData(CCAData ccaData, String label, String value) {
+		MailData mailData = null;
+		try {
+			CCAMailData ccaMailData = new CCAMailData();
+			ccaMailData.setAuthorId(Long.parseLong(ccaData.getUserId()));
+			ccaMailData.setId(ccaData.getId());
+			ccaMailData.setLocation("India");
+
+			Map<String, Object> data = new HashMap<String, Object>();
+			data.put("id", ccaData.getId());
+			data.put("url", "data/show/"+ ccaData.getId());
+			data.put("time", ccaData.getUpdatedOn());
+			data.put("followedUser", ccaData.getFollowers());
+
+			if(label != null && value != null ) {
+				data.put("label", label);
+				data.put("value", value);
+			}
+
+			Map<String, Object> activity = new HashMap<String, Object>();
+			activity.put("nameOfCCA", ccaData.getShortName());
+
+			Map<String, Object> tempData = new HashMap<String, Object>();
+			tempData.put("data", data);
+			tempData.put("activity", activity);
+
+			ccaMailData.setData(tempData);
+			mailData = new MailData();
+			mailData.setCcaMailData(ccaMailData);
+		} catch (Exception e) {
+			e.getMessage();
+		}
+		return mailData;
 	}
 }

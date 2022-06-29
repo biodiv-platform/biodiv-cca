@@ -18,9 +18,13 @@ import javax.ws.rs.core.UriInfo;
 
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.pac4j.core.profile.CommonProfile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mongodb.client.AggregateIterable;
+import com.strandls.activity.pojo.CCAMailData;
+import com.strandls.activity.pojo.MailData;
 import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.CCAConfig;
@@ -54,6 +58,8 @@ public class CCADataServiceImpl implements CCADataService {
 
 	@Inject
 	private LogActivities logActivities;
+
+	private final Logger logger = LoggerFactory.getLogger(CCADataServiceImpl.class);
 
 	@Inject
 	public CCADataServiceImpl() {
@@ -220,11 +226,50 @@ public class CCADataServiceImpl implements CCADataService {
 		ccaData = ccaDataDao.save(ccaData);
 
 		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), "", ccaData.getId(),
-				ccaData.getId(), "ccaData", ccaData.getId(), "Data created");
+				ccaData.getId(), "ccaData", ccaData.getId(), "Data created", 
+				generateMailData(ccaData, null, null, null));
 
 		return ccaData;
 	}
 
+	public MailData generateMailData(CCAData ccaData, String label, String oldValue, String newValue) {
+		MailData mailData = null;
+		try {
+			CCAMailData ccaMailData = new CCAMailData();
+			ccaMailData.setAuthorId(Long.parseLong(ccaData.getUserId()));
+			ccaMailData.setId(ccaData.getId());
+			ccaMailData.setLocation("India");
+			
+			Map<String, Object> data = new HashMap<String, Object>();
+			data.put("id", ccaData.getId());
+			data.put("url", "data/show/"+ ccaData.getId());
+			data.put("time", ccaData.getCreatedOn().toString());
+			data.put("followedUser", ccaData.getFollowers());
+			
+			if(label != null && oldValue != null && newValue != null) {
+				data.put("label", label);
+				data.put("old", oldValue);
+				data.put("new", newValue);
+			}
+			
+			Map<String, Object> activity = new HashMap<String, Object>();
+			//activity.put("title", "Title");
+			activity.put("nameOfCCA", ccaData.getShortName());
+			
+			
+			Map<String, Object> tempData = new HashMap<String, Object>();
+			tempData.put("data", data);
+			tempData.put("activity", activity);
+
+			ccaMailData.setData(tempData);
+			mailData = new MailData();
+			mailData.setCcaMailData(ccaMailData);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+		return mailData;
+	}
+	
 	@Override
 	public CCAData update(HttpServletRequest request, CCAData ccaData, String type) {
 

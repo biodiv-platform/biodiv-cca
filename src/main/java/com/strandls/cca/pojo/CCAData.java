@@ -9,6 +9,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
 
+import com.strandls.activity.pojo.MailData;
 import com.strandls.cca.pojo.fields.value.GeometryFieldValue;
 import com.strandls.cca.service.impl.LogActivities;
 import com.strandls.cca.util.CCAUtil;
@@ -140,8 +141,9 @@ public class CCAData extends BaseEntity {
 				String diff = dbFieldValue.computeDiff(inputFieldValue);
 				if (diff != null) {
 					diff = dbFieldValue.getName() + "\n" + diff;
+					MailData mailData = CCAUtil.generateMailData(this, inputFieldValue.getName(), diff);
 					logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), diff, ccaData.getId(),
-							ccaData.getId(), "ccaData", ccaData.getId(), "Data updated");
+							ccaData.getId(), "ccaData", ccaData.getId(), "Data updated", mailData);
 				}
 				// Persist in DB
 				this.ccaFieldValues.put(e.getKey(), e.getValue());
@@ -152,7 +154,8 @@ public class CCAData extends BaseEntity {
 				// Log newly added data entries
 				String desc = "Added : " + e.getValue().getName();
 				logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, ccaData.getId(),
-						ccaData.getId(), "ccaData", ccaData.getId(), "Data created");
+						ccaData.getId(), "ccaData", ccaData.getId(), "Data updated", 
+						CCAUtil.generateMailData(ccaData, e.getValue().getName(), desc));
 			}
 		}
 

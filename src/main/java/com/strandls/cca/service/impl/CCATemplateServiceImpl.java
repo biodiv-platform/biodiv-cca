@@ -3,6 +3,7 @@ package com.strandls.cca.service.impl;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -11,8 +12,15 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
 import org.pac4j.core.profile.CommonProfile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
+import com.strandls.activity.ApiException;
+import com.strandls.activity.controller.ActivitySerivceApi;
+import com.strandls.activity.pojo.CCAActivityLogging;
+import com.strandls.activity.pojo.CCAMailData;
+import com.strandls.activity.pojo.MailData;
 import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.CCAConfig;
@@ -24,6 +32,7 @@ import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.cca.pojo.Platform;
 import com.strandls.cca.service.CCATemplateService;
 import com.strandls.cca.util.AuthorizationUtil;
+import com.strandls.cca.Headers;
 
 /**
  * 
@@ -40,6 +49,14 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 
 	@Inject
 	private CCADataDao ccaDataDao;
+
+	@Inject
+	private ActivitySerivceApi activityService;
+
+	@Inject
+	private Headers headers;
+
+	private final Logger logger = LoggerFactory.getLogger(CCATemplateServiceImpl.class);
 
 	@Inject
 	public CCATemplateServiceImpl() {
@@ -74,9 +91,41 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 
 		String desc = "Template created with short Name : " + context.getShortName();
 		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, context.getId(),
-				context.getId(), "ccaTempate", context.getId(), "Template created");
-
+				context.getId(), "ccaTempate", context.getId(), "Template created", 
+				generateMailData(ccaTemplate, null, null));
+		
 		return ccaTemplate;
+	}
+
+	@Override
+	public MailData generateMailData(CCATemplate ccaTemplate, String label, String value) {
+		MailData mailData = null;
+		try {
+			CCAMailData ccaMailData = new CCAMailData();
+			ccaMailData.setAuthorId(Long.parseLong(ccaTemplate.getUserId()));
+			ccaMailData.setId(ccaTemplate.getId());
+			ccaMailData.setLocation("India");
+			
+			Map<String, String> template = new HashMap<String, String>();
+			template.put("short_name", ccaTemplate.getShortName());
+			template.put("url", "template/list");
+			template.put("time", ccaTemplate.getCreatedOn().toString());
+			
+			if(label != null && value != null) {
+				template.put("label", label);
+				template.put("value", value);
+			}
+			
+			Map<String, Object> data = new HashMap<String, Object>();
+			data.put("template", template);
+			
+			ccaMailData.setData(data);
+			mailData = new MailData();
+			mailData.setCcaMailData(ccaMailData);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+		return mailData;
 	}
 
 	@Override
@@ -136,14 +185,16 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 				if (desc != null) {
 					desc = inputField.getName() + "\n" + desc;
 					logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, context.getId(),
-							context.getId(), "ccaTempate", context.getId(), "Field updated");
+							context.getId(), "ccaTempate", context.getId(), "Field updated", 
+							generateMailData(ccaTemplateDao.getById(template.getId()), inputField.getName(), desc));
 				}
 			} else {
 				// This field is not available in the input.. Got deleted from the template
 				String desc = dbField.getTranslations().get(CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE))
 						.getName();
 				logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, context.getId(),
-						context.getId(), "ccaTempate", context.getId(), "Field deleted");
+						context.getId(), "ccaTempate", context.getId(), "Field deleted", 
+						generateMailData(ccaTemplateDao.getById(template.getId()), dbField.getName(), desc));
 			}
 		}
 
@@ -154,7 +205,8 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 			if (!dbFields.containsKey(fieldId)) {
 				String desc = f.getName();
 				logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, context.getId(),
-						context.getId(), "ccaTempate", context.getId(), "Field created");
+						context.getId(), "ccaTempate", context.getId(), "Field created", 
+						generateMailData(ccaTemplateDao.getById(template.getId()), f.getName(), desc));
 			}
 		}
 
@@ -234,6 +286,10 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 			ccaDataDao.removeOrRestoreManyCCDataByShortName(shortName, true);
 		}
 
+		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), ccaTemplate.getDescription(), 
+				ccaTemplate.getId(), ccaTemplate.getId(), "ccaTempate", ccaTemplate.getId(), 
+				"CCA Template Deleted", generateMailData(ccaTemplate, null, null));
+		
 		return ccaTemplate;
 	}
 
