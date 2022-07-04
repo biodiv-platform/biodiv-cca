@@ -118,7 +118,8 @@ public class CCAData extends BaseEntity {
 		this.ccaFieldValues = ccaFieldValues;
 	}
 
-	public CCAData overrideFieldData(HttpServletRequest request, CCAData ccaData, LogActivities logActivities, String type) {
+	public CCAData overrideFieldData(HttpServletRequest request, CCAData ccaData, LogActivities logActivities, String type, 
+			Map<String, Object> summaryInfo) {
 
 		this.shortName = ccaData.shortName;
 		this.setUpdatedOn(ccaData.getUpdatedOn());
@@ -141,7 +142,7 @@ public class CCAData extends BaseEntity {
 				String diff = dbFieldValue.computeDiff(inputFieldValue);
 				if (diff != null) {
 					diff = dbFieldValue.getName() + "\n" + diff;
-					MailData mailData = CCAUtil.generateMailData(this, inputFieldValue.getName(), diff);
+					MailData mailData = CCAUtil.generateMailData(this, "Data updated", diff, summaryInfo);
 					logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), diff, ccaData.getId(),
 							ccaData.getId(), "ccaData", ccaData.getId(), "Data updated", mailData);
 				}
@@ -155,7 +156,7 @@ public class CCAData extends BaseEntity {
 				String desc = "Added : " + e.getValue().getName();
 				logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, ccaData.getId(),
 						ccaData.getId(), "ccaData", ccaData.getId(), "Data updated", 
-						CCAUtil.generateMailData(ccaData, e.getValue().getName(), desc));
+						CCAUtil.generateMailData(ccaData, "Data updated", desc, summaryInfo));
 			}
 		}
 

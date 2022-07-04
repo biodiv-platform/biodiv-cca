@@ -54,7 +54,8 @@ public class CCAUtil {
 		return count;
 	}
 	
-	public static MailData generateMailData(CCAData ccaData, String label, String value) {
+	public static MailData generateMailData(CCAData ccaData, String title, String description, 
+			Map<String, Object> summary) {
 		MailData mailData = null;
 		try {
 			CCAMailData ccaMailData = new CCAMailData();
@@ -62,24 +63,25 @@ public class CCAUtil {
 			ccaMailData.setId(ccaData.getId());
 			ccaMailData.setLocation("India");
 
-			Map<String, Object> data = new HashMap<String, Object>();
+			Map<String, Object> data = new HashMap<>();
 			data.put("id", ccaData.getId());
 			data.put("url", "data/show/"+ ccaData.getId());
 			data.put("time", ccaData.getUpdatedOn());
+			data.put("updated_time", ccaData.getUpdatedOn());
 			data.put("followedUser", ccaData.getFollowers());
 
-			if(label != null && value != null ) {
-				data.put("label", label);
-				data.put("value", value);
+			Map<String, Object> activity = new HashMap<>();
+			
+			if(title != null && description != null ) {
+				activity.put("title", title);
+				activity.put("description", description);
 			}
 
-			Map<String, Object> activity = new HashMap<String, Object>();
-			activity.put("nameOfCCA", ccaData.getShortName());
-
-			Map<String, Object> tempData = new HashMap<String, Object>();
+			Map<String, Object> tempData = new HashMap<>();
 			tempData.put("data", data);
 			tempData.put("activity", activity);
-
+			tempData.put("summary", summary);
+			
 			ccaMailData.setData(tempData);
 			mailData = new MailData();
 			mailData.setCcaMailData(ccaMailData);

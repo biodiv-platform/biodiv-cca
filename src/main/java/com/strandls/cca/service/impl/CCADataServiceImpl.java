@@ -2,6 +2,7 @@ package com.strandls.cca.service.impl;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -10,6 +11,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
@@ -23,7 +25,9 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mongodb.client.AggregateIterable;
+import com.strandls.activity.pojo.Activity;
 import com.strandls.activity.pojo.CCAMailData;
+import com.strandls.activity.pojo.CommentLoggingData;
 import com.strandls.activity.pojo.MailData;
 import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.cca.ApiConstants;
@@ -37,8 +41,13 @@ import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.cca.pojo.FieldType;
+import com.strandls.cca.pojo.ValueWithLabel;
+import com.strandls.cca.pojo.fields.TextField;
+import com.strandls.cca.pojo.fields.value.CheckboxFieldValue;
 import com.strandls.cca.pojo.fields.value.FileFieldValue;
 import com.strandls.cca.pojo.fields.value.FileMeta;
+import com.strandls.cca.pojo.fields.value.NumberFieldValue;
+import com.strandls.cca.pojo.fields.value.TextFieldValue;
 import com.strandls.cca.pojo.response.AggregationResponse;
 import com.strandls.cca.pojo.response.CCADataList;
 import com.strandls.cca.pojo.response.MapInfo;
@@ -227,12 +236,12 @@ public class CCADataServiceImpl implements CCADataService {
 
 		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), "", ccaData.getId(),
 				ccaData.getId(), "ccaData", ccaData.getId(), "Data created", 
-				generateMailData(ccaData, null, null, null));
+				generateMailData(ccaData, null, null));
 
 		return ccaData;
 	}
 
-	public MailData generateMailData(CCAData ccaData, String label, String oldValue, String newValue) {
+	public MailData generateMailData(CCAData ccaData, String title, String description) {
 		MailData mailData = null;
 		try {
 			CCAMailData ccaMailData = new CCAMailData();
@@ -240,27 +249,28 @@ public class CCADataServiceImpl implements CCADataService {
 			ccaMailData.setId(ccaData.getId());
 			ccaMailData.setLocation("India");
 			
-			Map<String, Object> data = new HashMap<String, Object>();
+			Map<String, Object> data = new HashMap<>();
 			data.put("id", ccaData.getId());
 			data.put("url", "data/show/"+ ccaData.getId());
 			data.put("time", ccaData.getCreatedOn().toString());
 			data.put("followedUser", ccaData.getFollowers());
-			
-			if(label != null && oldValue != null && newValue != null) {
-				data.put("label", label);
-				data.put("old", oldValue);
-				data.put("new", newValue);
+
+			Map<String, Object> activity = new HashMap<>();
+			if(title != null && description != null ) {
+				activity.put("title", title);
+				activity.put("description", description);
+				SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");  
+			    Date date = new Date();  
+				activity.put("time", formatter.format(date));
 			}
-			
-			Map<String, Object> activity = new HashMap<String, Object>();
-			//activity.put("title", "Title");
-			activity.put("nameOfCCA", ccaData.getShortName());
-			
-			
-			Map<String, Object> tempData = new HashMap<String, Object>();
+
+			Map<String, Object> summary = getSummaryInfo(ccaData);
+
+			Map<String, Object> tempData = new HashMap<>();
 			tempData.put("data", data);
 			tempData.put("activity", activity);
-
+			tempData.put("summary", summary);
+ 
 			ccaMailData.setData(tempData);
 			mailData = new MailData();
 			mailData.setCcaMailData(ccaMailData);
@@ -269,7 +279,7 @@ public class CCADataServiceImpl implements CCADataService {
 		}
 		return mailData;
 	}
-	
+
 	@Override
 	public CCAData update(HttpServletRequest request, CCAData ccaData, String type) {
 
@@ -287,7 +297,7 @@ public class CCADataServiceImpl implements CCADataService {
 
 		CCAData dataInMem = ccaDataDao.getById(ccaData.getId());
 
-		dataInMem = dataInMem.overrideFieldData(request, ccaData, logActivities, type);
+		dataInMem = dataInMem.overrideFieldData(request, ccaData, logActivities, type, getSummaryInfo(dataInMem));
 
 		dataInMem.reComputeCentroid();
 		return ccaDataDao.replaceOne(dataInMem);
@@ -432,9 +442,9 @@ public class CCADataServiceImpl implements CCADataService {
 			for(CCAField ccaFieldChild: ccaField.getChildren()) {
 				if(temp.containsKey(ccaFieldChild.getFieldId())) {
 					CCAFieldValue ccaFV = temp.get(ccaFieldChild.getFieldId());
-					if(ccaFieldChild.getIsSummaryField() && !ccaFV.getType().equals(FieldType.GEOMETRY))
+					if(Boolean.TRUE.equals(ccaFieldChild.getIsSummaryField()) && !ccaFV.getType().equals(FieldType.GEOMETRY))
 						res.add(ccaFV);
-					if(ccaFieldChild.getIsTitleColumn())
+					if(Boolean.TRUE.equals(ccaFieldChild.getIsTitleColumn()))
 						titlesValues.add(ccaFV);
 					if(ccaFV.getType().equals(FieldType.FILE)) {
 						List<FileMeta> fileMetas = ((FileFieldValue) ccaFV).getValue();
@@ -449,7 +459,109 @@ public class CCADataServiceImpl implements CCADataService {
 		result.setFiles(files);
 		result.setTitlesValues(titlesValues);
 		result.setValues(res);
+		
 		return result;
 	}
 
+	public Map<String, Object> getSummaryInfo(CCAData ccaData) {
+		Map<String, Object> result = new HashMap<>();
+		
+		List<CCAFieldValue> titlesValues = new ArrayList<>();
+		CCATemplate template = ccaTemplateService.getCCAByShortName(ccaData.getShortName(), ApiConstants.DEFAULT_LANGUAGE, false);
+
+		Map<String, CCAFieldValue> temp = ccaData.getCcaFieldValues();
+		for(CCAField ccaField : template.getFields()) {
+			for(CCAField ccaFieldChild: ccaField.getChildren()) {
+				if(temp.containsKey(ccaFieldChild.getFieldId())) {
+					CCAFieldValue ccaFV = temp.get(ccaFieldChild.getFieldId());
+					if(Boolean.TRUE.equals(ccaFieldChild.getIsSummaryField()) && !ccaFV.getType().equals(FieldType.GEOMETRY)) {
+						if(ccaFV.getType() == FieldType.TEXT) {
+							TextFieldValue textFieldValue = (TextFieldValue) ccaFV;
+							if(textFieldValue.getName().equals("Name of CCA")) {
+								result.put("nameOfCCA", textFieldValue.getValue());
+							}
+						} else if(ccaFV.getType() == FieldType.NUMBER) {
+							NumberFieldValue nf = (NumberFieldValue)ccaFV;
+							result.put("area", nf.getValue());
+						} else if(ccaFV.getType() == FieldType.MULTI_SELECT_CHECKBOX) {
+							CheckboxFieldValue cfv = (CheckboxFieldValue)ccaFV;
+							if(cfv.getName().equals("Ecosystem Type")) {
+								String s1 = "";
+								for(ValueWithLabel vwl : cfv.getValue()) {
+									s1 += " " + vwl.getValue();
+								}
+								result.put("ecosystem", s1);
+							} else if(cfv.getName().equals("Legal Status ")) {
+								String s = "";
+								for(ValueWithLabel vwl : cfv.getValue()) {
+									s += " " + vwl.getValue();
+								}
+								result.put("legalStatus", s);
+							}
+						}
+					}
+					
+					if(Boolean.TRUE.equals(ccaFieldChild.getIsTitleColumn())) {
+						titlesValues.add(ccaFV);
+					}
+					
+					if(ccaFV.getType().equals(FieldType.FILE)) {
+						List<FileMeta> fileMetas = ((FileFieldValue) ccaFV).getValue();
+						result.put("image", fileMetas.get(0).getPath());
+					}
+				}
+			}
+		}
+
+		result.put("title", getTitle(titlesValues));
+		
+		return result;
+	}
+	
+	private String getTitle(List<CCAFieldValue> titlesValues) {
+		String title = "";
+		
+		for(CCAFieldValue ccaFV : titlesValues) {
+			if(ccaFV.getType() == FieldType.TEXT) {
+				TextFieldValue textFieldValue = (TextFieldValue) ccaFV;
+				if(textFieldValue.getName().equals("Name of CCA")) {
+					title += " " + textFieldValue.getValue();
+				}
+			} else if(ccaFV.getType() == FieldType.NUMBER) {
+				NumberFieldValue nf = (NumberFieldValue)ccaFV;
+				title += " " + nf.getValue();
+			} else if(ccaFV.getType() == FieldType.MULTI_SELECT_CHECKBOX) {
+				CheckboxFieldValue cfv = (CheckboxFieldValue)ccaFV;
+				if(cfv.getName().equals("Ecosystem Type")) {
+					String s1 = "";
+					for(ValueWithLabel vwl : cfv.getValue()) {
+						s1 += " " + vwl.getValue();
+					}
+					title += " " + s1;
+				} else if(cfv.getName().equals("Legal Status ")) {
+					String s = "";
+					for(ValueWithLabel vwl : cfv.getValue()) {
+						s += " " + vwl.getValue();
+					}
+					title += " " + s;
+				}
+			}
+		}
+		
+		return title;
+	}
+
+	@Override
+	public String addComment(HttpServletRequest request, Long userId, Long dataId, CommentLoggingData commentData) {
+		CCAData ccaData = this.findById(dataId, ApiConstants.DEFAULT_LANGUAGE);
+		
+		if(ccaData == null) {
+			throw new NotFoundException("Not found cca data with id : " + dataId);
+		}
+		
+		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), "", ccaData.getId(),
+				ccaData.getId(), "ccaData", ccaData.getId(), "Data comment", 
+				generateMailData(ccaData, "Commented", commentData.getBody()));
+		return "Added comment successfully";
+	}
 }

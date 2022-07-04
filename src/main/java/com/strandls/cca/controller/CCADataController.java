@@ -23,8 +23,12 @@ import javax.ws.rs.core.UriInfo;
 
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.hibernate.ObjectNotFoundException;
+import org.pac4j.core.profile.CommonProfile;
 
+import com.strandls.activity.pojo.Activity;
+import com.strandls.activity.pojo.CommentLoggingData;
 import com.strandls.authentication_utility.filter.ValidateUser;
+import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.exception.CCAException;
 import com.strandls.cca.pojo.CCAData;
@@ -285,16 +289,21 @@ public class CCADataController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ValidateUser
-	@ApiOperation(value = "Update the followers cca data", notes = "Returns CCA data fields with permission info", response = CCAData.class)
-	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not save permission data", response = String.class) })
+	@ApiOperation(value = "Update the followers cca data", notes = "Returns CCA data fields with follower info", response = CCAData.class)
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not save follower data", response = String.class) })
 
 	public Response updateCCADataFollowers(@Context HttpServletRequest request, @ApiParam("followers") Follower follower) throws CCAException {
 		try {
 			CCAData originalDocs = ccaDataService.findById(follower.getId(), null);
 			AuthorizationUtil.handleAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN, 
 					Permissions.ROLE_DATACURATOR), originalDocs.getUserId());
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			Set<String> s = new HashSet<>();
-			s.addAll(follower.getfollowers());
+			if(follower.getfollowers() != null && follower.getfollowers().isEmpty())
+				s.addAll(follower.getfollowers());
+			else 
+				s.add(profile.getId());
+			
 			originalDocs.setFollowers(s);
 			return Response.status(Status.OK).entity(ccaDataService.update(request, originalDocs, "Follower")).build();
 		} catch (Exception e) {
@@ -334,6 +343,32 @@ public class CCADataController {
 			return Response.status(Status.OK).entity(ccaDataService.deepRemove(id)).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
+		}
+	}
+	
+	@POST
+	@Path(ApiConstants.COMMENT + "/{id}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+
+	@ApiOperation(value = "Adds a comment", notes = "Return the current activity", response = Activity.class)
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to log a comment", response = String.class) })
+
+	public Response addComment(@Context HttpServletRequest request,
+			@ApiParam(name = "commentData") CommentLoggingData commentData,
+			@PathParam("id") Long id) {
+		try {
+
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			Long userId = Long.parseLong(profile.getId());
+			if (commentData.getBody().trim().length() > 0) {
+				return Response.status(Status.OK).entity(ccaDataService.addComment(request, userId, id, commentData)).build();
+			}
+			return Response.status(Status.NOT_ACCEPTABLE).entity("Blank Comment Not allowed").build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}
 	}
 }

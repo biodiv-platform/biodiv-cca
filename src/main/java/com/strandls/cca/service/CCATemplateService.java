@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.strandls.activity.pojo.CommentLoggingData;
 import com.strandls.activity.pojo.MailData;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCATemplate;
@@ -36,5 +37,7 @@ public interface CCATemplateService {
 	public CCATemplate restore(HttpServletRequest request, String shortName);
 
 	public MailData generateMailData(CCATemplate ccaTemplate, String label, String value);
+
+	public String addComment(HttpServletRequest request, Long userId, String shortName, CommentLoggingData commentData);
 
 }

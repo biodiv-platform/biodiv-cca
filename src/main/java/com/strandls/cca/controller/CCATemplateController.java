@@ -18,7 +18,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.pac4j.core.profile.CommonProfile;
+
+import com.strandls.activity.pojo.Activity;
+import com.strandls.activity.pojo.CommentLoggingData;
 import com.strandls.authentication_utility.filter.ValidateUser;
+import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.exception.CCAException;
 import com.strandls.cca.pojo.CCAField;
@@ -252,5 +257,30 @@ public class CCATemplateController {
 			throw new CCAException(e);
 		}
 	}
+	
+	@POST
+	@Path(ApiConstants.COMMENT + "/{shortName}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 
+	@ValidateUser
+
+	@ApiOperation(value = "Adds a comment", notes = "Return the current activity", response = Activity.class)
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to log a comment", response = String.class) })
+
+	public Response addComment(@Context HttpServletRequest request,
+			@ApiParam(name = "commentData") CommentLoggingData commentData,
+			@PathParam("shortName") String shortName) {
+		try {
+
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			Long userId = Long.parseLong(profile.getId());
+			if (commentData.getBody().trim().length() > 0) {
+				return Response.status(Status.OK).entity(ccaContextService.addComment(request, userId, shortName, commentData)).build();
+			}
+			return Response.status(Status.NOT_ACCEPTABLE).entity("Blank Comment Not allowed").build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
 }
