@@ -287,7 +287,8 @@ public class CCADataServiceImpl implements CCADataService {
 		CCATemplate ccaTemplate = ccaTemplateService.getCCAByShortName(shortName,
 				CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE), false);
 
-		validateData(ccaData, ccaTemplate);
+		if(!type.equalsIgnoreCase("Permission") && !type.equalsIgnoreCase("Follow") && !type.equalsIgnoreCase("Unfollow"))
+			validateData(ccaData, ccaTemplate);
 
 		Timestamp time = new Timestamp(new Date().getTime());
 		ccaData.setUpdatedOn(time);

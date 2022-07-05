@@ -299,13 +299,15 @@ public class CCADataController {
 					Permissions.ROLE_DATACURATOR), originalDocs.getUserId());
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			Set<String> s = new HashSet<>();
-			if(follower.getfollowers() != null && follower.getfollowers().isEmpty())
+			if(follower.getfollowers() != null && !follower.getfollowers().isEmpty())
 				s.addAll(follower.getfollowers());
 			else 
 				s.add(profile.getId());
 			
 			originalDocs.setFollowers(s);
-			return Response.status(Status.OK).entity(ccaDataService.update(request, originalDocs, "Follower")).build();
+			String type = follower.getType() == null || 
+					follower.getType().equalsIgnoreCase("follow") ? "Follow" : "Unfollow";
+			return Response.status(Status.OK).entity(ccaDataService.update(request, originalDocs, type)).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}

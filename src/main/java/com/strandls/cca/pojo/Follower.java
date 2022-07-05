@@ -5,6 +5,7 @@ import java.util.List;
 public class Follower {
 	private Long id;
 	private List<String> followers;
+	private String type;
 	
 	public List<String> getfollowers() {
 		return followers;
@@ -20,5 +21,13 @@ public class Follower {
 	
 	public Long getId() {
 		return id;
+	}
+	
+	public String getType() {
+		return type;
+	}
+	
+	public void setType(String type) {
+		this.type = type;
 	}
 }

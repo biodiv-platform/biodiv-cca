@@ -124,11 +124,22 @@ public class CCAData extends BaseEntity {
 		this.shortName = ccaData.shortName;
 		this.setUpdatedOn(ccaData.getUpdatedOn());
 		
-		if (type.equals("Permission")) {
-			this.allowedUsers = ccaData.allowedUsers;
+		if (type.equalsIgnoreCase("permission")) {
+			this.allowedUsers.addAll(ccaData.allowedUsers);
 			this.followers.addAll(allowedUsers);
-		} else if(type.equals("Follower")) {
-			this.followers = ccaData.followers;
+			MailData mailData = CCAUtil.generateMailData(this, "Permission added", null, summaryInfo, ccaData.allowedUsers);
+			logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), ccaData.allowedUsers.toString(), 
+					ccaData.getId(), ccaData.getId(), "ccaData", ccaData.getId(), "Permission added", mailData);
+		} else if(type.equalsIgnoreCase("follow")) {
+			this.followers.addAll(ccaData.followers);
+			MailData mailData = CCAUtil.generateMailData(this, "Follower added", null, summaryInfo, ccaData.followers);
+			logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), ccaData.followers.toString(), ccaData.getId(),
+					ccaData.getId(), "ccaData", ccaData.getId(), "Follower added", mailData);
+		} else if(type.equalsIgnoreCase("unfollow")) {
+			this.followers.removeAll(ccaData.followers);
+			// MailData mailData = CCAUtil.generateMailData(this, "Follower added", null, summaryInfo, ccaData.followers);
+			// logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), ccaData.followers.toString(), ccaData.getId(),
+			//		ccaData.getId(), "ccaData", ccaData.getId(), "Follower added", mailData);
 		}
 		
 		Map<String, CCAFieldValue> fieldsMap = getCcaFieldValues();
@@ -142,7 +153,7 @@ public class CCAData extends BaseEntity {
 				String diff = dbFieldValue.computeDiff(inputFieldValue);
 				if (diff != null) {
 					diff = dbFieldValue.getName() + "\n" + diff;
-					MailData mailData = CCAUtil.generateMailData(this, "Data updated", diff, summaryInfo);
+					MailData mailData = CCAUtil.generateMailData(this, "Data updated", diff, summaryInfo, null);
 					logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), diff, ccaData.getId(),
 							ccaData.getId(), "ccaData", ccaData.getId(), "Data updated", mailData);
 				}
@@ -156,7 +167,7 @@ public class CCAData extends BaseEntity {
 				String desc = "Added : " + e.getValue().getName();
 				logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, ccaData.getId(),
 						ccaData.getId(), "ccaData", ccaData.getId(), "Data updated", 
-						CCAUtil.generateMailData(ccaData, "Data updated", desc, summaryInfo));
+						CCAUtil.generateMailData(ccaData, "Data updated", desc, summaryInfo, null));
 			}
 		}
 

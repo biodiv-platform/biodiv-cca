@@ -317,7 +317,7 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 		
 		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), ccaTemplate.getDescription(), 
 				ccaTemplate.getId(), ccaTemplate.getId(), "ccaTempate", ccaTemplate.getId(), 
-				"Template comment", generateMailData(ccaTemplate, "Commented", commentData.getBody()));
+				"Template comment", generateMailData(ccaTemplate, commentData.getBody(), "Commented"));
 		return "Added comment successfully";
 	}
 

@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import com.strandls.activity.pojo.CCAMailData;
 import com.strandls.activity.pojo.MailData;
@@ -55,7 +56,7 @@ public class CCAUtil {
 	}
 	
 	public static MailData generateMailData(CCAData ccaData, String title, String description, 
-			Map<String, Object> summary) {
+			Map<String, Object> summary, Set<String> userIds) {
 		MailData mailData = null;
 		try {
 			CCAMailData ccaMailData = new CCAMailData();
@@ -75,6 +76,12 @@ public class CCAUtil {
 			if(title != null && description != null ) {
 				activity.put("title", title);
 				activity.put("description", description);
+			}
+			
+			if (title != null && title.equals("Permission added")) {
+				data.put("permission", userIds);
+			} else if(title != null && title.equals("Follower added")) {
+				data.put("follower", userIds);
 			}
 
 			Map<String, Object> tempData = new HashMap<>();
