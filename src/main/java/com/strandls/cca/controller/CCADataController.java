@@ -362,7 +362,6 @@ public class CCADataController {
 			@ApiParam(name = "commentData") CommentLoggingData commentData,
 			@PathParam("id") Long id) {
 		try {
-
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			Long userId = Long.parseLong(profile.getId());
 			if (commentData.getBody().trim().length() > 0) {

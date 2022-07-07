@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Inject;
 import com.strandls.activity.ApiException;
 import com.strandls.activity.controller.ActivitySerivceApi;
-import com.strandls.activity.pojo.CCAActivityLogging;
+import com.strandls.activity.pojo.Activity;
 import com.strandls.activity.pojo.CCAMailData;
 import com.strandls.activity.pojo.CommentLoggingData;
 import com.strandls.activity.pojo.MailData;
@@ -309,17 +309,23 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 	}
 
 	@Override
-	public String addComment(HttpServletRequest request, Long userId, String shortName,
+	public Activity addComment(HttpServletRequest request, Long userId, String shortName,
 			CommentLoggingData commentData) {
 		CCATemplate ccaTemplate = ccaTemplateDao.findByProperty(CCAConstants.SHORT_NAME, shortName, false);
 		if(ccaTemplate == null) {
 			throw new NotFoundException("Not found template with short name : " + shortName);
 		}
 		
-		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), ccaTemplate.getDescription(), 
-				ccaTemplate.getId(), ccaTemplate.getId(), "ccaTempate", ccaTemplate.getId(), 
-				"Template comment", generateMailData(ccaTemplate, commentData.getBody(), "Commented"));
-		return "Added comment successfully";
+		commentData.setMailData(generateMailData(ccaTemplate, commentData.getBody(), "Commented"));
+		activityService = headers.addActivityHeader(activityService, request.getHeader(HttpHeaders.AUTHORIZATION));
+		Activity activity = null;
+		try {
+			activity = activityService.addComment("cca", commentData);
+		} catch (ApiException e) {
+			e.printStackTrace();
+		}
+		
+		return activity;
 	}
 
 }

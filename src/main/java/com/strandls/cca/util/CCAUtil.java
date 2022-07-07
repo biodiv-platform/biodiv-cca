@@ -7,13 +7,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.inject.Inject;
 import com.strandls.activity.pojo.CCAMailData;
 import com.strandls.activity.pojo.MailData;
 import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.FieldType;
-import com.strandls.user.controller.UserServiceApi;
 
 public class CCAUtil {
 	
