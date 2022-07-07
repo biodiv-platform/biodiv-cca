@@ -25,6 +25,8 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mongodb.client.AggregateIterable;
+import com.strandls.activity.ApiException;
+import com.strandls.activity.controller.ActivitySerivceApi;
 import com.strandls.activity.pojo.Activity;
 import com.strandls.activity.pojo.CCAMailData;
 import com.strandls.activity.pojo.CommentLoggingData;
@@ -56,6 +58,7 @@ import com.strandls.cca.service.CCADataService;
 import com.strandls.cca.service.CCATemplateService;
 import com.strandls.cca.util.AuthorizationUtil;
 import com.strandls.cca.util.CCAUtil;
+import com.strandls.cca.Headers;
 
 public class CCADataServiceImpl implements CCADataService {
 
@@ -67,6 +70,12 @@ public class CCADataServiceImpl implements CCADataService {
 
 	@Inject
 	private LogActivities logActivities;
+	
+	@Inject
+	private ActivitySerivceApi activityService;
+
+	@Inject
+	private Headers headers;
 
 	private final Logger logger = LoggerFactory.getLogger(CCADataServiceImpl.class);
 
@@ -236,48 +245,9 @@ public class CCADataServiceImpl implements CCADataService {
 
 		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), "", ccaData.getId(),
 				ccaData.getId(), "ccaData", ccaData.getId(), "Data created", 
-				generateMailData(ccaData, null, null));
+				CCAUtil.generateMailData(ccaData, null, null, getSummaryInfo(ccaData), null));
 
 		return ccaData;
-	}
-
-	public MailData generateMailData(CCAData ccaData, String title, String description) {
-		MailData mailData = null;
-		try {
-			CCAMailData ccaMailData = new CCAMailData();
-			ccaMailData.setAuthorId(Long.parseLong(ccaData.getUserId()));
-			ccaMailData.setId(ccaData.getId());
-			ccaMailData.setLocation("India");
-			
-			Map<String, Object> data = new HashMap<>();
-			data.put("id", ccaData.getId());
-			data.put("url", "data/show/"+ ccaData.getId());
-			data.put("time", ccaData.getCreatedOn().toString());
-			data.put("followedUser", ccaData.getFollowers());
-
-			Map<String, Object> activity = new HashMap<>();
-			if(title != null && description != null ) {
-				activity.put("title", title);
-				activity.put("description", description);
-				SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");  
-			    Date date = new Date();  
-				activity.put("time", formatter.format(date));
-			}
-
-			Map<String, Object> summary = getSummaryInfo(ccaData);
-
-			Map<String, Object> tempData = new HashMap<>();
-			tempData.put("data", data);
-			tempData.put("activity", activity);
-			tempData.put("summary", summary);
- 
-			ccaMailData.setData(tempData);
-			mailData = new MailData();
-			mailData.setCcaMailData(ccaMailData);
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-		}
-		return mailData;
 	}
 
 	@Override
@@ -347,8 +317,14 @@ public class CCADataServiceImpl implements CCADataService {
 	}
 
 	@Override
-	public CCAData remove(Long id) {
-		return ccaDataDao.remove(id);
+	public CCAData remove(HttpServletRequest request, Long id) {
+		CCAData ccaData = ccaDataDao.remove(id);
+		
+		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), "", ccaData.getId(),
+				ccaData.getId(), "ccaData", ccaData.getId(), "Data deleted", 
+				CCAUtil.generateMailData(ccaData, null, null, getSummaryInfo(ccaData), null));
+		
+		return ccaData;
 	}
 
 	@Override
@@ -514,9 +490,10 @@ public class CCADataServiceImpl implements CCADataService {
 			}
 		}
 
-		result.put("title", getTitle(titlesValues));
+		if(!titlesValues.isEmpty())
+			result.put("title", getTitle(titlesValues));
 		
-		return result;
+		return result.isEmpty() ? null : result;
 	}
 	
 	private String getTitle(List<CCAFieldValue> titlesValues) {
@@ -553,16 +530,21 @@ public class CCADataServiceImpl implements CCADataService {
 	}
 
 	@Override
-	public String addComment(HttpServletRequest request, Long userId, Long dataId, CommentLoggingData commentData) {
+	public Activity addComment(HttpServletRequest request, Long userId, Long dataId, CommentLoggingData commentData) {
 		CCAData ccaData = this.findById(dataId, ApiConstants.DEFAULT_LANGUAGE);
 		
 		if(ccaData == null) {
 			throw new NotFoundException("Not found cca data with id : " + dataId);
 		}
 		
-		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), "", ccaData.getId(),
-				ccaData.getId(), "ccaData", ccaData.getId(), "Data comment", 
-				generateMailData(ccaData, "Commented", commentData.getBody()));
-		return "Added comment successfully";
+		commentData.setMailData(CCAUtil.generateMailData(ccaData, "Commented", commentData.getBody(), null, null));
+		activityService = headers.addActivityHeader(activityService, request.getHeader(HttpHeaders.AUTHORIZATION));
+		Activity activity = null;
+		try {
+			activity = activityService.addComment("cca", commentData);
+		} catch (ApiException e) {
+			e.printStackTrace();
+		}
+		return activity;
 	}
 }

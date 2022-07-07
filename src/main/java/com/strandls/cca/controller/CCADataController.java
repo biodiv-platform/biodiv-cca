@@ -325,7 +325,7 @@ public class CCADataController {
 		try {
 			AuthorizationUtil.handleAuthorization(request,
 					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), null);
-			return Response.status(Status.OK).entity(ccaDataService.remove(id)).build();
+			return Response.status(Status.OK).entity(ccaDataService.remove(request, id)).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}

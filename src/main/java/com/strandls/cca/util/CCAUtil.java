@@ -7,14 +7,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.inject.Inject;
 import com.strandls.activity.pojo.CCAMailData;
 import com.strandls.activity.pojo.MailData;
 import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.FieldType;
+import com.strandls.user.controller.UserServiceApi;
 
 public class CCAUtil {
-
+	
 	private CCAUtil() {
 	}
 
@@ -76,6 +78,9 @@ public class CCAUtil {
 			if(title != null && description != null ) {
 				activity.put("title", title);
 				activity.put("description", description);
+				SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");  
+			    Date date = new Date();  
+				activity.put("time", formatter.format(date));
 			}
 			
 			if (title != null && title.equals("Permission added")) {
@@ -87,7 +92,12 @@ public class CCAUtil {
 			Map<String, Object> tempData = new HashMap<>();
 			tempData.put("data", data);
 			tempData.put("activity", activity);
-			tempData.put("summary", summary);
+			
+			if(summary != null)
+				tempData.put("summary", summary);
+			
+			tempData.put("recipient", ccaData.getFollowers());
+			tempData.put("owner", ccaData.getUserId());
 			
 			ccaMailData.setData(tempData);
 			mailData = new MailData();

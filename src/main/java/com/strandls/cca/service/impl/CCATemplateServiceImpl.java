@@ -127,6 +127,7 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 			Map<String, Object> data = new HashMap<>();
 			data.put("template", template);
 			data.put("activity", activity);
+			data.put("owner", ccaTemplate.getUserId());
 			
 			ccaMailData.setData(data);
 			mailData = new MailData();

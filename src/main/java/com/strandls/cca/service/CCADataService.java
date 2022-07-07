@@ -31,7 +31,7 @@ public interface CCADataService {
 
 	public CCAData restore(Long id);
 
-	public CCAData remove(Long id);
+	public CCAData remove(HttpServletRequest request, Long id);
 
 	public List<CCAData> getAllCCAData(HttpServletRequest request, UriInfo uriInfo, Boolean isDeletedData) throws JsonProcessingException;
 
@@ -59,6 +59,6 @@ public interface CCADataService {
 
 	public SubsetCCADataList getSummaryData(Long id, String language);
 
-	public String addComment(HttpServletRequest request, Long userId, Long dataId, CommentLoggingData commentData);
+	public Activity addComment(HttpServletRequest request, Long userId, Long dataId, CommentLoggingData commentData);
 
 }
