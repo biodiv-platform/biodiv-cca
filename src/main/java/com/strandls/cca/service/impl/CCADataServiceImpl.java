@@ -484,7 +484,8 @@ public class CCADataServiceImpl implements CCADataService {
 					
 					if(ccaFV.getType().equals(FieldType.FILE)) {
 						List<FileMeta> fileMetas = ((FileFieldValue) ccaFV).getValue();
-						result.put("image", fileMetas.get(0).getPath());
+						if(fileMetas.size() != 0)
+							result.put("image", fileMetas.get(0).getPath());
 					}
 				}
 			}
