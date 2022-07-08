@@ -259,7 +259,7 @@ public class CCATemplateController {
 	}
 	
 	@POST
-	@Path(ApiConstants.COMMENT + "/{shortName}")
+	@Path(ApiConstants.COMMENT)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 
@@ -276,7 +276,7 @@ public class CCATemplateController {
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			Long userId = Long.parseLong(profile.getId());
 			if (commentData.getBody().trim().length() > 0) {
-				return Response.status(Status.OK).entity(ccaContextService.addComment(request, userId, shortName, commentData)).build();
+				return Response.status(Status.OK).entity(ccaContextService.addComment(request, userId, commentData)).build();
 			}
 			return Response.status(Status.NOT_ACCEPTABLE).entity("Blank Comment Not allowed").build();
 		} catch (Exception e) {

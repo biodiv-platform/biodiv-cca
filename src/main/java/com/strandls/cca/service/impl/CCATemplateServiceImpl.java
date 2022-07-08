@@ -309,11 +309,10 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 	}
 
 	@Override
-	public Activity addComment(HttpServletRequest request, Long userId, String shortName,
-			CommentLoggingData commentData) {
-		CCATemplate ccaTemplate = ccaTemplateDao.findByProperty(CCAConstants.SHORT_NAME, shortName, false);
+	public Activity addComment(HttpServletRequest request, Long userId, CommentLoggingData commentData) {
+		CCATemplate ccaTemplate = ccaTemplateDao.getById(commentData.getRootHolderId());
 		if(ccaTemplate == null) {
-			throw new NotFoundException("Not found template with short name : " + shortName);
+			throw new NotFoundException("Not found template with id : " + commentData.getRootHolderId());
 		}
 		
 		commentData.setMailData(generateMailData(ccaTemplate, commentData.getBody(), "Commented"));

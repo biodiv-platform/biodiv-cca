@@ -39,6 +39,6 @@ public interface CCATemplateService {
 
 	public MailData generateMailData(CCATemplate ccaTemplate, String label, String value);
 
-	public Activity addComment(HttpServletRequest request, Long userId, String shortName, CommentLoggingData commentData);
+	public Activity addComment(HttpServletRequest request, Long userId, CommentLoggingData commentData);
 
 }

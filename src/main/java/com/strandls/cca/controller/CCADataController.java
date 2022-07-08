@@ -349,7 +349,7 @@ public class CCADataController {
 	}
 	
 	@POST
-	@Path(ApiConstants.COMMENT + "/{id}")
+	@Path(ApiConstants.COMMENT)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 
@@ -359,13 +359,13 @@ public class CCADataController {
 	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to log a comment", response = String.class) })
 
 	public Response addComment(@Context HttpServletRequest request,
-			@ApiParam(name = "commentData") CommentLoggingData commentData,
-			@PathParam("id") Long id) {
+			@ApiParam(name = "commentData") CommentLoggingData commentData) {
 		try {
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			Long userId = Long.parseLong(profile.getId());
 			if (commentData.getBody().trim().length() > 0) {
-				return Response.status(Status.OK).entity(ccaDataService.addComment(request, userId, id, commentData)).build();
+				return Response.status(Status.OK).entity(ccaDataService.addComment(request, userId, 
+						commentData.getRootHolderId(), commentData)).build();
 			}
 			return Response.status(Status.NOT_ACCEPTABLE).entity("Blank Comment Not allowed").build();
 		} catch (Exception e) {
