@@ -538,7 +538,7 @@ public class CCADataServiceImpl implements CCADataService {
 			throw new NotFoundException("Not found cca data with id : " + dataId);
 		}
 		
-		commentData.setMailData(CCAUtil.generateMailData(ccaData, "Commented", commentData.getBody(), null, null));
+		commentData.setMailData(CCAUtil.generateMailData(ccaData, "Commented", commentData.getBody(), getSummaryInfo(ccaData), null));
 		activityService = headers.addActivityHeader(activityService, request.getHeader(HttpHeaders.AUTHORIZATION));
 		Activity activity = null;
 		try {
