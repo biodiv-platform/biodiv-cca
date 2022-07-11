@@ -3,14 +3,18 @@ package com.strandls.cca.util;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
+import com.strandls.activity.pojo.CCAMailData;
+import com.strandls.activity.pojo.MailData;
 import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.FieldType;
 
 public class CCAUtil {
-
+	
 	private CCAUtil() {
 	}
 
@@ -49,5 +53,56 @@ public class CCAUtil {
 			}
 		}
 		return count;
+	}
+	
+	public static MailData generateMailData(CCAData ccaData, String title, String description, 
+			Map<String, Object> summary, Set<String> userIds) {
+		MailData mailData = null;
+		try {
+			CCAMailData ccaMailData = new CCAMailData();
+			ccaMailData.setAuthorId(Long.parseLong(ccaData.getUserId()));
+			ccaMailData.setId(ccaData.getId());
+			ccaMailData.setLocation("India");
+
+			Map<String, Object> data = new HashMap<>();
+			data.put("id", ccaData.getId());
+			data.put("url", "data/show/"+ ccaData.getId());
+			data.put("time", ccaData.getUpdatedOn());
+			data.put("updated_time", ccaData.getUpdatedOn());
+			data.put("followedUser", ccaData.getFollowers());
+
+			Map<String, Object> activity = new HashMap<>();
+			
+			if(title != null && description != null ) {
+				activity.put("title", title);
+				activity.put("description", description);
+				SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");  
+			    Date date = new Date();  
+				activity.put("time", formatter.format(date));
+			}
+			
+			if (title != null && title.equals("Permission added")) {
+				data.put("permission", userIds);
+			} else if(title != null && title.equals("Follower added")) {
+				data.put("follower", userIds);
+			}
+
+			Map<String, Object> tempData = new HashMap<>();
+			tempData.put("data", data);
+			tempData.put("activity", activity);
+			
+			if(summary != null)
+				tempData.put("summary", summary);
+			
+			tempData.put("recipient", ccaData.getFollowers());
+			tempData.put("owner", ccaData.getUserId());
+			
+			ccaMailData.setData(tempData);
+			mailData = new MailData();
+			mailData.setCcaMailData(ccaMailData);
+		} catch (Exception e) {
+			e.getMessage();
+		}
+		return mailData;
 	}
 }

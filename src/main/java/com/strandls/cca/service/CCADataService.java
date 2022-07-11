@@ -10,6 +10,8 @@ import javax.ws.rs.core.UriInfo;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.strandls.activity.pojo.Activity;
+import com.strandls.activity.pojo.CommentLoggingData;
 import com.strandls.activity.pojo.MailData;
 import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.CCATemplate;
@@ -29,7 +31,7 @@ public interface CCADataService {
 
 	public CCAData restore(Long id);
 
-	public CCAData remove(Long id);
+	public CCAData remove(HttpServletRequest request, Long id);
 
 	public List<CCAData> getAllCCAData(HttpServletRequest request, UriInfo uriInfo, Boolean isDeletedData) throws JsonProcessingException;
 
@@ -56,5 +58,7 @@ public interface CCADataService {
 	public List<MapInfo> getCCAMapData(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly) throws JsonProcessingException;
 
 	public SubsetCCADataList getSummaryData(Long id, String language);
+
+	public Activity addComment(HttpServletRequest request, Long userId, Long dataId, CommentLoggingData commentData);
 
 }

@@ -9,6 +9,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
 
+import com.strandls.activity.pojo.MailData;
 import com.strandls.cca.pojo.fields.value.GeometryFieldValue;
 import com.strandls.cca.service.impl.LogActivities;
 import com.strandls.cca.util.CCAUtil;
@@ -20,6 +21,8 @@ public class CCAData extends BaseEntity {
 	private List<Double> centroid = new ArrayList<>();
 
 	private Set<String> allowedUsers = new HashSet<> ();
+
+	private Set<String> followers = new HashSet<> ();
 	
 	private int richTextCount, textFieldCount , traitsFieldCount;
 
@@ -57,6 +60,14 @@ public class CCAData extends BaseEntity {
 
 	public void setAllowedUsers(Set<String> allowedUsers) {
 		this.allowedUsers = allowedUsers;
+	}
+
+	public Set<String> getFollowers() {
+		return followers;
+	}
+
+	public void setFollowers(Set<String> followers) {
+		this.followers = followers;
 	}
 
 	public int getTextFieldCount() {
@@ -107,13 +118,29 @@ public class CCAData extends BaseEntity {
 		this.ccaFieldValues = ccaFieldValues;
 	}
 
-	public CCAData overrideFieldData(HttpServletRequest request, CCAData ccaData, LogActivities logActivities, String type) {
+	public CCAData overrideFieldData(HttpServletRequest request, CCAData ccaData, LogActivities logActivities, String type, 
+			Map<String, Object> summaryInfo) {
 
 		this.shortName = ccaData.shortName;
 		this.setUpdatedOn(ccaData.getUpdatedOn());
 		
-		if(type.equals("Permission"))
-			this.allowedUsers = ccaData.allowedUsers;
+		if (type.equalsIgnoreCase("permission")) {
+			this.allowedUsers.addAll(ccaData.allowedUsers);
+			this.followers.addAll(allowedUsers);
+			MailData mailData = CCAUtil.generateMailData(this, "Permission added", null, summaryInfo, ccaData.allowedUsers);
+			logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), ccaData.allowedUsers.toString(), 
+					ccaData.getId(), ccaData.getId(), "ccaData", ccaData.getId(), "Permission added", mailData);
+		} else if(type.equalsIgnoreCase("follow")) {
+			this.followers.addAll(ccaData.followers);
+			MailData mailData = CCAUtil.generateMailData(this, "Follower added", null, summaryInfo, ccaData.followers);
+			logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), ccaData.followers.toString(), ccaData.getId(),
+					ccaData.getId(), "ccaData", ccaData.getId(), "Follower added", mailData);
+		} else if(type.equalsIgnoreCase("unfollow")) {
+			this.followers.removeAll(ccaData.followers);
+			// MailData mailData = CCAUtil.generateMailData(this, "Follower added", null, summaryInfo, ccaData.followers);
+			// logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), ccaData.followers.toString(), ccaData.getId(),
+			//		ccaData.getId(), "ccaData", ccaData.getId(), "Follower added", mailData);
+		}
 		
 		Map<String, CCAFieldValue> fieldsMap = getCcaFieldValues();
 
@@ -126,8 +153,9 @@ public class CCAData extends BaseEntity {
 				String diff = dbFieldValue.computeDiff(inputFieldValue);
 				if (diff != null) {
 					diff = dbFieldValue.getName() + "\n" + diff;
+					MailData mailData = CCAUtil.generateMailData(this, "Data updated", diff, summaryInfo, null);
 					logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), diff, ccaData.getId(),
-							ccaData.getId(), "ccaData", ccaData.getId(), "Data updated");
+							ccaData.getId(), "ccaData", ccaData.getId(), "Data updated", mailData);
 				}
 				// Persist in DB
 				this.ccaFieldValues.put(e.getKey(), e.getValue());
@@ -138,7 +166,8 @@ public class CCAData extends BaseEntity {
 				// Log newly added data entries
 				String desc = "Added : " + e.getValue().getName();
 				logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, ccaData.getId(),
-						ccaData.getId(), "ccaData", ccaData.getId(), "Data created");
+						ccaData.getId(), "ccaData", ccaData.getId(), "Data updated", 
+						CCAUtil.generateMailData(ccaData, "Data updated", desc, summaryInfo, null));
 			}
 		}
 

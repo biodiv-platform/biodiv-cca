@@ -39,7 +39,7 @@ public class BsonProjectionUtil {
 		// projected.
 		if (shortName == null)
 			shortName = CCAConstants.MASTER;
-		CCATemplate ccaTemplate = templateDao.findByProperty(CCAConstants.SHORT_NAME, shortName);
+		CCATemplate ccaTemplate = templateDao.findByProperty(CCAConstants.SHORT_NAME, shortName, false);
 		Iterator<CCAField> it = ccaTemplate.iterator();
 		while (it.hasNext()) {
 			CCAField ccaField = it.next();

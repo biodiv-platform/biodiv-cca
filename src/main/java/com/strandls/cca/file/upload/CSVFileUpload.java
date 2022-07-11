@@ -161,7 +161,7 @@ public class CSVFileUpload implements IFileUpload {
 			throws IOException {
 		if (this.ccaTemplate == null) {
 			this.ccaTemplate = ccaTemplateService.getCCAByShortName(metaData.getShortName(),
-					CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE));
+					CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE), false);
 		}
 		FileValidationResponse fileValidationResponse = validate(ccaTemplate, ccaDataService);
 		return upload(fileValidationResponse, ccaDataService);

@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import com.strandls.activity.controller.ActivitySerivceApi;
 import com.strandls.activity.pojo.CCAActivityLogging;
+import com.strandls.activity.pojo.CCAMailData;
+import com.strandls.activity.pojo.MailData;
 import com.strandls.cca.Headers;
 
 /**
@@ -28,7 +30,7 @@ public class LogActivities {
 	private final Logger logger = LoggerFactory.getLogger(LogActivities.class);
 
 	public void logCCAActivities(String authHeader, String activityDescription, Long rootObjectId,
-			Long subRootObjectId, String rootObjectType, Long activityId, String activityType) {
+			Long subRootObjectId, String rootObjectType, Long activityId, String activityType, MailData mailData) {
 		try {
 
 			CCAActivityLogging activityLogging = new CCAActivityLogging();
@@ -38,6 +40,7 @@ public class LogActivities {
 			activityLogging.setRootObjectId(rootObjectId);
 			activityLogging.setRootObjectType(rootObjectType);
 			activityLogging.setSubRootObjectId(subRootObjectId);
+			activityLogging.setMailData(mailData);
 			activityService = headers.addActivityHeader(activityService, authHeader);
 			activityService.logCCAActivities(activityLogging);
 
