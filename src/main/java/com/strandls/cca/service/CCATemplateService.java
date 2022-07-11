@@ -3,6 +3,10 @@ package com.strandls.cca.service;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+
+import com.strandls.activity.pojo.Activity;
+import com.strandls.activity.pojo.CommentLoggingData;
+import com.strandls.activity.pojo.MailData;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.cca.pojo.Platform;
@@ -14,7 +18,7 @@ import com.strandls.cca.pojo.Platform;
  */
 public interface CCATemplateService {
 
-	public CCATemplate getCCAByShortName(String ccaId, String language);
+	public CCATemplate getCCAByShortName(String ccaId, String language, boolean isDeleted);
 
 	public CCATemplate pullTranslationFromMaster(HttpServletRequest request, Long templateId, String language);
 
@@ -32,5 +36,9 @@ public interface CCATemplateService {
 	public CCATemplate deepRemove(HttpServletRequest request, String shortName);
 
 	public CCATemplate restore(HttpServletRequest request, String shortName);
+
+	public MailData generateMailData(CCATemplate ccaTemplate, String label, String value);
+
+	public Activity addComment(HttpServletRequest request, Long userId, CommentLoggingData commentData);
 
 }
