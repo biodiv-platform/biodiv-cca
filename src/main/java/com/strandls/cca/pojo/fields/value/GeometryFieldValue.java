@@ -31,7 +31,8 @@ public class GeometryFieldValue extends CCAFieldValue {
 
 	@Override
 	public String computeDiff(CCAFieldValue value) {
-		return null;
+		GeometryFieldValue gfv = (GeometryFieldValue)value;
+		return this.value.getFeatures().size() != gfv.getValue().getFeatures().size() ? "updated" : null;
 	}
 
 	public GeometryFieldValue(String dataValue) {

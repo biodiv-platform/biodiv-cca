@@ -137,9 +137,9 @@ public class CCAData extends BaseEntity {
 					ccaData.getId(), "ccaData", ccaData.getId(), "Follower added", mailData);
 		} else if(type.equalsIgnoreCase("unfollow")) {
 			this.followers.removeAll(ccaData.followers);
-			// MailData mailData = CCAUtil.generateMailData(this, "Follower added", null, summaryInfo, ccaData.followers);
-			// logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), ccaData.followers.toString(), ccaData.getId(),
-			//		ccaData.getId(), "ccaData", ccaData.getId(), "Follower added", mailData);
+			MailData mailData = CCAUtil.generateMailData(this, "Follower removed", null, summaryInfo, ccaData.followers);
+			logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), ccaData.followers.toString(), ccaData.getId(),
+					ccaData.getId(), "ccaData", ccaData.getId(), "Follower removed", mailData);
 		}
 		
 		Map<String, CCAFieldValue> fieldsMap = getCcaFieldValues();
