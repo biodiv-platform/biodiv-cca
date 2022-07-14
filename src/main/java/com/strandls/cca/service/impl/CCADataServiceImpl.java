@@ -6,8 +6,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -539,8 +541,12 @@ public class CCADataServiceImpl implements CCADataService {
 		if(ccaData == null) {
 			throw new NotFoundException("Not found cca data with id : " + dataId);
 		}
+		Set<String> s = new HashSet<>();
+		s.add(userId.toString());
+		ccaData.setFollowers(s);
+		CCAData temp = this.update(request, ccaData, "Follow");
 		
-		commentData.setMailData(CCAUtil.generateMailData(ccaData, "Commented", commentData.getBody(), getSummaryInfo(ccaData), null));
+		commentData.setMailData(CCAUtil.generateMailData(temp, "Commented", commentData.getBody(), getSummaryInfo(ccaData), null));
 		activityService = headers.addActivityHeader(activityService, request.getHeader(HttpHeaders.AUTHORIZATION));
 		Activity activity = null;
 		try {
