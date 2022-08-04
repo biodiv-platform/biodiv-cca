@@ -28,8 +28,7 @@
 		<location>com.strandls.cca</location>
 
 		<!-- Sonar Cloud -->
-		<sonar.projectKey>strandls_biodiv-cca</sonar.projectKey>
-		<sonar.organization>strandls</sonar.organization>
+		<sonar.organization>biodiv-platform</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 	</properties>
 
