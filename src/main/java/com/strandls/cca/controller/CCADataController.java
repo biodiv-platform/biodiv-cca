@@ -111,7 +111,8 @@ public class CCADataController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get the cca data contributed by me", notes = "Returns CCA data contributed by me", response = AggregationResponse.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
-	public Response getMyCCADataList(@Context HttpServletRequest request, @Context UriInfo uriInfo) throws CCAException {
+	public Response getMyCCADataList(@Context HttpServletRequest request, @Context UriInfo uriInfo)
+			throws CCAException {
 		try {
 			return Response.status(Status.OK).entity(ccaDataService.getMyCCADataList(request, uriInfo)).build();
 		} catch (Exception e) {
@@ -139,9 +140,11 @@ public class CCADataController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get the cca data", notes = "Returns CCA data fields", response = AggregationResponse.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
-	public Response getAggregateCCADataList(@Context HttpServletRequest request, @Context UriInfo uriInfo) throws CCAException {
+	public Response getAggregateCCADataList(@Context HttpServletRequest request, @Context UriInfo uriInfo)
+			throws CCAException {
 		try {
-			return Response.status(Status.OK).entity(ccaDataService.getCCADataAggregation(request, uriInfo, false)).build();
+			return Response.status(Status.OK).entity(ccaDataService.getCCADataAggregation(request, uriInfo, false))
+					.build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
@@ -153,14 +156,15 @@ public class CCADataController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get the cca data", notes = "Returns CCA data fields", response = AggregationResponse.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
-	public Response getCCADataMapInfo(@Context HttpServletRequest request, @Context UriInfo uriInfo) throws CCAException {
+	public Response getCCADataMapInfo(@Context HttpServletRequest request, @Context UriInfo uriInfo)
+			throws CCAException {
 		try {
 			return Response.status(Status.OK).entity(ccaDataService.getCCAMapData(request, uriInfo, false)).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
 	}
-	
+
 	@GET
 	@Path("/page")
 
@@ -174,7 +178,7 @@ public class CCADataController {
 			throw new CCAException(e);
 		}
 	}
-	
+
 	@GET
 	@Path("/all")
 
@@ -200,11 +204,13 @@ public class CCADataController {
 	@ApiOperation(value = "Update the cca data", notes = "Returns CCA data fields", response = CCAData.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not save the data", response = String.class) })
 
-	public Response updateCCAData(@Context HttpServletRequest request, @ApiParam("ccaData") CCAData ccaData) throws CCAException {
+	public Response updateCCAData(@Context HttpServletRequest request, @ApiParam("ccaData") CCAData ccaData)
+			throws CCAException {
 		try {
 			CCAData originalDocs = ccaDataService.findById(ccaData.getId(), null);
-			AuthorizationUtil.checkAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN, 
-					Permissions.ROLE_DATACURATOR), originalDocs.getUserId(), originalDocs);
+			AuthorizationUtil.checkAuthorization(request,
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), originalDocs.getUserId(),
+					originalDocs);
 			return Response.status(Status.OK).entity(ccaDataService.update(request, ccaData, "Data")).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
@@ -219,7 +225,8 @@ public class CCADataController {
 	@ApiOperation(value = "Save the cca data", notes = "Returns CCA data fields", response = CCAData.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not save the data", response = String.class) })
 
-	public Response saveCCAData(@Context HttpServletRequest request, @ApiParam("ccaData") CCAData ccaData) throws CCAException {
+	public Response saveCCAData(@Context HttpServletRequest request, @ApiParam("ccaData") CCAData ccaData)
+			throws CCAException {
 		try {
 			return Response.status(Status.OK).entity(ccaDataService.save(request, ccaData)).build();
 		} catch (Exception e) {
@@ -235,7 +242,8 @@ public class CCADataController {
 	@ApiOperation(value = "Upload cca data from the file", notes = "Returns CCA data list", response = CCAData.class, responseContainer = "List")
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not save the data", response = String.class) })
 
-	public Response uploadCCADataFromFile(@Context HttpServletRequest request, final FormDataMultiPart multiPart) throws CCAException {
+	public Response uploadCCADataFromFile(@Context HttpServletRequest request, final FormDataMultiPart multiPart)
+			throws CCAException {
 		try {
 			AuthorizationUtil.handleAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN), null);
 			return Response.status(Status.OK).entity(ccaDataService.uploadCCADataFromFile(request, multiPart)).build();
@@ -261,24 +269,27 @@ public class CCADataController {
 			throw new CCAException(e);
 		}
 	}
-	
+
 	@PUT
 	@Path("/update/permission")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ValidateUser
 	@ApiOperation(value = "Update the cca data permission", notes = "Returns CCA data fields with permission info", response = CCAData.class)
-	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not save permission data", response = String.class) })
+	@ApiResponses(value = {
+			@ApiResponse(code = 404, message = "Could not save permission data", response = String.class) })
 
-	public Response updatePermissionCCAData(@Context HttpServletRequest request, @ApiParam("permission") Permission permission) throws CCAException {
+	public Response updatePermissionCCAData(@Context HttpServletRequest request,
+			@ApiParam("permission") Permission permission) throws CCAException {
 		try {
 			CCAData originalDocs = ccaDataService.findById(permission.getId(), null);
-			AuthorizationUtil.handleAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN, 
-					Permissions.ROLE_DATACURATOR), originalDocs.getUserId());
+			AuthorizationUtil.handleAuthorization(request,
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), originalDocs.getUserId());
 			Set<String> s = new HashSet<>();
 			s.addAll(permission.getAllowedUsers());
 			originalDocs.setAllowedUsers(s);
-			return Response.status(Status.OK).entity(ccaDataService.update(request, originalDocs, "Permission")).build();
+			return Response.status(Status.OK).entity(ccaDataService.update(request, originalDocs, "Permission"))
+					.build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
@@ -290,27 +301,29 @@ public class CCADataController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ValidateUser
 	@ApiOperation(value = "Update the followers cca data", notes = "Returns CCA data fields with follower info", response = CCAData.class)
-	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not save follower data", response = String.class) })
+	@ApiResponses(value = {
+			@ApiResponse(code = 404, message = "Could not save follower data", response = String.class) })
 
-	public Response updateCCADataFollowers(@Context HttpServletRequest request, @ApiParam("followers") Follower follower) throws CCAException {
+	public Response updateCCADataFollowers(@Context HttpServletRequest request,
+			@ApiParam("followers") Follower follower) throws CCAException {
 		try {
 			CCAData originalDocs = ccaDataService.findById(follower.getId(), null);
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			Set<String> s = new HashSet<>();
-			if(follower.getfollowers() != null && !follower.getfollowers().isEmpty())
+			if (follower.getfollowers() != null && !follower.getfollowers().isEmpty())
 				s.addAll(follower.getfollowers());
-			else 
+			else
 				s.add(profile.getId());
-			
+
 			originalDocs.setFollowers(s);
-			String type = follower.getType() == null || 
-					follower.getType().equalsIgnoreCase("follow") ? "Follow" : "Unfollow";
+			String type = follower.getType() == null || follower.getType().equalsIgnoreCase("follow") ? "Follow"
+					: "Unfollow";
 			return Response.status(Status.OK).entity(ccaDataService.update(request, originalDocs, type)).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
 	}
-	
+
 	@DELETE
 	@Path("/delete/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -337,7 +350,8 @@ public class CCADataController {
 	@ApiOperation(value = "Delete the cca data completely", notes = "Returns CCA Deleted cca", response = CCAData.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not delete the data", response = String.class) })
 
-	public Response deepRemoveCCAData(@Context HttpServletRequest request, @PathParam("id") Long id) throws CCAException {
+	public Response deepRemoveCCAData(@Context HttpServletRequest request, @PathParam("id") Long id)
+			throws CCAException {
 		try {
 			AuthorizationUtil.handleAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN), null);
 			return Response.status(Status.OK).entity(ccaDataService.deepRemove(id)).build();
@@ -345,7 +359,7 @@ public class CCADataController {
 			throw new CCAException(e);
 		}
 	}
-	
+
 	@POST
 	@Path(ApiConstants.COMMENT)
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -362,8 +376,9 @@ public class CCADataController {
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			Long userId = Long.parseLong(profile.getId());
 			if (commentData.getBody().trim().length() > 0) {
-				return Response.status(Status.OK).entity(ccaDataService.addComment(request, userId, 
-						commentData.getRootHolderId(), commentData)).build();
+				return Response.status(Status.OK)
+						.entity(ccaDataService.addComment(request, userId, commentData.getRootHolderId(), commentData))
+						.build();
 			}
 			return Response.status(Status.NOT_ACCEPTABLE).entity("Blank Comment Not allowed").build();
 		} catch (Exception e) {
