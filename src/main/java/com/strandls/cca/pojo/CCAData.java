@@ -127,6 +127,7 @@ public class CCAData extends BaseEntity {
 
 		this.shortName = ccaData.shortName;
 		this.setUpdatedOn(ccaData.getUpdatedOn());
+
 		if (type.equalsIgnoreCase("permission")) {
 			if(!ccaData.allowedUsers.equals(dataInMem.allowedUsers)) {
 				// getting permission removed users
