@@ -83,7 +83,9 @@ public class CCAUtil {
 			
 			if (title != null && title.equals("Permission added")) {
 				data.put("permission", userIds);
-			} else if(title != null && title.equals("Follower added")) {
+			}if (title != null && title.equals("Permission removed")) {
+				data.put("permission removed", userIds);
+			}else if(title != null && title.equals("Follower added")) {
 				data.put("follower", userIds);
 			}
 
