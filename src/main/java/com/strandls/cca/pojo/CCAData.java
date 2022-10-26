@@ -6,10 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
-
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +16,6 @@ import com.strandls.activity.pojo.MailData;
 import com.strandls.cca.pojo.fields.value.GeometryFieldValue;
 import com.strandls.cca.service.impl.LogActivities;
 import com.strandls.cca.util.CCAUtil;
-import com.strandls.user.ApiException;
 import com.strandls.user.controller.UserServiceApi;
 import com.strandls.user.pojo.User;
 
@@ -237,16 +234,16 @@ public class CCAData extends BaseEntity {
 
 	public String getusername(UserServiceApi userService,Set<String> users) {
 		String userNames ="";
-			for (String user : users) {
-				User userDetails;
-				try {
-					userDetails = userService.getUser(user);
-					userNames = userNames+"["+userDetails.getUserName()+"]"+"("+user+")";
-				} catch (Exception e) {
-					logger.error(e.getMessage());
-				}
+		for (String user : users) {
+			User userDetails;
+			try {
+				userDetails = userService.getUser(user);
+				userNames = userNames.concat("["+userDetails.getUserName()+"]("+user+")");
+			} catch (Exception e) {
+				logger.error(e.getMessage());
 			}
-			return userNames;
+		}
+		return userNames;
 	}
 
 }
