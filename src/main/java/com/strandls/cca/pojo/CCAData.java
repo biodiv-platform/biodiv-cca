@@ -238,7 +238,7 @@ public class CCAData extends BaseEntity {
 			User userDetails;
 			try {
 				userDetails = userService.getUser(user);
-				userNames = userNames.concat("["+userDetails.getUserName()+"]("+user+")");
+				userNames = userNames.concat("@["+userDetails.getUserName()+"]("+user+")");
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 			}
