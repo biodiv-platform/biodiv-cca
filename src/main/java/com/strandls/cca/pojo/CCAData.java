@@ -234,11 +234,13 @@ public class CCAData extends BaseEntity {
 
 	public String getusername(UserServiceApi userService,Set<String> users) {
 		String userNames ="";
+		String separator = "";
 		for (String user : users) {
 			User userDetails;
 			try {
 				userDetails = userService.getUser(user);
-				userNames = userNames.concat("@["+userDetails.getUserName()+"]("+user+")  ");
+				userNames = userNames.concat(separator+"@["+userDetails.getUserName()+"]("+user+")");
+				separator = ",  ";
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 			}
