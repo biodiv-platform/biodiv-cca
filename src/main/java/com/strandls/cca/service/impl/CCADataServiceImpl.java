@@ -60,6 +60,7 @@ import com.strandls.cca.service.CCADataService;
 import com.strandls.cca.service.CCATemplateService;
 import com.strandls.cca.util.AuthorizationUtil;
 import com.strandls.cca.util.CCAUtil;
+import com.strandls.user.controller.UserServiceApi;
 import com.strandls.cca.Headers;
 
 public class CCADataServiceImpl implements CCADataService {
@@ -78,6 +79,9 @@ public class CCADataServiceImpl implements CCADataService {
 
 	@Inject
 	private Headers headers;
+
+	@Inject
+	private UserServiceApi userService;
 
 	private final Logger logger = LoggerFactory.getLogger(CCADataServiceImpl.class);
 
@@ -270,7 +274,7 @@ public class CCADataServiceImpl implements CCADataService {
 
 		CCAData dataInMem = ccaDataDao.getById(ccaData.getId());
 
-		dataInMem = dataInMem.overrideFieldData(request, ccaData, logActivities, type, getSummaryInfo(dataInMem) ,dataInMem);
+		dataInMem = dataInMem.overrideFieldData(request, ccaData, logActivities, type, getSummaryInfo(dataInMem) ,dataInMem ,userService);
 
 		dataInMem.reComputeCentroid();
 		return ccaDataDao.replaceOne(dataInMem);

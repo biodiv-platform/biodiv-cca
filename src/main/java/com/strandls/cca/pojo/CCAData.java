@@ -9,12 +9,19 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.strandls.activity.pojo.MailData;
 import com.strandls.cca.pojo.fields.value.GeometryFieldValue;
 import com.strandls.cca.service.impl.LogActivities;
 import com.strandls.cca.util.CCAUtil;
+import com.strandls.user.controller.UserServiceApi;
+import com.strandls.user.pojo.User;
 
 public class CCAData extends BaseEntity {
+
+	private final Logger logger = LoggerFactory.getLogger(CCAData.class);
 
 	private String shortName;
 
@@ -123,7 +130,7 @@ public class CCAData extends BaseEntity {
 	}
 
 	public CCAData overrideFieldData(HttpServletRequest request, CCAData ccaData, LogActivities logActivities, String type, 
-			Map<String, Object> summaryInfo ,CCAData dataInMem) {
+			Map<String, Object> summaryInfo ,CCAData dataInMem ,UserServiceApi userService) {
 
 		this.shortName = ccaData.shortName;
 		this.setUpdatedOn(ccaData.getUpdatedOn());
@@ -146,7 +153,8 @@ public class CCAData extends BaseEntity {
 		        if(!removedUsers.isEmpty()) {
 		        	this.allowedUsers.removeAll(removedUsers);
 					MailData mailData = CCAUtil.generateMailData(this, "Permission removed", null, summaryInfo, removedUsers);
-					logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), ccaData.allowedUsers.toString(),
+					String activityDescription ="Removed permission for users "+getusername(userService,removedUsers);
+					logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), activityDescription,
 							ccaData.getId(), ccaData.getId(), "ccaData", ccaData.getId(), "Permission removed", mailData);
 		        }
 
@@ -154,19 +162,22 @@ public class CCAData extends BaseEntity {
 					this.allowedUsers.addAll(newUsers);
 					this.followers.addAll(newUsers);
 					MailData mailData = CCAUtil.generateMailData(this, "Permission added", null, summaryInfo, newUsers);
-					logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), ccaData.allowedUsers.toString(),
+					String activityDescription ="Added permission for users "+getusername(userService,newUsers);
+					logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), activityDescription,
 							ccaData.getId(), ccaData.getId(), "ccaData", ccaData.getId(), "Permission added", mailData);
 		        }
 			}
 		} else if(type.equalsIgnoreCase("follow")) {
 			this.followers.addAll(ccaData.followers);
 			MailData mailData = CCAUtil.generateMailData(this, "Follower added", null, summaryInfo, ccaData.followers);
-			logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), ccaData.followers.toString(), ccaData.getId(),
+			String activityDescription ="Followed users "+getusername(userService,ccaData.followers);
+			logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), activityDescription, ccaData.getId(),
 					ccaData.getId(), "ccaData", ccaData.getId(), "Follower added", mailData);
 		} else if(type.equalsIgnoreCase("unfollow")) {
 			this.followers.removeAll(ccaData.followers);
 			MailData mailData = CCAUtil.generateMailData(this, "Follower removed", null, summaryInfo, ccaData.followers);
-			logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), ccaData.followers.toString(), ccaData.getId(),
+			String activityDescription ="Unfollowed users "+getusername(userService,ccaData.followers);
+			logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), activityDescription, ccaData.getId(),
 					ccaData.getId(), "ccaData", ccaData.getId(), "Follower removed", mailData);
 		}
   
@@ -219,6 +230,22 @@ public class CCAData extends BaseEntity {
 				ccaFieldValue.translate(field);
 			}
 		}
+	}
+
+	public String getusername(UserServiceApi userService,Set<String> users) {
+		String userNames ="";
+		String separator = "";
+		for (String user : users) {
+			User userDetails;
+			try {
+				userDetails = userService.getUser(user);
+				userNames = userNames.concat(separator+"@["+userDetails.getUserName()+"]("+user+")");
+				separator = ",  ";
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+			}
+		}
+		return userNames;
 	}
 
 }
