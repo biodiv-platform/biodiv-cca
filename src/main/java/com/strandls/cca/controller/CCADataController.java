@@ -334,8 +334,9 @@ public class CCADataController {
 
 	public Response removeCCAData(@Context HttpServletRequest request, @PathParam("id") Long id) throws CCAException {
 		try {
+			CCAData originalDocs = ccaDataService.findById(id, null);
 			AuthorizationUtil.handleAuthorization(request,
-					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), null);
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), originalDocs.getUserId());
 			return Response.status(Status.OK).entity(ccaDataService.remove(request, id)).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
