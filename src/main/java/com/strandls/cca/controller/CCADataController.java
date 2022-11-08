@@ -385,4 +385,29 @@ public class CCADataController {
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}
 	}
+
+	@GET
+	@Path(ApiConstants.PERMISSION + "/{ccaID}")
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+	@ApiOperation(value = "Check the permission for CCA DAta", notes = "Returns the Boolean value", response = String.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 400, message = "unable to fetch the permission", response = String.class) })
+
+	public Response getCcaPermission(@Context HttpServletRequest request,
+			@PathParam("ccaID") String ccaID) {
+		try {
+			Long CcaId = Long.parseLong(ccaID);
+			CCAData originalDocs = ccaDataService.findById(CcaId, null);
+			AuthorizationUtil.handleAuthorization(request,
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), originalDocs.getUserId());
+			return Response.status(Status.OK).entity(true).build();
+		} catch (Exception e) {
+//			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+			return Response.status(Status.OK).entity(false).build();
+		}
+	}
+
 }
