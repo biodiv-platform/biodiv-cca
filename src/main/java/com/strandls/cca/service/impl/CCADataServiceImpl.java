@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.AggregateIterable;
 import com.strandls.activity.ApiException;
 import com.strandls.activity.controller.ActivitySerivceApi;
@@ -44,7 +46,11 @@ import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.CCAField;
 import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.CCATemplate;
+import com.strandls.cca.pojo.EncryptedKey;
 import com.strandls.cca.pojo.FieldType;
+import com.strandls.cca.pojo.Permission;
+import com.strandls.cca.pojo.PermissionRequest;
+import com.strandls.cca.pojo.TreeRoles;
 import com.strandls.cca.pojo.ValueWithLabel;
 import com.strandls.cca.pojo.fields.TextField;
 import com.strandls.cca.pojo.fields.value.CheckboxFieldValue;
@@ -60,7 +66,13 @@ import com.strandls.cca.service.CCADataService;
 import com.strandls.cca.service.CCATemplateService;
 import com.strandls.cca.util.AuthorizationUtil;
 import com.strandls.cca.util.CCAUtil;
+import com.strandls.cca.util.EncryptionUtils;
+import com.strandls.cca.util.Permissions;
 import com.strandls.user.controller.UserServiceApi;
+import com.strandls.user.pojo.User;
+
+import net.minidev.json.JSONArray;
+
 import com.strandls.cca.Headers;
 
 public class CCADataServiceImpl implements CCADataService {
@@ -82,6 +94,12 @@ public class CCADataServiceImpl implements CCADataService {
 
 	@Inject
 	private UserServiceApi userService;
+	
+	@Inject
+	private ObjectMapper om;
+	
+	@Inject
+	private EncryptionUtils encryptUtils;
 
 	private final Logger logger = LoggerFactory.getLogger(CCADataServiceImpl.class);
 
@@ -560,4 +578,94 @@ public class CCADataServiceImpl implements CCADataService {
 		}
 		return activity;
 	}
+	
+	@Override
+	public Boolean sendPermissionRequest(HttpServletRequest request, Permission permissionData) {
+		try {
+			CommonProfile requesteeProfile = AuthUtil.getProfileFromRequest(request);
+
+			Boolean result = null;
+			// check if the user is already a allowed user
+			if(!permissionData.getAllowedUsers().contains(requesteeProfile.getId())) {
+				result = requestPermission(request,permissionData);
+			}
+			return result;
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+		return null;
+	}
+
+//	@Override
+//	public Boolean sendPermissionGrant(HttpServletRequest request, EncryptedKey encryptedKey) {
+//		try {
+//
+//			//Boolean result = grantPermissionrequest(encryptedKey);
+//			return result;
+//
+//		} catch (Exception e) {
+//			logger.error(e.getMessage());
+//		}
+//		return null;
+//
+//	}
+	
+
+	public Boolean requestPermission(HttpServletRequest request, Permission permissionData) {
+		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+		Long requesteeId = Long.parseLong(profile.getId());
+//		TreeRoles role = TreeRoles.valueOf(permissionData.getRole().replace(" ", ""));
+//		if (role == null)
+//			return false;
+
+
+//		SpeciesPermissionRequest isExist = permissionReqDao.requestPermissionExist(userId, permissionData.getTaxonId(),
+//				role);
+//		if (isExist == null) {
+//			SpeciesPermissionRequest permissionRequest = new SpeciesPermissionRequest(null, permissionData.getTaxonId(),
+//					userId, role.getValue());
+//			permissionRequest = permissionReqDao.save(permissionRequest);
+//			sendMail(permissionRequest);
+//		} else {
+//			if (!role.getValue().equalsIgnoreCase(isExist.getRole())) {
+//				isExist.setRole(role.getValue());
+//				isExist = permissionReqDao.update(isExist);
+//			}
+//			sendMail(isExist);
+//
+//		}
+//		Permission permissionRequest = new PermissionRequest(requesteeId,);
+//	permissionRequest = permissionReqDao.save(permissionRequest);
+//	sendMail(permissionRequest);
+			
+		return true;
+	}
+
+	@Override
+	public Boolean sendPermissionGrant(HttpServletRequest request, EncryptedKey encryptedKey) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+//	private void sendMail(Permission permissionReq) {
+//
+//		String reqText;
+//		try {
+//			reqText = om.writeValueAsString(permissionReq);
+//			String encryptedKey = encryptUtils.encrypt(reqText);
+//
+//			User requestee = userService.getUser(permissionReq.getId().toString());
+//			TaxonomyDefinition taxDef = taxDefinationDao.findById(permissionReq.getTaxonConceptId());
+//			List<User> requestors = userService.getAllAdmins();
+//			TreeRoles role = TreeRoles.valueOf(permissionReq.getRole().replace(" ", ""));
+//
+//			mailUtils.sendPermissionRequest(requestors, taxDef.getName(), taxDef.getId(), role.getValue(), requestee,
+//					encryptedKey);
+//
+//		} catch (Exception e) {
+//			logger.error(e.getMessage());
+//		}
+//
+//	}
+	
 }

@@ -32,6 +32,7 @@ import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.exception.CCAException;
 import com.strandls.cca.pojo.CCAData;
+import com.strandls.cca.pojo.EncryptedKey;
 import com.strandls.cca.pojo.Follower;
 import com.strandls.cca.pojo.Permission;
 import com.strandls.cca.pojo.response.AggregationResponse;
@@ -39,6 +40,7 @@ import com.strandls.cca.pojo.response.SubsetCCADataList;
 import com.strandls.cca.service.CCADataService;
 import com.strandls.cca.util.AuthorizationUtil;
 import com.strandls.cca.util.Permissions;
+
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -409,5 +411,56 @@ public class CCADataController {
 			return Response.status(Status.OK).entity(false).build();
 		}
 	}
+	
+	@POST
+	@Path(ApiConstants.REQUEST)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+	@ApiOperation(value = "Send request for permission over a taxonomyNode", notes = "sends mail to the permission", response = Boolean.class)
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "unable to send the req", response = String.class) })
+
+	public Response requestPermission(@Context HttpServletRequest request,
+			@ApiParam(name = "permissionData") Permission permissionData) {
+		try {
+			Boolean result = ccaDataService.sendPermissionRequest(request, permissionData);
+			if (result != null) {
+				if (result)
+					return Response.status(Status.OK).entity(result).build();
+				return Response.status(Status.NOT_MODIFIED).build();
+			}
+			return Response.status(Status.NOT_FOUND).build();
+
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+
+	@POST
+	@Path(ApiConstants.GRANT)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+
+	@ApiOperation(value = "validate the request for permission over a taxonomyId", notes = "checks the grants the permission", response = Boolean.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 400, message = "uable to grant the permission", response = String.class) })
+
+	public Response grantPermissionrequest(@Context HttpServletRequest request,
+			@ApiParam(name = "encryptedKey") EncryptedKey encryptedKey) {
+		try {
+			Boolean result = ccaDataService.sendPermissionGrant(request, encryptedKey);
+			if (result)
+				return Response.status(Status.OK).entity(result).build();
+			return Response.status(Status.NOT_IMPLEMENTED).build();
+
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+	
+	
 
 }

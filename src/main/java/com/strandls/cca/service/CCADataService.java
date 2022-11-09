@@ -15,6 +15,8 @@ import com.strandls.activity.pojo.CommentLoggingData;
 import com.strandls.activity.pojo.MailData;
 import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.CCATemplate;
+import com.strandls.cca.pojo.EncryptedKey;
+import com.strandls.cca.pojo.Permission;
 import com.strandls.cca.pojo.response.AggregationResponse;
 import com.strandls.cca.pojo.response.MapInfo;
 import com.strandls.cca.pojo.response.SubsetCCADataList;
@@ -60,5 +62,9 @@ public interface CCADataService {
 	public SubsetCCADataList getSummaryData(Long id, String language);
 
 	public Activity addComment(HttpServletRequest request, Long userId, Long dataId, CommentLoggingData commentData);
+
+	public Boolean sendPermissionRequest(HttpServletRequest request, Permission permissionData);
+
+	public Boolean sendPermissionGrant(HttpServletRequest request, EncryptedKey encryptedKey);
 
 }

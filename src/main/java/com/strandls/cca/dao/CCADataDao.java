@@ -10,6 +10,8 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 
 import org.bson.conversions.Bson;
+import org.hibernate.Session;
+import org.hibernate.query.Query;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -20,8 +22,10 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 import com.strandls.cca.CCAConstants;
 import com.strandls.cca.pojo.CCAData;
+import com.strandls.cca.pojo.TreeRoles;
 import com.strandls.cca.util.BsonProjectionUtil;
 import com.strandls.cca.util.CCAFilterUtil;
+
 
 public class CCADataDao extends AbstractDao<CCAData> {
 
@@ -124,4 +128,5 @@ public class CCADataDao extends AbstractDao<CCAData> {
 		Bson filters = CCAFilterUtil.getAllFilters(queryParameter, templateDao, objectMapper, null, false);
 		return dbCollection.countDocuments(filters);
 	}
+	
 }
