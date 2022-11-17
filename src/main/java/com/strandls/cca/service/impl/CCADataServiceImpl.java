@@ -33,6 +33,7 @@ import com.strandls.activity.ApiException;
 import com.strandls.activity.controller.ActivitySerivceApi;
 import com.strandls.activity.pojo.Activity;
 import com.strandls.activity.pojo.CCAMailData;
+import com.strandls.activity.pojo.CCAPermssionData;
 import com.strandls.activity.pojo.CommentLoggingData;
 import com.strandls.activity.pojo.MailData;
 import com.strandls.authentication_utility.util.AuthUtil;
@@ -580,66 +581,31 @@ public class CCADataServiceImpl implements CCADataService {
 	}
 	
 	@Override
-	public Boolean sendPermissionRequest(HttpServletRequest request, Permission permissionData) {
+	public Boolean sendPermissionRequest(HttpServletRequest request, CCAData ccaData) {
 		try {
-			CommonProfile requesteeProfile = AuthUtil.getProfileFromRequest(request);
-
-			Boolean result = null;
+			CommonProfile requestorProfile = AuthUtil.getProfileFromRequest(request);
+			Long requestorId = Long.parseLong(requestorProfile.getId());
+			
 			// check if the user is already a allowed user
-			if(!permissionData.getAllowedUsers().contains(requesteeProfile.getId())) {
-				result = requestPermission(request,permissionData);
+			if(!ccaData.getAllowedUsers().contains(requestorId.toString())) {
+				String role ="test";
+				CCAPermssionData ccaPermissionData = new CCAPermssionData();
+				ccaPermissionData.setCcaid(ccaData.getId());
+				ccaPermissionData.setOwnerId(Long.parseLong((ccaData.getUserId())));
+				ccaPermissionData.setRequestorId(requestorId);
+				ccaPermissionData.setShortName(ccaData.getShortName());
+				ccaPermissionData.setRole(role);
+				
+				activityService.ccaMailRequest(ccaPermissionData);
 			}
-			return result;
+			return true;
+			
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
 		return null;
 	}
 
-//	@Override
-//	public Boolean sendPermissionGrant(HttpServletRequest request, EncryptedKey encryptedKey) {
-//		try {
-//
-//			//Boolean result = grantPermissionrequest(encryptedKey);
-//			return result;
-//
-//		} catch (Exception e) {
-//			logger.error(e.getMessage());
-//		}
-//		return null;
-//
-//	}
-	
-
-	public Boolean requestPermission(HttpServletRequest request, Permission permissionData) {
-		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
-		Long requesteeId = Long.parseLong(profile.getId());
-//		TreeRoles role = TreeRoles.valueOf(permissionData.getRole().replace(" ", ""));
-//		if (role == null)
-//			return false;
-
-
-//		SpeciesPermissionRequest isExist = permissionReqDao.requestPermissionExist(userId, permissionData.getTaxonId(),
-//				role);
-//		if (isExist == null) {
-//			SpeciesPermissionRequest permissionRequest = new SpeciesPermissionRequest(null, permissionData.getTaxonId(),
-//					userId, role.getValue());
-//			permissionRequest = permissionReqDao.save(permissionRequest);
-//			sendMail(permissionRequest);
-//		} else {
-//			if (!role.getValue().equalsIgnoreCase(isExist.getRole())) {
-//				isExist.setRole(role.getValue());
-//				isExist = permissionReqDao.update(isExist);
-//			}
-//			sendMail(isExist);
-//
-//		}
-//		Permission permissionRequest = new PermissionRequest(requesteeId,);
-//	permissionRequest = permissionReqDao.save(permissionRequest);
-//	sendMail(permissionRequest);
-			
-		return true;
-	}
 
 	@Override
 	public Boolean sendPermissionGrant(HttpServletRequest request, EncryptedKey encryptedKey) {
@@ -647,25 +613,5 @@ public class CCADataServiceImpl implements CCADataService {
 		return null;
 	}
 	
-//	private void sendMail(Permission permissionReq) {
-//
-//		String reqText;
-//		try {
-//			reqText = om.writeValueAsString(permissionReq);
-//			String encryptedKey = encryptUtils.encrypt(reqText);
-//
-//			User requestee = userService.getUser(permissionReq.getId().toString());
-//			TaxonomyDefinition taxDef = taxDefinationDao.findById(permissionReq.getTaxonConceptId());
-//			List<User> requestors = userService.getAllAdmins();
-//			TreeRoles role = TreeRoles.valueOf(permissionReq.getRole().replace(" ", ""));
-//
-//			mailUtils.sendPermissionRequest(requestors, taxDef.getName(), taxDef.getId(), role.getValue(), requestee,
-//					encryptedKey);
-//
-//		} catch (Exception e) {
-//			logger.error(e.getMessage());
-//		}
-//
-//	}
-	
+
 }

@@ -63,7 +63,7 @@ public interface CCADataService {
 
 	public Activity addComment(HttpServletRequest request, Long userId, Long dataId, CommentLoggingData commentData);
 
-	public Boolean sendPermissionRequest(HttpServletRequest request, Permission permissionData);
+	public Boolean sendPermissionRequest(HttpServletRequest request, CCAData ccaData);
 
 	public Boolean sendPermissionGrant(HttpServletRequest request, EncryptedKey encryptedKey);
 

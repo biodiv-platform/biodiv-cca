@@ -413,7 +413,7 @@ public class CCADataController {
 	}
 	
 	@POST
-	@Path(ApiConstants.REQUEST)
+	@Path(ApiConstants.REQUEST+"/{ccaID}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 
@@ -422,9 +422,11 @@ public class CCADataController {
 	@ApiResponses(value = { @ApiResponse(code = 400, message = "unable to send the req", response = String.class) })
 
 	public Response requestPermission(@Context HttpServletRequest request,
-			@ApiParam(name = "permissionData") Permission permissionData) {
+			@PathParam("ccaID") String ccaID) {
 		try {
-			Boolean result = ccaDataService.sendPermissionRequest(request, permissionData);
+			Long CcaId = Long.parseLong(ccaID);
+			CCAData originalDocs = ccaDataService.findById(CcaId, null);
+			Boolean result = ccaDataService.sendPermissionRequest(request, originalDocs);
 			if (result != null) {
 				if (result)
 					return Response.status(Status.OK).entity(result).build();
