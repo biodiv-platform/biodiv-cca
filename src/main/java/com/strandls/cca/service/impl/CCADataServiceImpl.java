@@ -33,7 +33,7 @@ import com.strandls.activity.ApiException;
 import com.strandls.activity.controller.ActivitySerivceApi;
 import com.strandls.activity.pojo.Activity;
 import com.strandls.activity.pojo.CCAMailData;
-import com.strandls.activity.pojo.CCAPermssionData;
+import com.strandls.activity.pojo.CcaPermission;
 import com.strandls.activity.pojo.CommentLoggingData;
 import com.strandls.activity.pojo.MailData;
 import com.strandls.authentication_utility.util.AuthUtil;
@@ -86,7 +86,7 @@ public class CCADataServiceImpl implements CCADataService {
 
 	@Inject
 	private LogActivities logActivities;
-	
+
 	@Inject
 	private ActivitySerivceApi activityService;
 
@@ -95,10 +95,10 @@ public class CCADataServiceImpl implements CCADataService {
 
 	@Inject
 	private UserServiceApi userService;
-	
+
 	@Inject
 	private ObjectMapper om;
-	
+
 	@Inject
 	private EncryptionUtils encryptUtils;
 
@@ -122,19 +122,22 @@ public class CCADataServiceImpl implements CCADataService {
 	}
 
 	@Override
-	public List<CCAData> getAllCCAData(HttpServletRequest request, UriInfo uriInfo, Boolean isDeletedData) throws JsonProcessingException {
+	public List<CCAData> getAllCCAData(HttpServletRequest request, UriInfo uriInfo, Boolean isDeletedData)
+			throws JsonProcessingException {
 		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
-		String userId = queryParameter.containsKey(CCAConstants.USER_ID) ? queryParameter.get(CCAConstants.USER_ID).get(0): null;
+		String userId = queryParameter.containsKey(CCAConstants.USER_ID)
+				? queryParameter.get(CCAConstants.USER_ID).get(0)
+				: null;
 		return ccaDataDao.getAll(uriInfo, false, userId, isDeletedData);
 	}
 
 	@Override
-	public List<CCAData> getCCADataByShortName(HttpServletRequest request, UriInfo uriInfo, String shortName, Boolean isDeletedData)
-			throws JsonProcessingException {
+	public List<CCAData> getCCADataByShortName(HttpServletRequest request, UriInfo uriInfo, String shortName,
+			Boolean isDeletedData) throws JsonProcessingException {
 		List<CCAData> temp = this.getAllCCAData(request, uriInfo, isDeletedData);
 		List<CCAData> result = new ArrayList<>();
-		for(int i = 0; i < temp.size(); i++) {
-			if(temp.get(i).getShortName().equals(shortName)) {
+		for (int i = 0; i < temp.size(); i++) {
+			if (temp.get(i).getShortName().equals(shortName)) {
 				result.add(temp.get(i));
 			}
 		}
@@ -157,7 +160,7 @@ public class CCADataServiceImpl implements CCADataService {
 		if (myListOnly) {
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			userId = profile.getId();
-		} else if(queryParams.containsKey(CCAConstants.USER_ID)) {
+		} else if (queryParams.containsKey(CCAConstants.USER_ID)) {
 			userId = queryParams.get(CCAConstants.USER_ID).get(0);
 		}
 
@@ -177,8 +180,6 @@ public class CCADataServiceImpl implements CCADataService {
 		return aggregationResponse;
 	}
 
-	
-
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Map<String, Object> getCCADataAggregation(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly)
@@ -188,7 +189,7 @@ public class CCADataServiceImpl implements CCADataService {
 		if (myListOnly) {
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			userId = profile.getId();
-		} else if(queryParams.containsKey(CCAConstants.USER_ID)) {
+		} else if (queryParams.containsKey(CCAConstants.USER_ID)) {
 			userId = queryParams.get(CCAConstants.USER_ID).get(0);
 		}
 
@@ -217,9 +218,9 @@ public class CCADataServiceImpl implements CCADataService {
 	private List<CCAFieldValue> getTitleFields(CCAData ccaData, CCATemplate template) {
 		List<CCAFieldValue> res = new ArrayList<>();
 		Map<String, CCAFieldValue> temp = ccaData.getCcaFieldValues();
-		for(CCAField ccaField : template.getFields()) {
-			for(CCAField ccaFieldChild: ccaField.getChildren()) {
-				if(temp.containsKey(ccaFieldChild.getFieldId()) && ccaFieldChild.getIsTitleColumn()) {
+		for (CCAField ccaField : template.getFields()) {
+			for (CCAField ccaFieldChild : ccaField.getChildren()) {
+				if (temp.containsKey(ccaFieldChild.getFieldId()) && ccaFieldChild.getIsTitleColumn()) {
 					res.add(temp.get(ccaFieldChild.getFieldId()));
 				}
 			}
@@ -269,7 +270,7 @@ public class CCADataServiceImpl implements CCADataService {
 		ccaData = ccaDataDao.save(ccaData);
 
 		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), "", ccaData.getId(),
-				ccaData.getId(), "ccaData", ccaData.getId(), "Data created", 
+				ccaData.getId(), "ccaData", ccaData.getId(), "Data created",
 				CCAUtil.generateMailData(ccaData, null, null, getSummaryInfo(ccaData), null));
 
 		return ccaData;
@@ -282,7 +283,8 @@ public class CCADataServiceImpl implements CCADataService {
 		CCATemplate ccaTemplate = ccaTemplateService.getCCAByShortName(shortName,
 				CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE), false);
 
-		if(!type.equalsIgnoreCase("Permission") && !type.equalsIgnoreCase("Follow") && !type.equalsIgnoreCase("Unfollow"))
+		if (!type.equalsIgnoreCase("Permission") && !type.equalsIgnoreCase("Follow")
+				&& !type.equalsIgnoreCase("Unfollow"))
 			validateData(ccaData, ccaTemplate);
 
 		Timestamp time = new Timestamp(new Date().getTime());
@@ -293,7 +295,8 @@ public class CCADataServiceImpl implements CCADataService {
 
 		CCAData dataInMem = ccaDataDao.getById(ccaData.getId());
 
-		dataInMem = dataInMem.overrideFieldData(request, ccaData, logActivities, type, getSummaryInfo(dataInMem) ,dataInMem ,userService);
+		dataInMem = dataInMem.overrideFieldData(request, ccaData, logActivities, type, getSummaryInfo(dataInMem),
+				dataInMem, userService);
 
 		dataInMem.reComputeCentroid();
 		return ccaDataDao.replaceOne(dataInMem);
@@ -344,11 +347,11 @@ public class CCADataServiceImpl implements CCADataService {
 	@Override
 	public CCAData remove(HttpServletRequest request, Long id) {
 		CCAData ccaData = ccaDataDao.remove(id);
-		
+
 		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), "", ccaData.getId(),
-				ccaData.getId(), "ccaData", ccaData.getId(), "Data deleted", 
+				ccaData.getId(), "ccaData", ccaData.getId(), "Data deleted",
 				CCAUtil.generateMailData(ccaData, null, null, getSummaryInfo(ccaData), null));
-		
+
 		return ccaData;
 	}
 
@@ -369,7 +372,7 @@ public class CCADataServiceImpl implements CCADataService {
 		for (CCAData ccaData : ccaDatas) {
 			CCATemplate template = ccaTemplateService.getCCAByShortName(ccaData.getShortName(), language, false);
 			ccaData.translate(template);
-			
+
 			SubsetCCADataList listCard = new SubsetCCADataList(ccaData);
 			listCard.setTitlesValues(getTitleFields(ccaData, template));
 			result.add(listCard);
@@ -380,13 +383,13 @@ public class CCADataServiceImpl implements CCADataService {
 	@Override
 	public Map<String, Object> getCCAPageData(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly)
 			throws JsonProcessingException {
-		
+
 		String userId = null;
 		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
 		if (myListOnly) {
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			userId = profile.getId();
-		} else if(queryParams.containsKey(CCAConstants.USER_ID)) {
+		} else if (queryParams.containsKey(CCAConstants.USER_ID)) {
 			userId = queryParams.get(CCAConstants.USER_ID).get(0);
 		}
 
@@ -398,13 +401,13 @@ public class CCADataServiceImpl implements CCADataService {
 		String language = queryParams.getFirst(CCAConstants.LANGUAGE);
 		if (language == null)
 			language = CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE);
-		
+
 		List<SubsetCCADataList> list = mergeToSubsetCCADataList(ccaDatas, language);
 		Map<String, Object> res = new HashMap<String, Object>();
-		
+
 		res.put("totalCount", ccaDataDao.totalDataCount(uriInfo));
 		res.put("data", list);
-		
+
 		return res;
 	}
 
@@ -417,19 +420,20 @@ public class CCADataServiceImpl implements CCADataService {
 		if (myListOnly) {
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			userId = profile.getId();
-		} else if(queryParams.containsKey(CCAConstants.USER_ID)) {
+		} else if (queryParams.containsKey(CCAConstants.USER_ID)) {
 			userId = queryParams.get(CCAConstants.USER_ID).get(0);
 		}
-		
+
 		List<CCAData> ccaDataList = ccaDataDao.getAll(uriInfo, false, userId, false);
-		
+
 		List<MapInfo> mapInfoList = new ArrayList<>();
-		for(CCAData ccaData : ccaDataList) {
-			if(ccaData.getCentroid().size() >= 2) {
-				mapInfoList.add(new MapInfo(ccaData.getId(), ccaData.getCentroid().get(1), ccaData.getCentroid().get(0)));
+		for (CCAData ccaData : ccaDataList) {
+			if (ccaData.getCentroid().size() >= 2) {
+				mapInfoList
+						.add(new MapInfo(ccaData.getId(), ccaData.getCentroid().get(1), ccaData.getCentroid().get(0)));
 			}
 		}
-		
+
 		return mapInfoList;
 	}
 
@@ -442,15 +446,16 @@ public class CCADataServiceImpl implements CCADataService {
 		CCATemplate template = ccaTemplateService.getCCAByShortName(ccaData.getShortName(), language, false);
 
 		Map<String, CCAFieldValue> temp = ccaData.getCcaFieldValues();
-		for(CCAField ccaField : template.getFields()) {
-			for(CCAField ccaFieldChild: ccaField.getChildren()) {
-				if(temp.containsKey(ccaFieldChild.getFieldId())) {
+		for (CCAField ccaField : template.getFields()) {
+			for (CCAField ccaFieldChild : ccaField.getChildren()) {
+				if (temp.containsKey(ccaFieldChild.getFieldId())) {
 					CCAFieldValue ccaFV = temp.get(ccaFieldChild.getFieldId());
-					if(Boolean.TRUE.equals(ccaFieldChild.getIsSummaryField()) && !ccaFV.getType().equals(FieldType.GEOMETRY))
+					if (Boolean.TRUE.equals(ccaFieldChild.getIsSummaryField())
+							&& !ccaFV.getType().equals(FieldType.GEOMETRY))
 						res.add(ccaFV);
-					if(Boolean.TRUE.equals(ccaFieldChild.getIsTitleColumn()))
+					if (Boolean.TRUE.equals(ccaFieldChild.getIsTitleColumn()))
 						titlesValues.add(ccaFV);
-					if(ccaFV.getType().equals(FieldType.FILE)) {
+					if (ccaFV.getType().equals(FieldType.FILE)) {
 						List<FileMeta> fileMetas = ((FileFieldValue) ccaFV).getValue();
 						files.addAll(fileMetas);
 					}
@@ -463,155 +468,162 @@ public class CCADataServiceImpl implements CCADataService {
 		result.setFiles(files);
 		result.setTitlesValues(titlesValues);
 		result.setValues(res);
-		
+
 		return result;
 	}
 
 	public Map<String, Object> getSummaryInfo(CCAData ccaData) {
 		Map<String, Object> result = new HashMap<>();
-		
+
 		List<CCAFieldValue> titlesValues = new ArrayList<>();
-		CCATemplate template = ccaTemplateService.getCCAByShortName(ccaData.getShortName(), ApiConstants.DEFAULT_LANGUAGE, false);
+		CCATemplate template = ccaTemplateService.getCCAByShortName(ccaData.getShortName(),
+				ApiConstants.DEFAULT_LANGUAGE, false);
 
 		Map<String, CCAFieldValue> temp = ccaData.getCcaFieldValues();
-		for(CCAField ccaField : template.getFields()) {
-			for(CCAField ccaFieldChild: ccaField.getChildren()) {
-				if(temp.containsKey(ccaFieldChild.getFieldId())) {
+		for (CCAField ccaField : template.getFields()) {
+			for (CCAField ccaFieldChild : ccaField.getChildren()) {
+				if (temp.containsKey(ccaFieldChild.getFieldId())) {
 					CCAFieldValue ccaFV = temp.get(ccaFieldChild.getFieldId());
-					if(Boolean.TRUE.equals(ccaFieldChild.getIsSummaryField()) && !ccaFV.getType().equals(FieldType.GEOMETRY)) {
-						if(ccaFV.getType() == FieldType.TEXT) {
+					if (Boolean.TRUE.equals(ccaFieldChild.getIsSummaryField())
+							&& !ccaFV.getType().equals(FieldType.GEOMETRY)) {
+						if (ccaFV.getType() == FieldType.TEXT) {
 							TextFieldValue textFieldValue = (TextFieldValue) ccaFV;
-							if(textFieldValue.getName().equals("Name of CCA")) {
+							if (textFieldValue.getName().equals("Name of CCA")) {
 								result.put("nameOfCCA", textFieldValue.getValue());
 							}
-						} else if(ccaFV.getType() == FieldType.NUMBER) {
-							NumberFieldValue nf = (NumberFieldValue)ccaFV;
+						} else if (ccaFV.getType() == FieldType.NUMBER) {
+							NumberFieldValue nf = (NumberFieldValue) ccaFV;
 							result.put("area", nf.getValue());
-						} else if(ccaFV.getType() == FieldType.MULTI_SELECT_CHECKBOX) {
-							CheckboxFieldValue cfv = (CheckboxFieldValue)ccaFV;
-							if(cfv.getName().equals("Ecosystem Type")) {
+						} else if (ccaFV.getType() == FieldType.MULTI_SELECT_CHECKBOX) {
+							CheckboxFieldValue cfv = (CheckboxFieldValue) ccaFV;
+							if (cfv.getName().equals("Ecosystem Type")) {
 								String s1 = "";
-								for(ValueWithLabel vwl : cfv.getValue()) {
+								for (ValueWithLabel vwl : cfv.getValue()) {
 									s1 += " " + vwl.getValue();
 								}
 								result.put("ecosystem", s1);
-							} else if(cfv.getName().equals("Legal Status ")) {
+							} else if (cfv.getName().equals("Legal Status ")) {
 								String s = "";
-								for(ValueWithLabel vwl : cfv.getValue()) {
+								for (ValueWithLabel vwl : cfv.getValue()) {
 									s += " " + vwl.getValue();
 								}
 								result.put("legalStatus", s);
 							}
 						}
 					}
-					
-					if(Boolean.TRUE.equals(ccaFieldChild.getIsTitleColumn())) {
+
+					if (Boolean.TRUE.equals(ccaFieldChild.getIsTitleColumn())) {
 						titlesValues.add(ccaFV);
 					}
-					
-					if(ccaFV.getType().equals(FieldType.FILE)) {
+
+					if (ccaFV.getType().equals(FieldType.FILE)) {
 						List<FileMeta> fileMetas = ((FileFieldValue) ccaFV).getValue();
-						if(fileMetas.size() != 0)
+						if (fileMetas.size() != 0)
 							result.put("image", fileMetas.get(0).getPath());
 					}
 				}
 			}
 		}
 
-		if(!titlesValues.isEmpty())
+		if (!titlesValues.isEmpty())
 			result.put("title", getTitle(titlesValues));
-		
+
 		return result.isEmpty() ? null : result;
 	}
-	
+
 	private String getTitle(List<CCAFieldValue> titlesValues) {
 		String title = "";
-		
-		for(CCAFieldValue ccaFV : titlesValues) {
-			if(ccaFV.getType() == FieldType.TEXT) {
+
+		for (CCAFieldValue ccaFV : titlesValues) {
+			if (ccaFV.getType() == FieldType.TEXT) {
 				TextFieldValue textFieldValue = (TextFieldValue) ccaFV;
-				if(textFieldValue.getName().equals("Name of CCA")) {
+				if (textFieldValue.getName().equals("Name of CCA")) {
 					title += " " + textFieldValue.getValue();
 				}
-			} else if(ccaFV.getType() == FieldType.NUMBER) {
-				NumberFieldValue nf = (NumberFieldValue)ccaFV;
+			} else if (ccaFV.getType() == FieldType.NUMBER) {
+				NumberFieldValue nf = (NumberFieldValue) ccaFV;
 				title += " " + nf.getValue();
-			} else if(ccaFV.getType() == FieldType.MULTI_SELECT_CHECKBOX) {
-				CheckboxFieldValue cfv = (CheckboxFieldValue)ccaFV;
-				if(cfv.getName().equals("Ecosystem Type")) {
+			} else if (ccaFV.getType() == FieldType.MULTI_SELECT_CHECKBOX) {
+				CheckboxFieldValue cfv = (CheckboxFieldValue) ccaFV;
+				if (cfv.getName().equals("Ecosystem Type")) {
 					String s1 = "";
-					for(ValueWithLabel vwl : cfv.getValue()) {
+					for (ValueWithLabel vwl : cfv.getValue()) {
 						s1 += " " + vwl.getValue();
 					}
 					title += " " + s1;
-				} else if(cfv.getName().equals("Legal Status ")) {
+				} else if (cfv.getName().equals("Legal Status ")) {
 					String s = "";
-					for(ValueWithLabel vwl : cfv.getValue()) {
+					for (ValueWithLabel vwl : cfv.getValue()) {
 						s += " " + vwl.getValue();
 					}
 					title += " " + s;
 				}
 			}
 		}
-		
+
 		return title;
 	}
 
 	@Override
 	public Activity addComment(HttpServletRequest request, Long userId, Long dataId, CommentLoggingData commentData) {
 		CCAData ccaData = this.findById(dataId, ApiConstants.DEFAULT_LANGUAGE);
-		
-		if(ccaData == null) {
+
+		if (ccaData == null) {
 			throw new NotFoundException("Not found cca data with id : " + dataId);
 		}
 		Set<String> s = new HashSet<>();
 		s.add(userId.toString());
 		ccaData.setFollowers(s);
 		CCAData temp = this.update(request, ccaData, "Follow");
-		
-		commentData.setMailData(CCAUtil.generateMailData(temp, "Commented", commentData.getBody(), getSummaryInfo(ccaData), null));
+
+		commentData.setMailData(
+				CCAUtil.generateMailData(temp, "Commented", commentData.getBody(), getSummaryInfo(ccaData), null));
 		activityService = headers.addActivityHeader(activityService, request.getHeader(HttpHeaders.AUTHORIZATION));
 		Activity activity = null;
 		try {
+			System.out.println("commentData = " + commentData);
 			activity = activityService.addComment("cca", commentData);
 		} catch (ApiException e) {
 			e.printStackTrace();
 		}
 		return activity;
 	}
-	
+
 	@Override
-	public Boolean sendPermissionRequest(HttpServletRequest request, CCAData ccaData) {
+	public Boolean sendPermissionRequest(HttpServletRequest request, CcaPermission ccaPermissionData, CCAData ccaData) {
 		try {
 			CommonProfile requestorProfile = AuthUtil.getProfileFromRequest(request);
-			Long requestorId = Long.parseLong(requestorProfile.getId());
-			
+			// Long requestorId = Long.parseLong(requestorProfile.getId());
+			Long dummyId = ccaPermissionData.getRequestorId();
+			Boolean result = null;
 			// check if the user is already a allowed user
-			if(!ccaData.getAllowedUsers().contains(requestorId.toString())) {
-				String role ="test";
-				CCAPermssionData ccaPermissionData = new CCAPermssionData();
-				ccaPermissionData.setCcaid(ccaData.getId());
-				ccaPermissionData.setOwnerId(Long.parseLong((ccaData.getUserId())));
-				ccaPermissionData.setRequestorId(requestorId);
-				ccaPermissionData.setShortName(ccaData.getShortName());
-				ccaPermissionData.setRole(role);
-				
-				activityService.ccaMailRequest(ccaPermissionData);
+			if (!ccaData.getAllowedUsers().contains(dummyId.toString())) {
+
+				CcaPermission permissionReq = new CcaPermission();
+				permissionReq.setCcaid(ccaPermissionData.getCcaid());
+				permissionReq.setOwnerId(Long.parseLong((ccaData.getUserId())));
+				permissionReq.setShortName(ccaData.getShortName());
+				permissionReq.setRequestorId(dummyId);
+				permissionReq.setRole(ccaPermissionData.getRole());
+
+				String reqText = om.writeValueAsString(permissionReq);
+				String encryptedKey = encryptUtils.encrypt(reqText);
+				permissionReq.setEncryptKey(encryptedKey);
+
+				result = activityService.ccaMailRequest(permissionReq);
 			}
-			return true;
-			
+			return result;
+
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
 		return null;
 	}
 
-
 	@Override
 	public Boolean sendPermissionGrant(HttpServletRequest request, EncryptedKey encryptedKey) {
-		// TODO Auto-generated method stub
+
 		return null;
 	}
-	
 
 }

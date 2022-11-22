@@ -1,6 +1,6 @@
 package com.strandls.cca.pojo;
 
-public class PermissionRequest extends Permission {
+public class PermissionRequest  {
 	private Long id;
 	
 	public Long getId() {

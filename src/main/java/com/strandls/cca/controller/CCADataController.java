@@ -26,6 +26,7 @@ import org.hibernate.ObjectNotFoundException;
 import org.pac4j.core.profile.CommonProfile;
 
 import com.strandls.activity.pojo.Activity;
+import com.strandls.activity.pojo.CcaPermission;
 import com.strandls.activity.pojo.CommentLoggingData;
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.authentication_utility.util.AuthUtil;
@@ -40,7 +41,6 @@ import com.strandls.cca.pojo.response.SubsetCCADataList;
 import com.strandls.cca.service.CCADataService;
 import com.strandls.cca.util.AuthorizationUtil;
 import com.strandls.cca.util.Permissions;
-
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -398,8 +398,7 @@ public class CCADataController {
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "unable to fetch the permission", response = String.class) })
 
-	public Response getCcaPermission(@Context HttpServletRequest request,
-			@PathParam("ccaID") String ccaID) {
+	public Response getCcaPermission(@Context HttpServletRequest request, @PathParam("ccaID") String ccaID) {
 		try {
 			Long CcaId = Long.parseLong(ccaID);
 			CCAData originalDocs = ccaDataService.findById(CcaId, null);
@@ -411,9 +410,9 @@ public class CCADataController {
 			return Response.status(Status.OK).entity(false).build();
 		}
 	}
-	
+
 	@POST
-	@Path(ApiConstants.REQUEST+"/{ccaID}")
+	@Path(ApiConstants.REQUEST)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 
@@ -422,16 +421,21 @@ public class CCADataController {
 	@ApiResponses(value = { @ApiResponse(code = 400, message = "unable to send the req", response = String.class) })
 
 	public Response requestPermission(@Context HttpServletRequest request,
-			@PathParam("ccaID") String ccaID) {
+			@ApiParam(name = "permissionData") CcaPermission permissionData) {
 		try {
-			Long CcaId = Long.parseLong(ccaID);
-			CCAData originalDocs = ccaDataService.findById(CcaId, null);
-			Boolean result = ccaDataService.sendPermissionRequest(request, originalDocs);
-			if (result != null) {
-				if (result)
-					return Response.status(Status.OK).entity(result).build();
-				return Response.status(Status.NOT_MODIFIED).build();
+			if (permissionData.getCcaid() != null && permissionData.getRole() != null
+					&& !permissionData.getRole().isEmpty()) {
+				Long CcaId = permissionData.getCcaid();
+				CCAData originalDocs = ccaDataService.findById(CcaId, null);
+				Boolean result = ccaDataService.sendPermissionRequest(request, permissionData, originalDocs);
+				if (result != null) {
+					if (result)
+						return Response.status(Status.OK).entity(result).build();
+					return Response.status(Status.NOT_MODIFIED).build();
+				}
+
 			}
+
 			return Response.status(Status.NOT_FOUND).build();
 
 		} catch (Exception e) {
@@ -446,7 +450,7 @@ public class CCADataController {
 
 	@ValidateUser
 
-	@ApiOperation(value = "validate the request for permission over a taxonomyId", notes = "checks the grants the permission", response = Boolean.class)
+	@ApiOperation(value = "validate the request for permission over a ccaId", notes = "checks the grants the permission", response = Boolean.class)
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "uable to grant the permission", response = String.class) })
 
@@ -462,7 +466,5 @@ public class CCADataController {
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}
 	}
-	
-	
 
 }

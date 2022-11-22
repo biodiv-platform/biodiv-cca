@@ -11,6 +11,7 @@ import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.strandls.activity.pojo.Activity;
+import com.strandls.activity.pojo.CcaPermission;
 import com.strandls.activity.pojo.CommentLoggingData;
 import com.strandls.activity.pojo.MailData;
 import com.strandls.cca.pojo.CCAData;
@@ -63,7 +64,7 @@ public interface CCADataService {
 
 	public Activity addComment(HttpServletRequest request, Long userId, Long dataId, CommentLoggingData commentData);
 
-	public Boolean sendPermissionRequest(HttpServletRequest request, CCAData ccaData);
+	public Boolean sendPermissionRequest(HttpServletRequest request, CcaPermission ccaPermissionData , CCAData ccaData);
 
 	public Boolean sendPermissionGrant(HttpServletRequest request, EncryptedKey encryptedKey);
 
