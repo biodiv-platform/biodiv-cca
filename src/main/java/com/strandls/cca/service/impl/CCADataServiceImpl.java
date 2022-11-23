@@ -2,9 +2,7 @@ package com.strandls.cca.service.impl;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,10 +30,8 @@ import com.mongodb.client.AggregateIterable;
 import com.strandls.activity.ApiException;
 import com.strandls.activity.controller.ActivitySerivceApi;
 import com.strandls.activity.pojo.Activity;
-import com.strandls.activity.pojo.CCAMailData;
 import com.strandls.activity.pojo.CcaPermission;
 import com.strandls.activity.pojo.CommentLoggingData;
-import com.strandls.activity.pojo.MailData;
 import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.CCAConfig;
@@ -49,11 +45,8 @@ import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.cca.pojo.EncryptedKey;
 import com.strandls.cca.pojo.FieldType;
-import com.strandls.cca.pojo.Permission;
-import com.strandls.cca.pojo.PermissionRequest;
 import com.strandls.cca.pojo.TreeRoles;
 import com.strandls.cca.pojo.ValueWithLabel;
-import com.strandls.cca.pojo.fields.TextField;
 import com.strandls.cca.pojo.fields.value.CheckboxFieldValue;
 import com.strandls.cca.pojo.fields.value.FileFieldValue;
 import com.strandls.cca.pojo.fields.value.FileMeta;
@@ -68,11 +61,7 @@ import com.strandls.cca.service.CCATemplateService;
 import com.strandls.cca.util.AuthorizationUtil;
 import com.strandls.cca.util.CCAUtil;
 import com.strandls.cca.util.EncryptionUtils;
-import com.strandls.cca.util.Permissions;
 import com.strandls.user.controller.UserServiceApi;
-import com.strandls.user.pojo.User;
-
-import net.minidev.json.JSONArray;
 
 import com.strandls.cca.Headers;
 
@@ -594,16 +583,17 @@ public class CCADataServiceImpl implements CCADataService {
 		try {
 			CommonProfile requestorProfile = AuthUtil.getProfileFromRequest(request);
 			// Long requestorId = Long.parseLong(requestorProfile.getId());
-			Long dummyId = ccaPermissionData.getRequestorId();
+			Long requestorId = ccaPermissionData.getRequestorId();
 			Boolean result = null;
+
 			// check if the user is already a allowed user
-			if (!ccaData.getAllowedUsers().contains(dummyId.toString())) {
+			if (!ccaData.getAllowedUsers().contains(requestorId.toString())) {
 
 				CcaPermission permissionReq = new CcaPermission();
 				permissionReq.setCcaid(ccaPermissionData.getCcaid());
 				permissionReq.setOwnerId(Long.parseLong((ccaData.getUserId())));
 				permissionReq.setShortName(ccaData.getShortName());
-				permissionReq.setRequestorId(dummyId);
+				permissionReq.setRequestorId(requestorId);
 				permissionReq.setRole(ccaPermissionData.getRole());
 
 				String reqText = om.writeValueAsString(permissionReq);
@@ -622,6 +612,24 @@ public class CCADataServiceImpl implements CCADataService {
 
 	@Override
 	public Boolean sendPermissionGrant(HttpServletRequest request, EncryptedKey encryptedKey) {
+		try {
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			Long userId = Long.parseLong(profile.getId());
+			String reqdata = encryptUtils.decrypt(encryptedKey.getToken());
+			CcaPermission permissionReq = om.readValue(reqdata, CcaPermission.class);
+
+			Long CcaId = permissionReq.getCcaid();
+			Long requestorId = permissionReq.getRequestorId();
+			CCAData originalDocs = findById(CcaId, null);
+
+			if (originalDocs.getUserId().contains(userId.toString())
+					&& !originalDocs.getAllowedUsers().contains(requestorId.toString())) {
+				originalDocs.getAllowedUsers().add(requestorId.toString());
+				update(request, originalDocs, "permission");
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
 
 		return null;
 	}
