@@ -45,7 +45,6 @@ import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.cca.pojo.EncryptedKey;
 import com.strandls.cca.pojo.FieldType;
-import com.strandls.cca.pojo.TreeRoles;
 import com.strandls.cca.pojo.ValueWithLabel;
 import com.strandls.cca.pojo.fields.value.CheckboxFieldValue;
 import com.strandls.cca.pojo.fields.value.FileFieldValue;
@@ -570,7 +569,6 @@ public class CCADataServiceImpl implements CCADataService {
 		activityService = headers.addActivityHeader(activityService, request.getHeader(HttpHeaders.AUTHORIZATION));
 		Activity activity = null;
 		try {
-			System.out.println("commentData = " + commentData);
 			activity = activityService.addComment("cca", commentData);
 		} catch (ApiException e) {
 			e.printStackTrace();
@@ -582,8 +580,7 @@ public class CCADataServiceImpl implements CCADataService {
 	public Boolean sendPermissionRequest(HttpServletRequest request, CcaPermission ccaPermissionData, CCAData ccaData) {
 		try {
 			CommonProfile requestorProfile = AuthUtil.getProfileFromRequest(request);
-			// Long requestorId = Long.parseLong(requestorProfile.getId());
-			Long requestorId = ccaPermissionData.getRequestorId();
+			Long requestorId = Long.parseLong(requestorProfile.getId());
 			Boolean result = null;
 
 			// check if the user is already a allowed user
@@ -607,31 +604,29 @@ public class CCADataServiceImpl implements CCADataService {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
-		return null;
+		return false;
 	}
 
 	@Override
 	public Boolean sendPermissionGrant(HttpServletRequest request, EncryptedKey encryptedKey) {
 		try {
-			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
-			Long userId = Long.parseLong(profile.getId());
 			String reqdata = encryptUtils.decrypt(encryptedKey.getToken());
 			CcaPermission permissionReq = om.readValue(reqdata, CcaPermission.class);
 
-			Long CcaId = permissionReq.getCcaid();
+			Long ccaId = permissionReq.getCcaid();
 			Long requestorId = permissionReq.getRequestorId();
-			CCAData originalDocs = findById(CcaId, null);
+			CCAData originalDocs = findById(ccaId, null);
 
-			if (originalDocs.getUserId().contains(userId.toString())
-					&& !originalDocs.getAllowedUsers().contains(requestorId.toString())) {
+			if (!originalDocs.getAllowedUsers().contains(requestorId.toString())) {
 				originalDocs.getAllowedUsers().add(requestorId.toString());
 				update(request, originalDocs, "permission");
 			}
+			return true;
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
 
-		return null;
+		return false;
 	}
 
 }

@@ -402,8 +402,9 @@ public class CCADataController {
 		try {
 			if (permissionData.getCcaid() != null && permissionData.getRole() != null
 					&& !permissionData.getRole().isEmpty()) {
-				Long CcaId = permissionData.getCcaid();
-				CCAData originalDocs = ccaDataService.findById(CcaId, null);
+				Long ccaId = permissionData.getCcaid();
+				CCAData originalDocs = ccaDataService.findById(ccaId, null);
+				
 				Boolean result = ccaDataService.sendPermissionRequest(request, permissionData, originalDocs);
 				if (result != null) {
 					if (result)
@@ -434,10 +435,9 @@ public class CCADataController {
 	public Response grantPermissionrequest(@Context HttpServletRequest request,
 			@ApiParam(name = "encryptedKey") EncryptedKey encryptedKey) {
 		try {
-			Boolean result = ccaDataService.sendPermissionGrant(request, encryptedKey);
-			if (result)
-				return Response.status(Status.OK).entity(result).build();
-			return Response.status(Status.NOT_IMPLEMENTED).build();
+			AuthorizationUtil.handleAuthorization(request,
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), null);
+			return Response.status(Status.OK).entity(ccaDataService.sendPermissionGrant(request, encryptedKey)).build();
 
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();

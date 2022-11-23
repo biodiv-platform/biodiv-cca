@@ -3,8 +3,6 @@ package com.strandls.cca.util;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 import javax.crypto.Cipher;
