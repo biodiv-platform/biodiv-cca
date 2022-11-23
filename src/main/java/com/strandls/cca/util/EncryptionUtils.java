@@ -50,12 +50,11 @@ public class EncryptionUtils {
 		String strData = "";
 
 		try {
-			SecretKeySpec skeyspec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), ALGORITHM);
+			SecretKeySpec skeyspec = new SecretKeySpec(key.getBytes(), ALGORITHM);
 			Cipher cipher = Cipher.getInstance(ALGORITHM); // NOSONAR
 			cipher.init(Cipher.ENCRYPT_MODE, skeyspec);
-			byte[] encrypted = cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
+			byte[] encrypted = cipher.doFinal(plainText.getBytes());
 			strData = DatatypeConverter.printBase64Binary(encrypted);
-			strData = URLEncoder.encode(strData, StandardCharsets.UTF_8.toString());
 
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -67,11 +66,11 @@ public class EncryptionUtils {
 		String strData = "";
 
 		try {
-			SecretKeySpec skeyspec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), ALGORITHM);
+			SecretKeySpec skeyspec = new SecretKeySpec(key.getBytes(), ALGORITHM);
 			Cipher cipher = Cipher.getInstance(ALGORITHM); // NOSONAR
 			cipher.init(Cipher.DECRYPT_MODE, skeyspec);
 			byte[] decrypted = cipher.doFinal(DatatypeConverter.parseBase64Binary(encryptedText));
-			strData = new String(decrypted, StandardCharsets.UTF_8);
+			strData = new String(decrypted);
 
 		} catch (Exception e) {
 			logger.error(e.getMessage());
