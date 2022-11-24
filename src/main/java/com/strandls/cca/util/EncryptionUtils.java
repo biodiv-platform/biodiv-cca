@@ -1,8 +1,9 @@
 package com.strandls.cca.util;
 
-
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 import javax.crypto.Cipher;
@@ -48,11 +49,12 @@ public class EncryptionUtils {
 		String strData = "";
 
 		try {
-			SecretKeySpec skeyspec = new SecretKeySpec(key.getBytes(), ALGORITHM);
+			SecretKeySpec skeyspec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), ALGORITHM);
 			Cipher cipher = Cipher.getInstance(ALGORITHM); // NOSONAR
 			cipher.init(Cipher.ENCRYPT_MODE, skeyspec);
-			byte[] encrypted = cipher.doFinal(plainText.getBytes());
+			byte[] encrypted = cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
 			strData = DatatypeConverter.printBase64Binary(encrypted);
+			strData = URLEncoder.encode(strData, StandardCharsets.UTF_8.toString());
 
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -64,11 +66,11 @@ public class EncryptionUtils {
 		String strData = "";
 
 		try {
-			SecretKeySpec skeyspec = new SecretKeySpec(key.getBytes(), ALGORITHM);
+			SecretKeySpec skeyspec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), ALGORITHM);
 			Cipher cipher = Cipher.getInstance(ALGORITHM); // NOSONAR
 			cipher.init(Cipher.DECRYPT_MODE, skeyspec);
 			byte[] decrypted = cipher.doFinal(DatatypeConverter.parseBase64Binary(encryptedText));
-			strData = new String(decrypted);
+			strData = new String(decrypted, StandardCharsets.UTF_8);
 
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -77,4 +79,3 @@ public class EncryptionUtils {
 	}
 
 }
-
