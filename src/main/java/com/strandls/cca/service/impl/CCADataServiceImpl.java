@@ -596,6 +596,7 @@ public class CCADataServiceImpl implements CCADataService {
 				String reqText = om.writeValueAsString(permissionReq);
 				String encryptedKey = encryptUtils.encrypt(reqText);
 				permissionReq.setEncryptKey(encryptedKey);
+				permissionReq.setData(getSummaryInfo(ccaData));
 
 				result = activityService.ccaMailRequest(permissionReq);
 			}
