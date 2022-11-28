@@ -400,11 +400,10 @@ public class CCADataController {
 	public Response requestPermission(@Context HttpServletRequest request,
 			@ApiParam(name = "permissionData") CcaPermission permissionData) {
 		try {
-			if (permissionData.getCcaid() != null && permissionData.getRole() != null
-					&& !permissionData.getRole().isEmpty()) {
+			if (permissionData != null) {
 				Long ccaId = permissionData.getCcaid();
 				CCAData originalDocs = ccaDataService.findById(ccaId, null);
-				
+
 				Boolean result = ccaDataService.sendPermissionRequest(request, permissionData, originalDocs);
 				if (result != null) {
 					if (result)
