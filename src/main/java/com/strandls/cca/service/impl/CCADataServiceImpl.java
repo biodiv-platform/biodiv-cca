@@ -286,6 +286,7 @@ public class CCADataServiceImpl implements CCADataService {
 		dataInMem = dataInMem.overrideFieldData(request, ccaData, logActivities, type, getSummaryInfo(dataInMem),
 				dataInMem, userService);
 
+
 		dataInMem.reComputeCentroid();
 		return ccaDataDao.replaceOne(dataInMem);
 	}
