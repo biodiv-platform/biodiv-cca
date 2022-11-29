@@ -58,7 +58,8 @@ public class CCADataDao extends AbstractDao<CCAData> {
 	 * @throws JsonProcessingException
 	 * @throws JsonMappingException
 	 */
-	public List<CCAData> getAll(UriInfo uriInfo, boolean projectAll, String userId, Boolean isDeletedData) throws JsonProcessingException {
+	public List<CCAData> getAll(UriInfo uriInfo, boolean projectAll, String userId, Boolean isDeletedData)
+			throws JsonProcessingException {
 
 		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
 
@@ -77,7 +78,8 @@ public class CCADataDao extends AbstractDao<CCAData> {
 		return dbCollection.find(filters).projection(projections).into(new ArrayList<CCAData>());
 	}
 
-	public List<CCAData> getAll(UriInfo uriInfo, boolean projectAll, String userId, Boolean isDeletedData, int limit, int offset) throws JsonProcessingException {
+	public List<CCAData> getAll(UriInfo uriInfo, boolean projectAll, String userId, Boolean isDeletedData, int limit,
+			int offset) throws JsonProcessingException {
 
 		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
 
@@ -93,7 +95,8 @@ public class CCADataDao extends AbstractDao<CCAData> {
 			projections = BsonProjectionUtil.getProjectionsForListPage(templateDao, viewTemplate);
 		}
 
-		return dbCollection.find(filters).projection(projections).skip(offset).limit(limit).into(new ArrayList<CCAData>());
+		return dbCollection.find(filters).projection(projections).skip(offset).limit(limit)
+				.into(new ArrayList<CCAData>());
 	}
 
 	public CCAData restore(Long id) {
@@ -124,4 +127,5 @@ public class CCADataDao extends AbstractDao<CCAData> {
 		Bson filters = CCAFilterUtil.getAllFilters(queryParameter, templateDao, objectMapper, null, false);
 		return dbCollection.countDocuments(filters);
 	}
+
 }

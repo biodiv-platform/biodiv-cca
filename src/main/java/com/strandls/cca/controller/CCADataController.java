@@ -26,12 +26,14 @@ import org.hibernate.ObjectNotFoundException;
 import org.pac4j.core.profile.CommonProfile;
 
 import com.strandls.activity.pojo.Activity;
+import com.strandls.activity.pojo.CcaPermission;
 import com.strandls.activity.pojo.CommentLoggingData;
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.exception.CCAException;
 import com.strandls.cca.pojo.CCAData;
+import com.strandls.cca.pojo.EncryptedKey;
 import com.strandls.cca.pojo.Follower;
 import com.strandls.cca.pojo.Permission;
 import com.strandls.cca.pojo.response.AggregationResponse;
@@ -386,4 +388,60 @@ public class CCADataController {
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}
 	}
+
+	@POST
+	@Path(ApiConstants.REQUEST)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+	@ApiOperation(value = "Send request for permission over a ccaData", notes = "sends mail to the permission", response = Boolean.class)
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "unable to send the req", response = String.class) })
+
+	public Response requestPermission(@Context HttpServletRequest request,
+			@ApiParam(name = "permissionData") CcaPermission permissionData) {
+		try {
+			if (permissionData != null) {
+				Long ccaId = permissionData.getCcaid();
+				CCAData originalDocs = ccaDataService.findById(ccaId, null);
+
+				Boolean result = ccaDataService.sendPermissionRequest(request, permissionData, originalDocs);
+				if (result != null) {
+					if (result)
+						return Response.status(Status.OK).entity(result).build();
+					return Response.status(Status.NOT_MODIFIED).build();
+				}
+
+			}
+
+			return Response.status(Status.NOT_FOUND).build();
+
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+
+	@POST
+	@Path(ApiConstants.GRANT)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+
+	@ApiOperation(value = "validate the request for permission over a ccaData", notes = "checks the grants the permission", response = Boolean.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 400, message = "uable to grant the permission", response = String.class) })
+
+	public Response grantPermissionrequest(@Context HttpServletRequest request,
+			@ApiParam(name = "encryptedKey") EncryptedKey encryptedKey) {
+		try {
+			AuthorizationUtil.handleAuthorization(request,
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), null);
+			return Response.status(Status.OK).entity(ccaDataService.sendPermissionGrant(request, encryptedKey)).build();
+
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+
 }
