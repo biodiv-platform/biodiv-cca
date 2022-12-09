@@ -49,6 +49,9 @@ public class BsonProjectionUtil {
 			} else if (ccaField.getIsSummaryField().booleanValue()) {
 				String fieldName = "ccaFieldValues" + "." + ccaField.getFieldId();
 				fieldNames.add(fieldName);
+			} else {
+				String fieldName = "ccaFieldValues" + "." + ccaField.getFieldId();
+				fieldNames.add(fieldName);
 			}
 		}
 
