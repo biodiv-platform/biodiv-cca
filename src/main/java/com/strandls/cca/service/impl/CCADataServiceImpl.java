@@ -112,11 +112,16 @@ public class CCADataServiceImpl implements CCADataService {
 	@Override
 	public List<CCAData> getAllCCAData(HttpServletRequest request, UriInfo uriInfo, Boolean isDeletedData)
 			throws JsonProcessingException {
+		Boolean isList = true;
 		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
+		if (queryParameter.containsKey("list")) {
+			// if not list page it returns all CCA field values data
+			isList = Boolean.parseBoolean(queryParameter.get("list").get(0));
+		}
 		String userId = queryParameter.containsKey(CCAConstants.USER_ID)
 				? queryParameter.get(CCAConstants.USER_ID).get(0)
 				: null;
-		return ccaDataDao.getAll(uriInfo, false, userId, isDeletedData);
+		return ccaDataDao.getAll(uriInfo, false, userId, isDeletedData, isList);
 	}
 
 	@Override
@@ -152,7 +157,7 @@ public class CCADataServiceImpl implements CCADataService {
 			userId = queryParams.get(CCAConstants.USER_ID).get(0);
 		}
 
-		List<CCAData> ccaDatas = ccaDataDao.getAll(uriInfo, false, userId, false);
+		List<CCAData> ccaDatas = ccaDataDao.getAll(uriInfo, false, userId, false, true);
 
 		String language = queryParams.getFirst(CCAConstants.LANGUAGE);
 		if (language == null)
@@ -413,7 +418,7 @@ public class CCADataServiceImpl implements CCADataService {
 			userId = queryParams.get(CCAConstants.USER_ID).get(0);
 		}
 
-		List<CCAData> ccaDataList = ccaDataDao.getAll(uriInfo, false, userId, false);
+		List<CCAData> ccaDataList = ccaDataDao.getAll(uriInfo, false, userId, false, true);
 
 		List<MapInfo> mapInfoList = new ArrayList<>();
 		for (CCAData ccaData : ccaDataList) {

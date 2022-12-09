@@ -23,7 +23,7 @@ public class BsonProjectionUtil {
 	 * 
 	 * @return
 	 */
-	public static Bson getProjectionsForListPage(CCATemplateDao templateDao, String shortName) {
+	public static Bson getProjectionsForListPage(CCATemplateDao templateDao, String shortName, Boolean isList) {
 		List<String> fieldNames = new ArrayList<>();
 
 		// Compulsory field from the CCA Data - Need to change if there is modification
@@ -43,13 +43,13 @@ public class BsonProjectionUtil {
 		Iterator<CCAField> it = ccaTemplate.iterator();
 		while (it.hasNext()) {
 			CCAField ccaField = it.next();
-			if(ccaField.getType().equals(FieldType.FILE)) {
+			if (!isList) {
+				String fieldName = "ccaFieldValues" + "." + ccaField.getFieldId();
+				fieldNames.add(fieldName);
+			} else if (ccaField.getType().equals(FieldType.FILE)) {
 				String fieldName = "ccaFieldValues" + "." + ccaField.getFieldId();
 				fieldNames.add(fieldName);
 			} else if (ccaField.getIsSummaryField().booleanValue()) {
-				String fieldName = "ccaFieldValues" + "." + ccaField.getFieldId();
-				fieldNames.add(fieldName);
-			} else {
 				String fieldName = "ccaFieldValues" + "." + ccaField.getFieldId();
 				fieldNames.add(fieldName);
 			}
