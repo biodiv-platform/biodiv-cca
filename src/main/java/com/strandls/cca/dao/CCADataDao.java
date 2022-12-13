@@ -79,7 +79,7 @@ public class CCADataDao extends AbstractDao<CCAData> {
 	}
 
 	public List<CCAData> getAll(UriInfo uriInfo, boolean projectAll, String userId, Boolean isDeletedData, int limit,
-			int offset) throws JsonProcessingException {
+			int offset ,Boolean isList) throws JsonProcessingException {
 
 		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
 
@@ -92,7 +92,7 @@ public class CCADataDao extends AbstractDao<CCAData> {
 				viewTemplate = queryParameter.getFirst(CCAConstants.VIEW_TEMPLATE);
 			} else
 				viewTemplate = CCAConstants.MASTER;
-			projections = BsonProjectionUtil.getProjectionsForListPage(templateDao, viewTemplate, true);
+			projections = BsonProjectionUtil.getProjectionsForListPage(templateDao, viewTemplate, isList);
 		}
 
 		return dbCollection.find(filters).projection(projections).skip(offset).limit(limit)
