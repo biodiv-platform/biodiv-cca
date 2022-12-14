@@ -291,7 +291,6 @@ public class CCADataServiceImpl implements CCADataService {
 		dataInMem = dataInMem.overrideFieldData(request, ccaData, logActivities, type, getSummaryInfo(dataInMem),
 				dataInMem, userService);
 
-
 		dataInMem.reComputeCentroid();
 		return ccaDataDao.replaceOne(dataInMem);
 	}
@@ -377,7 +376,6 @@ public class CCADataServiceImpl implements CCADataService {
 	@Override
 	public Map<String, Object> getCCAPageData(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly)
 			throws JsonProcessingException {
-		Boolean isList = true;
 		String userId = null;
 		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
 		if (myListOnly) {
@@ -390,12 +388,7 @@ public class CCADataServiceImpl implements CCADataService {
 		int offset = Integer.parseInt(queryParams.get("offset").get(0));
 		int limit = Integer.parseInt(queryParams.get("limit").get(0));
 
-		if (queryParams.containsKey("list")) {
-			// if not list page it returns all CCA field values data
-			isList = Boolean.parseBoolean(queryParams.get("list").get(0));
-		}
-
-		List<CCAData> ccaDatas = ccaDataDao.getAll(uriInfo, false, userId, false, limit, offset , isList);
+		List<CCAData> ccaDatas = ccaDataDao.getAll(uriInfo, false, userId, false, limit, offset);
 
 		String language = queryParams.getFirst(CCAConstants.LANGUAGE);
 		if (language == null)
