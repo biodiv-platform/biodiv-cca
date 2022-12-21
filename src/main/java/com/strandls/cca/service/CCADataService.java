@@ -36,6 +36,8 @@ public interface CCADataService {
 
 	public List<CCAData> getAllCCAData(HttpServletRequest request, UriInfo uriInfo, Boolean isDeletedData) throws JsonProcessingException;
 
+	public List<CCAData> downloadCCAData(HttpServletRequest request, UriInfo uriInfo, Boolean isDeletedData) throws JsonProcessingException;
+
 	public List<CCAData> getCCADataByShortName(HttpServletRequest request, UriInfo uriInfo, String shortName, Boolean isDeletedData) throws JsonProcessingException;
 
 	public AggregationResponse getMyCCADataList(HttpServletRequest request, UriInfo uriInfo)

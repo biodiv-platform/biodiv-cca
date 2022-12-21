@@ -58,6 +58,7 @@ import com.strandls.cca.pojo.response.SubsetCCADataList;
 import com.strandls.cca.service.CCADataService;
 import com.strandls.cca.service.CCATemplateService;
 import com.strandls.cca.util.AuthorizationUtil;
+import com.strandls.cca.util.CCADataCSVThread;
 import com.strandls.cca.util.CCAUtil;
 import com.strandls.cca.util.EncryptionUtils;
 import com.strandls.user.controller.UserServiceApi;
@@ -121,6 +122,38 @@ public class CCADataServiceImpl implements CCADataService {
 		String userId = queryParameter.containsKey(CCAConstants.USER_ID)
 				? queryParameter.get(CCAConstants.USER_ID).get(0)
 				: null;
+		return ccaDataDao.getAll(uriInfo, false, userId, isDeletedData, isList);
+	}
+
+	@Override
+	public List<CCAData> downloadCCAData(HttpServletRequest request, UriInfo uriInfo, Boolean isDeletedData)
+			throws JsonProcessingException {
+		Boolean isList = true;
+		String notes = "";
+		String url = "";
+		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
+		if (queryParameter.containsKey("list")) {
+			isList = Boolean.parseBoolean(queryParameter.get("list").get(0));
+		}
+
+		if (queryParameter.containsKey("notes")) {
+			notes = queryParameter.get("notes").get(0);
+		}
+
+		if (uriInfo.getRequestUri() != null) {
+			url = uriInfo.getRequestUri().toString();
+		}
+
+		String userId = queryParameter.containsKey(CCAConstants.USER_ID)
+				? queryParameter.get(CCAConstants.USER_ID).get(0)
+				: null;
+
+		List<CCAData> test = ccaDataDao.getAll(uriInfo, false, userId, isDeletedData, isList);
+		userService = headers.addUserHeaders(userService, request.getHeader(HttpHeaders.AUTHORIZATION));
+		activityService = headers.addActivityHeader(activityService, request.getHeader(HttpHeaders.AUTHORIZATION));
+		CCADataCSVThread csvThread = new CCADataCSVThread(test, userId, notes, url, userService , activityService);
+		Thread thread = new Thread(csvThread);
+		thread.start();
 		return ccaDataDao.getAll(uriInfo, false, userId, isDeletedData, isList);
 	}
 

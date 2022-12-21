@@ -195,6 +195,20 @@ public class CCADataController {
 		}
 	}
 
+	@GET
+	@Path("/all/download")
+
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get the cca data", notes = "Returns CCA data along with all the fields", response = CCAData.class, responseContainer = "List")
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
+	public Response downloadCCAData(@Context HttpServletRequest request, @Context UriInfo uriInfo) throws CCAException {
+		try {
+			return Response.status(Status.OK).entity(ccaDataService.downloadCCAData(request, uriInfo, false)).build();
+		} catch (Exception e) {
+			throw new CCAException(e);
+		}
+	}
+
 	@PUT
 	@Path("/update")
 
