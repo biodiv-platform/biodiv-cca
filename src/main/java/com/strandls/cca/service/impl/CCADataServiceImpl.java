@@ -113,27 +113,27 @@ public class CCADataServiceImpl implements CCADataService {
 	@Override
 	public List<CCAData> getAllCCAData(HttpServletRequest request, UriInfo uriInfo, Boolean isDeletedData)
 			throws JsonProcessingException {
-		Boolean isList = true;
+		Boolean projectAll = false;
 		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
-		if (queryParameter.containsKey("list")) {
+		if (queryParameter.containsKey("projectAll")) {
 			// if not list page it returns all CCA field values data
-			isList = Boolean.parseBoolean(queryParameter.get("list").get(0));
+			projectAll = Boolean.parseBoolean(queryParameter.get("projectAll").get(0));
 		}
 		String userId = queryParameter.containsKey(CCAConstants.USER_ID)
 				? queryParameter.get(CCAConstants.USER_ID).get(0)
 				: null;
-		return ccaDataDao.getAll(uriInfo, false, userId, isDeletedData, isList);
+		return ccaDataDao.getAll(uriInfo, projectAll, userId, isDeletedData);
 	}
 
 	@Override
 	public List<CCAData> downloadCCAData(HttpServletRequest request, UriInfo uriInfo, Boolean isDeletedData)
 			throws JsonProcessingException {
-		Boolean isList = true;
+		Boolean projectAll = false;
 		String notes = "";
 		String url = "";
 		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
-		if (queryParameter.containsKey("list")) {
-			isList = Boolean.parseBoolean(queryParameter.get("list").get(0));
+		if (queryParameter.containsKey("projectAll")) {
+			projectAll = Boolean.parseBoolean(queryParameter.get("projectAll").get(0));
 		}
 
 		if (queryParameter.containsKey("notes")) {
@@ -148,13 +148,13 @@ public class CCADataServiceImpl implements CCADataService {
 				? queryParameter.get(CCAConstants.USER_ID).get(0)
 				: null;
 
-		List<CCAData> test = ccaDataDao.getAll(uriInfo, false, userId, isDeletedData, isList);
+		List<CCAData> test = ccaDataDao.getAll(uriInfo, projectAll, userId, isDeletedData);
 		userService = headers.addUserHeaders(userService, request.getHeader(HttpHeaders.AUTHORIZATION));
 		activityService = headers.addActivityHeader(activityService, request.getHeader(HttpHeaders.AUTHORIZATION));
-		CCADataCSVThread csvThread = new CCADataCSVThread(test, userId, notes, url, userService , activityService);
+		CCADataCSVThread csvThread = new CCADataCSVThread(test, userId, notes, url, userService, activityService);
 		Thread thread = new Thread(csvThread);
 		thread.start();
-		return ccaDataDao.getAll(uriInfo, false, userId, isDeletedData, isList);
+		return ccaDataDao.getAll(uriInfo, projectAll, userId, isDeletedData);
 	}
 
 	@Override
@@ -190,7 +190,7 @@ public class CCADataServiceImpl implements CCADataService {
 			userId = queryParams.get(CCAConstants.USER_ID).get(0);
 		}
 
-		List<CCAData> ccaDatas = ccaDataDao.getAll(uriInfo, false, userId, false, true);
+		List<CCAData> ccaDatas = ccaDataDao.getAll(uriInfo, false, userId, false);
 
 		String language = queryParams.getFirst(CCAConstants.LANGUAGE);
 		if (language == null)
@@ -449,7 +449,7 @@ public class CCADataServiceImpl implements CCADataService {
 			userId = queryParams.get(CCAConstants.USER_ID).get(0);
 		}
 
-		List<CCAData> ccaDataList = ccaDataDao.getAll(uriInfo, false, userId, false, true);
+		List<CCAData> ccaDataList = ccaDataDao.getAll(uriInfo, false, userId, false);
 
 		List<MapInfo> mapInfoList = new ArrayList<>();
 		for (CCAData ccaData : ccaDataList) {

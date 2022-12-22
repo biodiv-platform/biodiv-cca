@@ -58,8 +58,8 @@ public class CCADataDao extends AbstractDao<CCAData> {
 	 * @throws JsonProcessingException
 	 * @throws JsonMappingException
 	 */
-	public List<CCAData> getAll(UriInfo uriInfo, boolean projectAll, String userId, Boolean isDeletedData,
-			Boolean isList) throws JsonProcessingException {
+	public List<CCAData> getAll(UriInfo uriInfo, boolean projectAll, String userId, Boolean isDeletedData
+			) throws JsonProcessingException {
 
 		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
 
@@ -72,7 +72,7 @@ public class CCADataDao extends AbstractDao<CCAData> {
 				viewTemplate = queryParameter.getFirst(CCAConstants.VIEW_TEMPLATE);
 			} else
 				viewTemplate = CCAConstants.MASTER;
-			projections = BsonProjectionUtil.getProjectionsForListPage(templateDao, viewTemplate, isList);
+			projections = BsonProjectionUtil.getProjectionsForListPage(templateDao, viewTemplate);
 		}
 		if (queryParameter.containsKey("limit") && queryParameter.containsKey("offset")) {
 			// if not list page it returns all CCA field values data
@@ -99,7 +99,7 @@ public class CCADataDao extends AbstractDao<CCAData> {
 				viewTemplate = queryParameter.getFirst(CCAConstants.VIEW_TEMPLATE);
 			} else
 				viewTemplate = CCAConstants.MASTER;
-			projections = BsonProjectionUtil.getProjectionsForListPage(templateDao, viewTemplate, true);
+			projections = BsonProjectionUtil.getProjectionsForListPage(templateDao, viewTemplate);
 		}
 
 		return dbCollection.find(filters).projection(projections).skip(offset).limit(limit)
