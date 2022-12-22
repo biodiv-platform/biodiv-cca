@@ -58,8 +58,8 @@ public class CCADataDao extends AbstractDao<CCAData> {
 	 * @throws JsonProcessingException
 	 * @throws JsonMappingException
 	 */
-	public List<CCAData> getAll(UriInfo uriInfo, boolean projectAll, String userId, Boolean isDeletedData
-			) throws JsonProcessingException {
+	public List<CCAData> getAll(UriInfo uriInfo, boolean projectAll, String userId, Boolean isDeletedData)
+			throws JsonProcessingException {
 
 		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
 

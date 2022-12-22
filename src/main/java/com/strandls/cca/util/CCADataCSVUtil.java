@@ -3,7 +3,6 @@ package com.strandls.cca.util;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -11,7 +10,6 @@ import java.util.List;
 
 import com.opencsv.CSVWriter;
 import com.strandls.cca.pojo.CCAData;
-import com.strandls.user.pojo.DownloadLog;
 
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -99,23 +97,6 @@ public class CCADataCSVUtil {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
-
-	}
-
-	public DownloadLog createDownloadLogEntity(String filePath, Long authorId, String filterURL, String notes,
-			Long offSet, String status, String type) {
-		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-		DownloadLog entity = new DownloadLog();
-		entity.setAuthorId(authorId);
-		entity.setFilePath(filePath);
-		entity.setFilterUrl(filterURL);
-		entity.setNotes(notes);
-		entity.setOffsetParam(offSet);
-		entity.setCreatedOn(timestamp);
-		entity.setStatus(status);
-		entity.setType(type);
-		entity.setVersion(2L);
-		return entity;
 
 	}
 
