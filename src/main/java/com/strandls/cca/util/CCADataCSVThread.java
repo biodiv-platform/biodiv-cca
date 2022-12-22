@@ -24,7 +24,7 @@ public class CCADataCSVThread implements Runnable {
 
 	private final Logger logger = LoggerFactory.getLogger(CCADataCSVThread.class);
 	private final String modulePath = "/data-archive/listpagecsv";
-	private final String basePath = "/home/arunbala.balasubramani/app/data/biodiv";
+	private final String basePath = "/app/data/biodiv";
 	private List<CCAData> ccaData;
 	private String authorId;
 	private String notes;

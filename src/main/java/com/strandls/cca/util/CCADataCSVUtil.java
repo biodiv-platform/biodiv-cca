@@ -21,7 +21,7 @@ public class CCADataCSVUtil {
 
 	private final String[] csvCoreHeaders = { "ShortName", "userId", "created on" };
 
-	private final String csvFileDownloadPath = "/home/arunbala.balasubramani/app/data/biodiv";
+	private final String csvFileDownloadPath = "/app/data/biodiv/data-archive/listpagecsv";
 	private CSVWriter writer;
 
 	public String getCsvFileNameDownloadPath() {
