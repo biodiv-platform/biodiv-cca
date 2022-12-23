@@ -93,6 +93,8 @@ public class CCADataServiceImpl implements CCADataService {
 
 	private final Logger logger = LoggerFactory.getLogger(CCADataServiceImpl.class);
 
+	private static final String PROJECT_ALL = "projectAll";
+
 	@Inject
 	public CCADataServiceImpl() {
 		// Just for the injection purpose
@@ -115,9 +117,9 @@ public class CCADataServiceImpl implements CCADataService {
 			throws JsonProcessingException {
 		Boolean projectAll = false;
 		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
-		if (queryParameter.containsKey("projectAll")) {
+		if (queryParameter.containsKey(PROJECT_ALL)) {
 			// if not list page it returns all CCA field values data
-			projectAll = Boolean.parseBoolean(queryParameter.get("projectAll").get(0));
+			projectAll = Boolean.parseBoolean(queryParameter.get(PROJECT_ALL).get(0));
 		}
 		String userId = queryParameter.containsKey(CCAConstants.USER_ID)
 				? queryParameter.get(CCAConstants.USER_ID).get(0)
@@ -132,8 +134,8 @@ public class CCADataServiceImpl implements CCADataService {
 		String notes = "";
 		String url = "";
 		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
-		if (queryParameter.containsKey("projectAll")) {
-			projectAll = Boolean.parseBoolean(queryParameter.get("projectAll").get(0));
+		if (queryParameter.containsKey(PROJECT_ALL)) {
+			projectAll = Boolean.parseBoolean(queryParameter.get(PROJECT_ALL).get(0));
 		}
 
 		if (queryParameter.containsKey("notes")) {
@@ -151,7 +153,7 @@ public class CCADataServiceImpl implements CCADataService {
 		List<CCAData> test = ccaDataDao.getAll(uriInfo, projectAll, userId, isDeletedData);
 		userService = headers.addUserHeaders(userService, request.getHeader(HttpHeaders.AUTHORIZATION));
 		activityService = headers.addActivityHeader(activityService, request.getHeader(HttpHeaders.AUTHORIZATION));
-		CCADataCSVThread csvThread = new CCADataCSVThread(test, userId, notes, url, userService, activityService);
+		CCADataCSVThread csvThread = new CCADataCSVThread(test, notes, url, userService, activityService);
 		Thread thread = new Thread(csvThread);
 		thread.start();
 		return ccaDataDao.getAll(uriInfo, projectAll, userId, isDeletedData);

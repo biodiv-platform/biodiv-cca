@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.opencsv.CSVWriter;
+import com.strandls.cca.CCAConfig;
 import com.strandls.cca.pojo.CCAData;
 
 import org.slf4j.LoggerFactory;
@@ -18,8 +19,8 @@ public class CCADataCSVUtil {
 	private final Logger logger = LoggerFactory.getLogger(CCADataCSVUtil.class);
 
 	private final String[] csvCoreHeaders = { "ShortName", "userId", "created on" };
+	private final String csvFileDownloadPath = CCAConfig.getProperty("csv_file_download_path");
 
-	private final String csvFileDownloadPath = "/app/data/biodiv/data-archive/listpagecsv";
 	private CSVWriter writer;
 
 	public String getCsvFileNameDownloadPath() {
@@ -42,12 +43,13 @@ public class CCADataCSVUtil {
 	}
 
 	public CSVWriter getCsvWriter(String fileName) {
+
 		FileWriter outputfile = null;
 		try {
 			outputfile = new FileWriter(new File(fileName));
 			writer = new CSVWriter(outputfile);
 		} catch (IOException e) {
-			logger.error("CSVWriter error logging - " + e.getMessage());
+			logger.error("CSVWriter error logging - ", e.getMessage());
 		}
 		return writer;
 	}
@@ -60,40 +62,36 @@ public class CCADataCSVUtil {
 		try {
 			writer.close();
 		} catch (IOException e) {
-			logger.error("CSVWriter error logging - " + e.getMessage());
+			logger.error("CSVWriter error logging - ", e.getMessage());
 		}
 	}
 
 	public List<String[]> getCsvHeaders() {
-		List<String[]> headers = new ArrayList<String[]>();
 
+		List<String[]> headers = new ArrayList<>();
 		List<String> header = Arrays.asList(csvCoreHeaders);
-
 		headers.add(header.stream().toArray(String[]::new));
 		return headers;
 	}
 
 	public void insertListToCSV(List<CCAData> records, CSVWriter writer) {
 
-		List<String[]> rowSets = new ArrayList<String[]>();
-		for (CCAData record : records) {
+		List<String[]> rowSets = new ArrayList<>();
+		for (CCAData recordData : records) {
 			List<String> row = new ArrayList<String>();
-
-			addCoreHeaderValues(row, record, "test");
-
+			addCoreHeaderValues(row, recordData);
 			rowSets.add(row.stream().toArray(String[]::new));
 		}
 		writer.writeAll(rowSets);
 
 	}
 
-	private void addCoreHeaderValues(List<String> row, CCAData record, String fileName) {
+	private void addCoreHeaderValues(List<String> row, CCAData recordData) {
+
 		try {
-
-			row.add(record.getShortName());
-			row.add(record.getUserId());
-			row.add(record.getCreatedOn().toString());
-
+			row.add(recordData.getShortName());
+			row.add(recordData.getUserId());
+			row.add(recordData.getCreatedOn().toString());
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}

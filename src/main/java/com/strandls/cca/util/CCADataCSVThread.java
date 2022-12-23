@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opencsv.CSVWriter;
 import com.strandls.activity.controller.ActivitySerivceApi;
+import com.strandls.cca.CCAConfig;
 import com.strandls.cca.pojo.CCAData;
 import com.strandls.user.ApiException;
 import com.strandls.user.controller.UserServiceApi;
@@ -19,10 +20,9 @@ import com.strandls.user.pojo.DownloadLogData;
 public class CCADataCSVThread implements Runnable {
 
 	private final Logger logger = LoggerFactory.getLogger(CCADataCSVThread.class);
-	private final String modulePath = "/data-archive/listpagecsv";
-	private final String basePath = "/app/data/biodiv";
+	private final String modulePath = CCAConfig.getProperty("csv_module_path ");
+	private final String basePath = CCAConfig.getProperty("base_path");
 	private List<CCAData> ccaData;
-	private String authorId;
 	private String notes;
 	private String url;
 	private UserServiceApi userServiceApi;
@@ -32,12 +32,11 @@ public class CCADataCSVThread implements Runnable {
 		super();
 	}
 
-	public CCADataCSVThread(List<CCAData> ccaData, String authorId, String notes, String url,
-			UserServiceApi userServiceApi, ActivitySerivceApi activityService) {
+	public CCADataCSVThread(List<CCAData> ccaData, String notes, String url, UserServiceApi userServiceApi,
+			ActivitySerivceApi activityService) {
 		super();
 
 		this.ccaData = ccaData;
-		this.authorId = authorId;
 		this.notes = notes;
 		this.url = url;
 		this.userServiceApi = userServiceApi;
@@ -67,7 +66,7 @@ public class CCADataCSVThread implements Runnable {
 			activityService.ccaDownloadMail(fileName, fileType);
 
 		} catch (Exception e) {
-			logger.error("file generation failed @ " + filePath + " due to - " + e.getMessage());
+			logger.error("file generation failed @ ", filePath, " due to - ", e.getMessage());
 			fileGenerationStatus = "FAILED";
 		} finally {
 			obUtil.closeWriter();
