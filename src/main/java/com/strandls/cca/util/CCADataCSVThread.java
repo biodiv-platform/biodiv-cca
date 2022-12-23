@@ -66,7 +66,7 @@ public class CCADataCSVThread implements Runnable {
 			activityService.ccaDownloadMail(fileName, fileType);
 
 		} catch (Exception e) {
-			logger.error("file generation failed @ ", filePath, " due to - ", e.getMessage());
+			logger.error(e.getMessage());
 			fileGenerationStatus = "FAILED";
 		} finally {
 			obUtil.closeWriter();

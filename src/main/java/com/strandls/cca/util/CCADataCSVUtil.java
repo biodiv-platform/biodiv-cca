@@ -49,7 +49,7 @@ public class CCADataCSVUtil {
 			outputfile = new FileWriter(new File(fileName));
 			writer = new CSVWriter(outputfile);
 		} catch (IOException e) {
-			logger.error("CSVWriter error logging - ", e.getMessage());
+			logger.error(e.getMessage());
 		}
 		return writer;
 	}
@@ -62,7 +62,7 @@ public class CCADataCSVUtil {
 		try {
 			writer.close();
 		} catch (IOException e) {
-			logger.error("CSVWriter error logging - ", e.getMessage());
+			logger.error(e.getMessage());
 		}
 	}
 
@@ -78,7 +78,7 @@ public class CCADataCSVUtil {
 
 		List<String[]> rowSets = new ArrayList<>();
 		for (CCAData recordData : records) {
-			List<String> row = new ArrayList<String>();
+			List<String> row = new ArrayList<>();
 			addCoreHeaderValues(row, recordData);
 			rowSets.add(row.stream().toArray(String[]::new));
 		}
