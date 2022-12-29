@@ -138,17 +138,28 @@ public class CCADataServiceImpl implements CCADataService {
 	public List<CCAData> downloadCCAData(HttpServletRequest request, UriInfo uriInfo, Boolean isDeletedData)
 			throws JsonProcessingException {
 
+		Boolean projectAll = false;
+		String notes = "";
+		String url = "";
+		String shortName = "";
+
 		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
 
-		Boolean projectAll = queryParameter.containsKey(PROJECT_ALL)
-				? Boolean.parseBoolean(queryParameter.get(PROJECT_ALL).get(0))
-				: false;
+		if (queryParameter.containsKey(PROJECT_ALL)) {
+			projectAll = Boolean.parseBoolean(queryParameter.get(PROJECT_ALL).get(0));
+		}
 
-		String notes = queryParameter.containsKey(NOTES) ? queryParameter.get(NOTES).get(0) : "";
+		if (queryParameter.containsKey(NOTES)) {
+			notes = queryParameter.get(NOTES).get(0);
+		}
 
-		String shortName = queryParameter.containsKey(SHORT_NAME) ? queryParameter.get(SHORT_NAME).get(0) : "";
+		if (queryParameter.containsKey(SHORT_NAME)) {
+			shortName = queryParameter.get(SHORT_NAME).get(0);
+		}
 
-		String url = uriInfo.getRequestUri() != null ? url = uriInfo.getRequestUri().toString() : "";
+		if (uriInfo.getRequestUri() != null) {
+			url = uriInfo.getRequestUri().toString();
+		}
 
 		String userId = queryParameter.containsKey(CCAConstants.USER_ID)
 				? queryParameter.get(CCAConstants.USER_ID).get(0)

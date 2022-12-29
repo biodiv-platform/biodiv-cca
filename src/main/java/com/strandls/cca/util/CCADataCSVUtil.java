@@ -27,9 +27,9 @@ public class CCADataCSVUtil {
 
 	private CSVWriter writer;
 
-	private String CCA_ID = "CCA ID";
+	private static final String CCA_ID = "CCA ID";
 
-	private String NODE_NAME = "name";
+	private static final String NODE_NAME = "name";
 
 	public String getCsvFileNameDownloadPath() {
 
@@ -80,7 +80,7 @@ public class CCADataCSVUtil {
 
 	public List<String> getCsvHeaders(CCATemplate template) {
 
-		List<String> header = new ArrayList<String>();
+		List<String> header = new ArrayList<>();
 		// custom header
 		header.add(CCA_ID);
 
@@ -95,6 +95,7 @@ public class CCADataCSVUtil {
 
 			if (fieldNode.isArray()) {
 				for (JsonNode field : fieldNode) {
+
 					String name = field.path(NODE_NAME).asText();
 					JsonNode childNode = field.path("children");
 					header.add(name);
@@ -110,7 +111,7 @@ public class CCADataCSVUtil {
 			}
 
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		return header;
 	}
@@ -165,7 +166,7 @@ public class CCADataCSVUtil {
 
 				}
 
-				if (flag == false) {
+				if (!flag) {
 					row.add("");
 				}
 
@@ -213,7 +214,7 @@ public class CCADataCSVUtil {
 					processedValue = root.get("label").asText();
 				}
 			} catch (JsonProcessingException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 			break;
 
