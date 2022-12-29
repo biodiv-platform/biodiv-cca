@@ -13,6 +13,7 @@ import com.opencsv.CSVWriter;
 import com.strandls.activity.controller.ActivitySerivceApi;
 import com.strandls.cca.CCAConfig;
 import com.strandls.cca.pojo.CCAData;
+import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.user.ApiException;
 import com.strandls.user.controller.UserServiceApi;
 import com.strandls.user.pojo.DownloadLogData;
@@ -27,13 +28,14 @@ public class CCADataCSVThread implements Runnable {
 	private String url;
 	private UserServiceApi userServiceApi;
 	private ActivitySerivceApi activityService;
+	private CCATemplate template;
 
 	public CCADataCSVThread() {
 		super();
 	}
 
 	public CCADataCSVThread(List<CCAData> ccaData, String notes, String url, UserServiceApi userServiceApi,
-			ActivitySerivceApi activityService) {
+			ActivitySerivceApi activityService, CCATemplate template) {
 		super();
 
 		this.ccaData = ccaData;
@@ -41,6 +43,7 @@ public class CCADataCSVThread implements Runnable {
 		this.url = url;
 		this.userServiceApi = userServiceApi;
 		this.activityService = activityService;
+		this.template = template;
 
 	}
 
@@ -54,7 +57,9 @@ public class CCADataCSVThread implements Runnable {
 
 		CSVWriter writer = obUtil.getCsvWriter(filePath);
 
-		obUtil.writeIntoCSV(writer, obUtil.getCsvHeaders());
+		List<String> headers = obUtil.getCsvHeaders(template);
+
+		obUtil.writeIntoCSV(writer, headers);
 
 		String fileGenerationStatus = "Pending";
 		String fileType = "CSV";
@@ -62,7 +67,7 @@ public class CCADataCSVThread implements Runnable {
 		try {
 			fileGenerationStatus = "SUCCESS";
 
-			obUtil.insertListToCSV(ccaData, writer);
+			obUtil.insertListToCSV(ccaData, writer, headers);
 			activityService.ccaDownloadMail(fileName, fileType);
 
 		} catch (Exception e) {

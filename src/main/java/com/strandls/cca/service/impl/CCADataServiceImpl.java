@@ -91,9 +91,16 @@ public class CCADataServiceImpl implements CCADataService {
 	@Inject
 	private EncryptionUtils encryptUtils;
 
+	@Inject
+	private CCATemplateService ccaContextService;
+
 	private final Logger logger = LoggerFactory.getLogger(CCADataServiceImpl.class);
 
 	private static final String PROJECT_ALL = "projectAll";
+
+	private static final String NOTES = "notes";
+
+	private static final String SHORT_NAME = "shortName";
 
 	@Inject
 	public CCADataServiceImpl() {
@@ -130,32 +137,33 @@ public class CCADataServiceImpl implements CCADataService {
 	@Override
 	public List<CCAData> downloadCCAData(HttpServletRequest request, UriInfo uriInfo, Boolean isDeletedData)
 			throws JsonProcessingException {
-		Boolean projectAll = false;
-		String notes = "";
-		String url = "";
+
 		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
-		if (queryParameter.containsKey(PROJECT_ALL)) {
-			projectAll = Boolean.parseBoolean(queryParameter.get(PROJECT_ALL).get(0));
-		}
 
-		if (queryParameter.containsKey("notes")) {
-			notes = queryParameter.get("notes").get(0);
-		}
+		Boolean projectAll = queryParameter.containsKey(PROJECT_ALL)
+				? Boolean.parseBoolean(queryParameter.get(PROJECT_ALL).get(0))
+				: false;
 
-		if (uriInfo.getRequestUri() != null) {
-			url = uriInfo.getRequestUri().toString();
-		}
+		String notes = queryParameter.containsKey(NOTES) ? queryParameter.get(NOTES).get(0) : "";
+
+		String shortName = queryParameter.containsKey(SHORT_NAME) ? queryParameter.get(SHORT_NAME).get(0) : "";
+
+		String url = uriInfo.getRequestUri() != null ? url = uriInfo.getRequestUri().toString() : "";
 
 		String userId = queryParameter.containsKey(CCAConstants.USER_ID)
 				? queryParameter.get(CCAConstants.USER_ID).get(0)
 				: null;
 
-		List<CCAData> test = ccaDataDao.getAll(uriInfo, projectAll, userId, isDeletedData);
+		List<CCAData> ccaData = ccaDataDao.getAll(uriInfo, projectAll, userId, isDeletedData);
+		CCATemplate template = ccaContextService.getCCAByShortName(shortName, null, false);
+
 		userService = headers.addUserHeaders(userService, request.getHeader(HttpHeaders.AUTHORIZATION));
 		activityService = headers.addActivityHeader(activityService, request.getHeader(HttpHeaders.AUTHORIZATION));
-		CCADataCSVThread csvThread = new CCADataCSVThread(test, notes, url, userService, activityService);
+
+		CCADataCSVThread csvThread = new CCADataCSVThread(ccaData, notes, url, userService, activityService, template);
 		Thread thread = new Thread(csvThread);
 		thread.start();
+
 		return ccaDataDao.getAll(uriInfo, projectAll, userId, isDeletedData);
 	}
 
