@@ -57,9 +57,11 @@ public class CCADataCSVThread implements Runnable {
 
 		CSVWriter writer = obUtil.getCsvWriter(filePath);
 
-		List<String> headers = obUtil.getCsvHeaders(template);
+		List<String> headerNames = obUtil.getCsvHeaders(template, "name");
 
-		obUtil.writeIntoCSV(writer, headers);
+		List<String> headerFieldIds = obUtil.getCsvHeaders(template, "fieldId");
+
+		obUtil.writeIntoCSV(writer, headerNames);
 
 		String fileGenerationStatus = "Pending";
 		String fileType = "CSV";
@@ -67,7 +69,7 @@ public class CCADataCSVThread implements Runnable {
 		try {
 			fileGenerationStatus = "SUCCESS";
 
-			obUtil.insertListToCSV(ccaData, writer, headers);
+			obUtil.insertListToCSV(ccaData, writer, headerFieldIds);
 			activityService.ccaDownloadMail(fileName, fileType);
 
 		} catch (Exception e) {

@@ -29,7 +29,9 @@ public class CCADataCSVUtil {
 
 	private static final String CCA_ID = "CCA ID";
 
-	private static final String NODE_NAME = "name";
+	private static final String NAME = "name";
+
+	private static final String LOCATION_ID = "b426d762-1d79-4475-bd0c-a0a310c3f457";
 
 	public String getCsvFileNameDownloadPath() {
 
@@ -78,7 +80,7 @@ public class CCADataCSVUtil {
 		}
 	}
 
-	public List<String> getCsvHeaders(CCATemplate template) {
+	public List<String> getCsvHeaders(CCATemplate template, String type) {
 
 		List<String> header = new ArrayList<>();
 		// custom header
@@ -96,13 +98,14 @@ public class CCADataCSVUtil {
 			if (fieldNode.isArray()) {
 				for (JsonNode field : fieldNode) {
 
-					String name = field.path(NODE_NAME).asText();
+					String name = type == NAME ? field.path(NAME).asText() : field.path("fieldId").asText();
 					JsonNode childNode = field.path("children");
 					header.add(name);
 
 					if (childNode.isArray()) {
 						for (JsonNode child : childNode) {
-							String childName = child.path(NODE_NAME).asText();
+							String childName = type == NAME ? child.path(NAME).asText()
+									: child.path("fieldId").asText();
 							header.add(childName);
 
 						}
@@ -141,16 +144,16 @@ public class CCADataCSVUtil {
 
 			for (String header : headers) {
 
-				Boolean flag = false;
+				Boolean hasRecord = false;
 				if (header.equals(CCA_ID)) {
 					row.add(recordData.getId().toString());
-					flag = true;
-				} else if (header.equals("Location")) {
+					hasRecord = true;
+				} else if (header.equals(LOCATION_ID)) {
 					row.add(recordData.getCentroid().toString());
-					flag = true;
+					hasRecord = true;
 				} else {
 					for (int i = 0; i < root.size(); i++) {
-						String name = root.get(i).get(NODE_NAME).asText();
+						String name = root.get(i).get("fieldId").asText();
 
 						if (name.equals(header)) {
 							String value = stripHtmlTags(root.get(i).get("value").toString());
@@ -160,13 +163,13 @@ public class CCADataCSVUtil {
 
 							}
 							row.add(value);
-							flag = true;
+							hasRecord = true;
 						}
 					}
 
 				}
 
-				if (!flag) {
+				if (!hasRecord) {
 					row.add("");
 				}
 
@@ -200,18 +203,23 @@ public class CCADataCSVUtil {
 		case FieldConstants.SINGLE_SELECT_RADIO:
 		case FieldConstants.SINGLE_SELECT_DROPDOWN:
 		case FieldConstants.MULTI_SELECT_CHECKBOX:
+		case FieldConstants.FILE:
 
 			try {
 				root = om.readTree(value);
 				String nodeType = root.getNodeType().toString();
 				if (nodeType.equals("ARRAY")) {
 					for (int index = 0; index < root.size(); index++) {
-						String label = root.get(index).get("label").asText();
-						processedValue = index == 0 ? label : processedValue + " | " + label;
+
+						String label = type.equals(FieldConstants.FILE) ? root.get(index).get("path").asText()
+								: root.get(index).get("label").asText();
+
+						processedValue = index == 0 ? label : processedValue + " || " + label;
 					}
 
 				} else {
-					processedValue = root.get("label").asText();
+					processedValue = type.equals(FieldConstants.FILE) ? root.get("path").asText()
+							: root.get("label").asText();
 				}
 			} catch (JsonProcessingException e) {
 				logger.error(e.getMessage());
