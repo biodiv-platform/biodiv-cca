@@ -32,6 +32,8 @@ public class CCADataCSVUtil {
 	private static final String NAME = "name";
 
 	private static final String LOCATION_ID = "b426d762-1d79-4475-bd0c-a0a310c3f457";
+	
+	private static final String FIELD_ID = "fieldId";
 
 	public String getCsvFileNameDownloadPath() {
 
@@ -98,14 +100,14 @@ public class CCADataCSVUtil {
 			if (fieldNode.isArray()) {
 				for (JsonNode field : fieldNode) {
 
-					String name = type == NAME ? field.path(NAME).asText() : field.path("fieldId").asText();
+					String name = type.equals(NAME) ? field.path(NAME).asText() : field.path(FIELD_ID).asText();
 					JsonNode childNode = field.path("children");
 					header.add(name);
 
 					if (childNode.isArray()) {
 						for (JsonNode child : childNode) {
-							String childName = type == NAME ? child.path(NAME).asText()
-									: child.path("fieldId").asText();
+							String childName = type.equals(NAME) ? child.path(NAME).asText()
+									: child.path(FIELD_ID).asText();
 							header.add(childName);
 
 						}
@@ -153,7 +155,7 @@ public class CCADataCSVUtil {
 					hasRecord = true;
 				} else {
 					for (int i = 0; i < root.size(); i++) {
-						String name = root.get(i).get("fieldId").asText();
+						String name = root.get(i).get(FIELD_ID).asText();
 
 						if (name.equals(header)) {
 							String value = stripHtmlTags(root.get(i).get("value").toString());
