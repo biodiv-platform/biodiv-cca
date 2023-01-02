@@ -29,10 +29,8 @@ public class CCADataCSVUtil {
 
 	private static final String CCA_ID = "CCA ID";
 
-	private static final String NAME = "name";
-
 	private static final String LOCATION_ID = "b426d762-1d79-4475-bd0c-a0a310c3f457";
-	
+
 	private static final String FIELD_ID = "fieldId";
 
 	public String getCsvFileNameDownloadPath() {
@@ -98,27 +96,32 @@ public class CCADataCSVUtil {
 			JsonNode fieldNode = root.path("fields");
 
 			if (fieldNode.isArray()) {
-				for (JsonNode field : fieldNode) {
+				proceesArray(fieldNode, header, type);
 
-					String name = type.equals(NAME) ? field.path(NAME).asText() : field.path(FIELD_ID).asText();
-					JsonNode childNode = field.path("children");
-					header.add(name);
-
-					if (childNode.isArray()) {
-						for (JsonNode child : childNode) {
-							String childName = type.equals(NAME) ? child.path(NAME).asText()
-									: child.path(FIELD_ID).asText();
-							header.add(childName);
-
-						}
-					}
-				}
 			}
 
 		} catch (JsonProcessingException e) {
 			logger.error(e.getMessage());
 		}
 		return header;
+	}
+
+	public void proceesArray(JsonNode fieldNode, List<String> header, String type) {
+		for (JsonNode field : fieldNode) {
+
+			String name = field.path(type).asText();
+			JsonNode childNode = field.path("children");
+			header.add(name);
+
+			if (childNode.isArray()) {
+				for (JsonNode child : childNode) {
+					String childName = child.path(type).asText();
+					header.add(childName);
+
+				}
+			}
+		}
+
 	}
 
 	public void insertListToCSV(List<CCAData> records, CSVWriter writer, List<String> headers) {
@@ -160,10 +163,7 @@ public class CCADataCSVUtil {
 						if (name.equals(header)) {
 							String value = stripHtmlTags(root.get(i).get("value").toString());
 							String type = root.get(i).get("type").asText();
-							if (!type.equals(FieldConstants.TEXT) || !type.equals(FieldConstants.NUMBER)) {
-								value = processValue(value, type);
-
-							}
+							value = processValue(value, type);
 							row.add(value);
 							hasRecord = true;
 						}
@@ -189,8 +189,7 @@ public class CCADataCSVUtil {
 	}
 
 	private String processValue(String value, String type) {
-		ObjectMapper om = new ObjectMapper();
-		JsonNode root;
+
 		String processedValue = "";
 		switch (type) {
 
@@ -205,27 +204,10 @@ public class CCADataCSVUtil {
 		case FieldConstants.SINGLE_SELECT_RADIO:
 		case FieldConstants.SINGLE_SELECT_DROPDOWN:
 		case FieldConstants.MULTI_SELECT_CHECKBOX:
+			processedValue = processFieldValues("label", value, processedValue);
+			break;
 		case FieldConstants.FILE:
-
-			try {
-				root = om.readTree(value);
-				String nodeType = root.getNodeType().toString();
-				if (nodeType.equals("ARRAY")) {
-					for (int index = 0; index < root.size(); index++) {
-
-						String label = type.equals(FieldConstants.FILE) ? root.get(index).get("path").asText()
-								: root.get(index).get("label").asText();
-
-						processedValue = index == 0 ? label : processedValue + " || " + label;
-					}
-
-				} else {
-					processedValue = type.equals(FieldConstants.FILE) ? root.get("path").asText()
-							: root.get("label").asText();
-				}
-			} catch (JsonProcessingException e) {
-				logger.error(e.getMessage());
-			}
+			processedValue = processFieldValues("path", value, processedValue);
 			break;
 
 		default:
@@ -235,6 +217,32 @@ public class CCADataCSVUtil {
 		}
 
 		return processedValue;
+	}
+
+	private String processFieldValues(String typeValue, String value, String processedValue) {
+		ObjectMapper om = new ObjectMapper();
+		JsonNode root;
+
+		try {
+			root = om.readTree(value);
+			String nodeType = root.getNodeType().toString();
+			if (nodeType.equalsIgnoreCase("ARRAY")) {
+				for (int index = 0; index < root.size(); index++) {
+
+					String label = root.get(index).get(typeValue).asText();
+
+					processedValue = index == 0 ? label : processedValue + " || " + label;
+				}
+
+			} else {
+				processedValue = root.get(typeValue).asText();
+			}
+		} catch (JsonProcessingException e) {
+			logger.error(e.getMessage());
+		}
+
+		return processedValue;
+
 	}
 
 }
