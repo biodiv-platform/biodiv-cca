@@ -171,7 +171,7 @@ public class CCADataCSVUtil {
 
 				}
 
-				if (!hasRecord) {
+				if (Boolean.FALSE.equals(hasRecord)) {
 					row.add("");
 				}
 

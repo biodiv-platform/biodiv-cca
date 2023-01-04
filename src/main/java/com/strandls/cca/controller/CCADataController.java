@@ -195,7 +195,7 @@ public class CCADataController {
 		}
 	}
 
-	@GET
+	@POST
 	@Path("/all/download")
 
 	@Produces(MediaType.APPLICATION_JSON)

@@ -62,7 +62,6 @@ import com.strandls.cca.util.CCADataCSVThread;
 import com.strandls.cca.util.CCAUtil;
 import com.strandls.cca.util.EncryptionUtils;
 import com.strandls.user.controller.UserServiceApi;
-
 import com.strandls.cca.Headers;
 
 public class CCADataServiceImpl implements CCADataService {
