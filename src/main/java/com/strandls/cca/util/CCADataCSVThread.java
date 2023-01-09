@@ -21,7 +21,7 @@ import com.strandls.user.pojo.DownloadLogData;
 public class CCADataCSVThread implements Runnable {
 
 	private final Logger logger = LoggerFactory.getLogger(CCADataCSVThread.class);
-	private final String modulePath = CCAConfig.getProperty("csv_module_path ");
+	private final String modulePath = CCAConfig.getProperty("csv_module_path");
 	private final String basePath = CCAConfig.getProperty("base_path");
 	private List<CCAData> ccaData;
 	private String notes;
@@ -53,7 +53,7 @@ public class CCADataCSVThread implements Runnable {
 		CCADataCSVUtil obUtil = new CCADataCSVUtil();
 		String fileName = obUtil.getCsvFileNameDownloadPath();
 
-		String filePath = basePath + File.separator + fileName;
+		String filePath = basePath + modulePath + File.separator + fileName;
 
 		CSVWriter writer = obUtil.getCsvWriter(filePath);
 
