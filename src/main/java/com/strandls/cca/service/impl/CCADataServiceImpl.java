@@ -58,10 +58,10 @@ import com.strandls.cca.pojo.response.SubsetCCADataList;
 import com.strandls.cca.service.CCADataService;
 import com.strandls.cca.service.CCATemplateService;
 import com.strandls.cca.util.AuthorizationUtil;
+import com.strandls.cca.util.CCADataCSVThread;
 import com.strandls.cca.util.CCAUtil;
 import com.strandls.cca.util.EncryptionUtils;
 import com.strandls.user.controller.UserServiceApi;
-
 import com.strandls.cca.Headers;
 
 public class CCADataServiceImpl implements CCADataService {
@@ -90,7 +90,16 @@ public class CCADataServiceImpl implements CCADataService {
 	@Inject
 	private EncryptionUtils encryptUtils;
 
+	@Inject
+	private CCATemplateService ccaContextService;
+
 	private final Logger logger = LoggerFactory.getLogger(CCADataServiceImpl.class);
+
+	private static final String PROJECT_ALL = "projectAll";
+
+	private static final String NOTES = "notes";
+
+	private static final String SHORT_NAME = "shortName";
 
 	@Inject
 	public CCADataServiceImpl() {
@@ -112,11 +121,60 @@ public class CCADataServiceImpl implements CCADataService {
 	@Override
 	public List<CCAData> getAllCCAData(HttpServletRequest request, UriInfo uriInfo, Boolean isDeletedData)
 			throws JsonProcessingException {
+		Boolean projectAll = false;
 		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
+		if (queryParameter.containsKey(PROJECT_ALL)) {
+			// if not list page it returns all CCA field values data
+			projectAll = Boolean.parseBoolean(queryParameter.get(PROJECT_ALL).get(0));
+		}
 		String userId = queryParameter.containsKey(CCAConstants.USER_ID)
 				? queryParameter.get(CCAConstants.USER_ID).get(0)
 				: null;
-		return ccaDataDao.getAll(uriInfo, false, userId, isDeletedData);
+		return ccaDataDao.getAll(uriInfo, projectAll, userId, isDeletedData);
+	}
+
+	@Override
+	public List<CCAData> downloadCCAData(HttpServletRequest request, UriInfo uriInfo, Boolean isDeletedData)
+			throws JsonProcessingException {
+
+		Boolean projectAll = false;
+		String notes = "";
+		String url = "";
+		String shortName = "";
+
+		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
+
+		if (queryParameter.containsKey(PROJECT_ALL)) {
+			projectAll = Boolean.parseBoolean(queryParameter.get(PROJECT_ALL).get(0));
+		}
+
+		if (queryParameter.containsKey(NOTES)) {
+			notes = queryParameter.get(NOTES).get(0);
+		}
+
+		if (queryParameter.containsKey(SHORT_NAME)) {
+			shortName = queryParameter.get(SHORT_NAME).get(0);
+		}
+
+		if (uriInfo.getRequestUri() != null) {
+			url = uriInfo.getRequestUri().toString();
+		}
+
+		String userId = queryParameter.containsKey(CCAConstants.USER_ID)
+				? queryParameter.get(CCAConstants.USER_ID).get(0)
+				: null;
+
+		List<CCAData> ccaData = ccaDataDao.getAll(uriInfo, projectAll, userId, isDeletedData);
+		CCATemplate template = ccaContextService.getCCAByShortName(shortName, null, false);
+
+		userService = headers.addUserHeaders(userService, request.getHeader(HttpHeaders.AUTHORIZATION));
+		activityService = headers.addActivityHeader(activityService, request.getHeader(HttpHeaders.AUTHORIZATION));
+
+		CCADataCSVThread csvThread = new CCADataCSVThread(ccaData, notes, url, userService, activityService, template);
+		Thread thread = new Thread(csvThread);
+		thread.start();
+
+		return ccaDataDao.getAll(uriInfo, projectAll, userId, isDeletedData);
 	}
 
 	@Override
@@ -286,7 +344,6 @@ public class CCADataServiceImpl implements CCADataService {
 		dataInMem = dataInMem.overrideFieldData(request, ccaData, logActivities, type, getSummaryInfo(dataInMem),
 				dataInMem, userService);
 
-
 		dataInMem.reComputeCentroid();
 		return ccaDataDao.replaceOne(dataInMem);
 	}
@@ -372,7 +429,6 @@ public class CCADataServiceImpl implements CCADataService {
 	@Override
 	public Map<String, Object> getCCAPageData(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly)
 			throws JsonProcessingException {
-
 		String userId = null;
 		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
 		if (myListOnly) {

@@ -43,7 +43,7 @@ public class BsonProjectionUtil {
 		Iterator<CCAField> it = ccaTemplate.iterator();
 		while (it.hasNext()) {
 			CCAField ccaField = it.next();
-			if(ccaField.getType().equals(FieldType.FILE)) {
+			if (ccaField.getType().equals(FieldType.FILE)) {
 				String fieldName = "ccaFieldValues" + "." + ccaField.getFieldId();
 				fieldNames.add(fieldName);
 			} else if (ccaField.getIsSummaryField().booleanValue()) {
