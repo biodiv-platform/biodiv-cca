@@ -109,7 +109,6 @@ public class CCADataController {
 
 	@GET
 	@Path("/myList")
-	@ValidateUser
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get the cca data contributed by me", notes = "Returns CCA data contributed by me", response = AggregationResponse.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
