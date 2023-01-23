@@ -108,14 +108,15 @@ public class CCADataController {
 	}
 
 	@GET
-	@Path("/myList")
+	@Path("/myList/{userId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get the cca data contributed by me", notes = "Returns CCA data contributed by me", response = AggregationResponse.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
-	public Response getMyCCADataList(@Context HttpServletRequest request, @Context UriInfo uriInfo)
-			throws CCAException {
+	public Response getMyCCADataList(@Context HttpServletRequest request, @PathParam("userId") Long userId,
+			@Context UriInfo uriInfo) throws CCAException {
 		try {
-			return Response.status(Status.OK).entity(ccaDataService.getMyCCADataList(request, uriInfo)).build();
+			return Response.status(Status.OK)
+					.entity(ccaDataService.getMyCCADataList(request, uriInfo, userId.toString())).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
@@ -129,7 +130,8 @@ public class CCADataController {
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
 	public Response getCCADataList(@Context HttpServletRequest request, @Context UriInfo uriInfo) throws CCAException {
 		try {
-			return Response.status(Status.OK).entity(ccaDataService.getCCADataList(request, uriInfo, false)).build();
+			return Response.status(Status.OK).entity(ccaDataService.getCCADataList(request, uriInfo, false, null))
+					.build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}

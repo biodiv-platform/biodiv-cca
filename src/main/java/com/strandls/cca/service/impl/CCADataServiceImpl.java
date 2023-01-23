@@ -192,16 +192,16 @@ public class CCADataServiceImpl implements CCADataService {
 	}
 
 	@Override
-	public AggregationResponse getMyCCADataList(HttpServletRequest request, UriInfo uriInfo)
+	public AggregationResponse getMyCCADataList(HttpServletRequest request, UriInfo uriInfo, String userId)
 			throws JsonProcessingException {
-		return getCCADataList(request, uriInfo, false);
+		return getCCADataList(request, uriInfo, false, userId);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public AggregationResponse getCCADataList(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly)
-			throws JsonProcessingException {
-		String userId = null;
+	public AggregationResponse getCCADataList(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly,
+			String userId) throws JsonProcessingException {
+
 		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
 		if (myListOnly) {
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
