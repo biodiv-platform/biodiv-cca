@@ -194,7 +194,7 @@ public class CCADataServiceImpl implements CCADataService {
 	@Override
 	public AggregationResponse getMyCCADataList(HttpServletRequest request, UriInfo uriInfo)
 			throws JsonProcessingException {
-		return getCCADataList(request, uriInfo, true);
+		return getCCADataList(request, uriInfo, false);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
