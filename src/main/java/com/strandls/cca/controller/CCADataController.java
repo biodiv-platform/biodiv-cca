@@ -141,11 +141,11 @@ public class CCADataController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get the cca data", notes = "Returns CCA data fields", response = AggregationResponse.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
-	public Response getAggregateCCADataList(@Context HttpServletRequest request, @Context UriInfo uriInfo)
-			throws CCAException {
+	public Response getAggregateCCADataList(@QueryParam("q") String query, @Context HttpServletRequest request,
+			@Context UriInfo uriInfo) throws CCAException {
 		try {
-			return Response.status(Status.OK).entity(ccaDataService.getCCADataAggregation(request, uriInfo, false))
-					.build();
+			return Response.status(Status.OK)
+					.entity(ccaDataService.getCCADataAggregation(query, request, uriInfo, false)).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
@@ -454,6 +454,34 @@ public class CCADataController {
 
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+
+	@GET
+	@Path("/search")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Search CCA data", notes = "Returns CCA data based on the search query", response = CCAData.class, responseContainer = "List")
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
+	public Response searchCCAData(@QueryParam("q") String query, @Context HttpServletRequest request,
+			@Context UriInfo uriInfo) throws CCAException {
+		try {
+			return Response.status(Status.OK).entity(ccaDataService.searchCCAData(query, request, uriInfo)).build();
+		} catch (Exception e) {
+			throw new CCAException(e);
+		}
+	}
+
+	@GET
+	@Path("/search/map")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Search CCA data", notes = "Returns CCA data based on the search query", response = CCAData.class, responseContainer = "List")
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
+	public Response searchmapCCAData(@QueryParam("q") String query, @Context HttpServletRequest request,
+			@Context UriInfo uriInfo) throws CCAException {
+		try {
+			return Response.status(Status.OK).entity(ccaDataService.searchMapCCAData(query, request, uriInfo)).build();
+		} catch (Exception e) {
+			throw new CCAException(e);
 		}
 	}
 
