@@ -41,4 +41,8 @@ public interface CCATemplateService {
 
 	public Activity addComment(HttpServletRequest request, Long userId, CommentLoggingData commentData);
 
+
+
+	List<String> getFieldIds(String shortName, String language);
+
 }
