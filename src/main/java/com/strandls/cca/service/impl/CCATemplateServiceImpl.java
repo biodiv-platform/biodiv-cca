@@ -327,4 +327,24 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 		return activity;
 	}
 
+	
+	
+	@Override
+	public List<String> getFieldIds(String shortName, String language) {
+		if (shortName == null || "".equals(shortName))
+			shortName = "Long";
+
+		language="";
+		CCATemplate ccaTemplate = getCCAByShortName(shortName, language, false);
+		Iterator<CCAField> it = ccaTemplate.iterator();
+		List<String> ccaFields = new ArrayList<>();
+		while (it.hasNext()) {
+			CCAField ccaField = it.next();
+				ccaFields.add(ccaField.getFieldId());
+		}
+		return ccaFields;
+	}
+
+	
+
 }
