@@ -1,11 +1,11 @@
 package com.strandls.cca.dao;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 
@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 import com.strandls.cca.CCAConstants;
@@ -37,12 +38,18 @@ public class CCADataDao extends AbstractDao<CCAData> {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public AggregateIterable<Map> getAggregation(UriInfo uriInfo, String userId) throws JsonProcessingException {
+	public AggregateIterable<Map> getAggregation(UriInfo uriInfo, String userId, Bson searchQuery)
+			throws JsonProcessingException {
+
 		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
 
-		Bson facet = CCAFilterUtil.getFacetListForFilterableFields(queryParameter, templateDao, objectMapper, userId);
+		// Create the facet pipeline
+		List<Bson> facetPipeline = new ArrayList<>();
+		facetPipeline.add(Aggregates.match(searchQuery));
+		facetPipeline
+				.add(CCAFilterUtil.getFacetListForFilterableFields(queryParameter, templateDao, objectMapper, userId));
+		return dbCollection.aggregate(facetPipeline, Map.class);
 
-		return dbCollection.aggregate(Arrays.asList(facet), Map.class);
 	}
 
 	/**
@@ -126,6 +133,35 @@ public class CCADataDao extends AbstractDao<CCAData> {
 		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
 		Bson filters = CCAFilterUtil.getAllFilters(queryParameter, templateDao, objectMapper, null, false);
 		return dbCollection.countDocuments(filters);
+	}
+
+	public List<CCAData> searchCCAData(String query, HttpServletRequest request, UriInfo uriInfo, Bson searchQuery,
+			int limit, int offset) throws JsonProcessingException {
+		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
+		Boolean isDeletedData = false; // Set the appropriate value for isDeletedData
+
+		Bson filters = CCAFilterUtil.getAllFilters(queryParameter, templateDao, objectMapper, null, false);
+
+		Bson projections = BsonProjectionUtil.getProjectionsForListPage(templateDao, CCAConstants.MASTER);
+		Bson intersectionQuery = Filters.and(filters, searchQuery); // Perform intersection of filters and searchQuery
+
+		// Perform the search query
+		return dbCollection.find(intersectionQuery).projection(projections).skip(offset).limit(limit)
+				.into(new ArrayList<>());
+	}
+
+	public List<CCAData> searchMapCCAData(String query, HttpServletRequest request, UriInfo uriInfo, Bson searchQuery)
+			throws JsonProcessingException {
+		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
+		Boolean isDeletedData = false; // Set the appropriate value for isDeletedData
+
+		Bson filters = CCAFilterUtil.getAllFilters(queryParameter, templateDao, objectMapper, null, false);
+
+		Bson projections = BsonProjectionUtil.getProjectionsForListPage(templateDao, CCAConstants.MASTER);
+		Bson intersectionQuery = Filters.and(filters, searchQuery); // Perform intersection of filters and searchQuery
+
+		// Perform the search query
+		return dbCollection.find(intersectionQuery).projection(projections).into(new ArrayList<>());
 	}
 
 }
