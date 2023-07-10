@@ -233,30 +233,29 @@ public class CCADataServiceImpl implements CCADataService {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public Map<String, Object> getCCADataAggregation(String query,HttpServletRequest request, UriInfo uriInfo, boolean myListOnly)
+	public Map<String, Object> getCCADataAggregation(String q,HttpServletRequest request, UriInfo uriInfo, boolean myListOnly)
 			throws JsonProcessingException {
 		
 		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
     	// Use "query" as the variable name for the query parameter
-        query = queryParams.getFirst("query");
+        String searchTerm = queryParams.getFirst("query");
         
         // Set the default value for the query parameter if not provided
-        if (query == null) {
-            query = "";
+        if (searchTerm == null) {
+        	searchTerm = "";
         }
 
-        Bson searchQuery = new Document();
         List<String> fieldIds = ccaTemplateService.getFieldIds("", "");
-
+        List<String> valueFields=ccaTemplateService.getValueFields(fieldIds);
+        
         // Add multiple fields to the search query
         List<Bson> fieldQueries = new ArrayList<>();
-
-        for (String fieldId : fieldIds) {
-            String valueField = "ccaFieldValues." + fieldId + ".value";
-            Bson fieldQuery = Filters.regex(valueField, query, "i");
+        for (String valueField : valueFields) {
+            Bson fieldQuery = Filters.regex(valueField, searchTerm, "i");
             fieldQueries.add(fieldQuery);
         }
-        searchQuery = Filters.or(fieldQueries);
+        
+        Bson searchQuery = Filters.or(fieldQueries);
 		
 		String userId = null;
 		if (myListOnly) {
@@ -266,9 +265,6 @@ public class CCADataServiceImpl implements CCADataService {
 			userId = queryParams.get(CCAConstants.USER_ID).get(0);
 		}
 
-		String language = queryParams.getFirst(CCAConstants.LANGUAGE);
-		if (language == null)
-			language = CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE);
 
 		AggregateIterable<Map> aggregation = ccaDataDao.getAggregation(uriInfo, userId, searchQuery);
 		return aggregation.first();
@@ -457,7 +453,6 @@ public class CCADataServiceImpl implements CCADataService {
 			throws JsonProcessingException {
 		String userId = null;
 		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
-		System.out.println(queryParams);
 		if (myListOnly) {
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			userId = profile.getId();
@@ -475,7 +470,7 @@ public class CCADataServiceImpl implements CCADataService {
 			language = CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE);
 
 		List<SubsetCCADataList> list = mergeToSubsetCCADataList(ccaDatas, language);
-		Map<String, Object> res = new HashMap<String, Object>();
+		Map<String, Object> res = new HashMap<>();
 
 		res.put("totalCount", ccaDataDao.totalDataCount(uriInfo));
 		res.put("data", list);
@@ -727,26 +722,26 @@ public class CCADataServiceImpl implements CCADataService {
 	        int limit = Integer.parseInt(queryParams.getOrDefault("limit", Collections.singletonList("100")).get(0));
 
 	        // Use "query" as the variable name for the query parameter
-	        query = queryParams.getFirst("query");
+	        String searchTerm = queryParams.getFirst("query");
 
 	        // Set the default value for the query parameter if not provided
-	        if (query == null) {
-	            query = "";
+	        if (searchTerm == null) {
+	        	searchTerm = "";
 	        }
 
-	        Bson searchQuery = new Document();
 	        List<String> fieldIds = ccaTemplateService.getFieldIds("", "");
-
+	        List<String> valueFields=ccaTemplateService.getValueFields(fieldIds);
+	        
 	        // Add multiple fields to the search query
 	        List<Bson> fieldQueries = new ArrayList<>();
-
-	        for (String fieldId : fieldIds) {
-	            String valueField = "ccaFieldValues." + fieldId + ".value";
-	            Bson fieldQuery = Filters.regex(valueField, query, "i");
+	        for (String valueField : valueFields) {
+	            Bson fieldQuery = Filters.regex(valueField, searchTerm, "i");
 	            fieldQueries.add(fieldQuery);
 	        }
-	        searchQuery = Filters.or(fieldQueries);
-	        List<CCAData> ccaData = ccaDataDao.searchCCAData(query, request, uriInfo, searchQuery, limit, offset);
+	        
+	        Bson searchQuery = Filters.or(fieldQueries);
+	        
+	        List<CCAData> ccaData = ccaDataDao.searchCCAData( uriInfo, searchQuery, limit, offset);
 
 	        List<SubsetCCADataList> list = mergeToSubsetCCADataList(ccaData,
 	                CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE));
@@ -758,9 +753,9 @@ public class CCADataServiceImpl implements CCADataService {
 	        // Return the search results as a JSON response
 	        return res;
 	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
-	    return null;
+			logger.error(e.getMessage());
+		}
+	    return Collections.emptyMap();
 	}
 
 
@@ -773,26 +768,27 @@ public class CCADataServiceImpl implements CCADataService {
 	    try {
 	    	MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
 	    	// Use "query" as the variable name for the query parameter
-	        query = queryParams.getFirst("query");
+	        String searchTerm = queryParams.getFirst("query");
 	        
 	        // Set the default value for the query parameter if not provided
-	        if (query == null) {
-	            query = "";
+	        if (searchTerm == null) {
+	        	searchTerm = "";
 	        }
 
-	        Bson searchQuery = new Document();
 	        List<String> fieldIds = ccaTemplateService.getFieldIds("", "");
+	        List<String> valueFields=ccaTemplateService.getValueFields(fieldIds);
 
 	        // Add multiple fields to the search query
 	        List<Bson> fieldQueries = new ArrayList<>();
-	        for (String fieldId : fieldIds) {
-	            String valueField = "ccaFieldValues." + fieldId + ".value";
-	            Bson fieldQuery = Filters.regex(valueField, query, "i");
+	        for (String valueField : valueFields) {
+	            Bson fieldQuery = Filters.regex(valueField, searchTerm, "i");
 	            fieldQueries.add(fieldQuery);
 	        }
-	        searchQuery = Filters.or(fieldQueries);
 	        
-	        List<CCAData> ccaData = ccaDataDao.searchMapCCAData(query, request, uriInfo,searchQuery);
+	        
+	        Bson searchQuery = Filters.or(fieldQueries);
+	        
+	        List<CCAData> ccaData = ccaDataDao.searchMapCCAData( uriInfo,searchQuery);
 	        List<MapInfo> mapInfoList = new ArrayList<>();
 			for (CCAData ccadata : ccaData) {
 				if (ccadata.getCentroid().size() >= 2) {
@@ -800,11 +796,11 @@ public class CCADataServiceImpl implements CCADataService {
 							.add(new MapInfo(ccadata.getId(), ccadata.getCentroid().get(1), ccadata.getCentroid().get(0)));
 				}
 			}
-		      return mapInfoList;		        
+		      return mapInfoList;
 	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
-	    return null;
+			logger.error(e.getMessage());
+		}
+	    return Collections.emptyList();
 	}
 
 }
