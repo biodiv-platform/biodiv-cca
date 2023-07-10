@@ -141,7 +141,7 @@ public class CCADataController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get the cca data", notes = "Returns CCA data fields", response = AggregationResponse.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
-	public Response getAggregateCCADataList(@QueryParam("q") String query, @Context HttpServletRequest request,
+	public Response getAggregateCCADataList(@QueryParam("query") String query, @Context HttpServletRequest request,
 			@Context UriInfo uriInfo) throws CCAException {
 		try {
 			return Response.status(Status.OK)
@@ -462,7 +462,7 @@ public class CCADataController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Search CCA data", notes = "Returns CCA data based on the search query", response = CCAData.class, responseContainer = "List")
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
-	public Response searchCCAData(@QueryParam("q") String query, @Context HttpServletRequest request,
+	public Response searchCCAData(@QueryParam("query") String query, @Context HttpServletRequest request,
 			@Context UriInfo uriInfo) throws CCAException {
 		try {
 			return Response.status(Status.OK).entity(ccaDataService.searchCCAData(query, request, uriInfo)).build();
@@ -476,7 +476,7 @@ public class CCADataController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Search CCA data", notes = "Returns CCA data based on the search query", response = CCAData.class, responseContainer = "List")
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
-	public Response searchmapCCAData(@QueryParam("q") String query, @Context HttpServletRequest request,
+	public Response searchmapCCAData(@QueryParam("query") String query, @Context HttpServletRequest request,
 			@Context UriInfo uriInfo) throws CCAException {
 		try {
 			return Response.status(Status.OK).entity(ccaDataService.searchMapCCAData(query, request, uriInfo)).build();

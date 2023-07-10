@@ -17,3 +17,5 @@ out/
 .java-version
 deployOnVenus.sh
 @ci/maven-toolbox
+/.apt_generated/
+/.apt_generated_tests/

@@ -233,16 +233,14 @@ public class CCADataServiceImpl implements CCADataService {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public Map<String, Object> getCCADataAggregation(String q,HttpServletRequest request, UriInfo uriInfo, boolean myListOnly)
+	public Map<String, Object> getCCADataAggregation(String query,HttpServletRequest request, UriInfo uriInfo, boolean myListOnly)
 			throws JsonProcessingException {
 		
 		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
-    	// Use "query" as the variable name for the query parameter
-        String searchTerm = queryParams.getFirst("query");
         
         // Set the default value for the query parameter if not provided
-        if (searchTerm == null) {
-        	searchTerm = "";
+        if (query == null) {
+        	query = "";
         }
 
         List<String> fieldIds = ccaTemplateService.getFieldIds("", "");
@@ -251,7 +249,7 @@ public class CCADataServiceImpl implements CCADataService {
         // Add multiple fields to the search query
         List<Bson> fieldQueries = new ArrayList<>();
         for (String valueField : valueFields) {
-            Bson fieldQuery = Filters.regex(valueField, searchTerm, "i");
+            Bson fieldQuery = Filters.regex(valueField, query, "i");
             fieldQueries.add(fieldQuery);
         }
         
@@ -721,12 +719,10 @@ public class CCADataServiceImpl implements CCADataService {
 	        int offset = Integer.parseInt(queryParams.getOrDefault("offset", Collections.singletonList("0")).get(0));
 	        int limit = Integer.parseInt(queryParams.getOrDefault("limit", Collections.singletonList("100")).get(0));
 
-	        // Use "query" as the variable name for the query parameter
-	        String searchTerm = queryParams.getFirst("query");
 
 	        // Set the default value for the query parameter if not provided
-	        if (searchTerm == null) {
-	        	searchTerm = "";
+	        if (query == null) {
+	        	query = "";
 	        }
 
 	        List<String> fieldIds = ccaTemplateService.getFieldIds("", "");
@@ -735,7 +731,7 @@ public class CCADataServiceImpl implements CCADataService {
 	        // Add multiple fields to the search query
 	        List<Bson> fieldQueries = new ArrayList<>();
 	        for (String valueField : valueFields) {
-	            Bson fieldQuery = Filters.regex(valueField, searchTerm, "i");
+	            Bson fieldQuery = Filters.regex(valueField, query, "i");
 	            fieldQueries.add(fieldQuery);
 	        }
 	        
@@ -766,13 +762,10 @@ public class CCADataServiceImpl implements CCADataService {
 	public List<MapInfo> searchMapCCAData(String query, HttpServletRequest request, UriInfo uriInfo)
 	        throws JsonProcessingException {
 	    try {
-	    	MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
-	    	// Use "query" as the variable name for the query parameter
-	        String searchTerm = queryParams.getFirst("query");
 	        
 	        // Set the default value for the query parameter if not provided
-	        if (searchTerm == null) {
-	        	searchTerm = "";
+	        if (query == null) {
+	        	query = "";
 	        }
 
 	        List<String> fieldIds = ccaTemplateService.getFieldIds("", "");
@@ -781,7 +774,7 @@ public class CCADataServiceImpl implements CCADataService {
 	        // Add multiple fields to the search query
 	        List<Bson> fieldQueries = new ArrayList<>();
 	        for (String valueField : valueFields) {
-	            Bson fieldQuery = Filters.regex(valueField, searchTerm, "i");
+	            Bson fieldQuery = Filters.regex(valueField, query, "i");
 	            fieldQueries.add(fieldQuery);
 	        }
 	        
