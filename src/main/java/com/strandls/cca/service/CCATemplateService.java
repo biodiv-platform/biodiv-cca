@@ -43,6 +43,8 @@ public interface CCATemplateService {
 
 
 
-	List<String> getFieldIds(String shortName, String language);
+	public List<String> getFieldIds(String shortName, String language);
+
+	public List<String> getValueFields(List<String> fieldIds);
 
 }
