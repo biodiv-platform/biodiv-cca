@@ -13,6 +13,7 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.HttpHeaders;
+
 import org.pac4j.core.profile.CommonProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -334,7 +335,6 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 		if (shortName == null || "".equals(shortName))
 			shortName = "Long";
 
-		language="";
 		CCATemplate ccaTemplate = getCCAByShortName(shortName, language, false);
 		Iterator<CCAField> it = ccaTemplate.iterator();
 		List<String> ccaFields = new ArrayList<>();
@@ -344,6 +344,17 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 		}
 		return ccaFields;
 	}
+	
+	@Override
+	 public  List<String> getValueFields(List<String> fieldIds) {
+	        List<String> fieldQueries = new ArrayList<>();
+	        for (String fieldId : fieldIds) {
+	            String valueField = "ccaFieldValues." + fieldId + ".value";
+	            fieldQueries.add(valueField);
+	        }
+	        return fieldQueries;
+	    }
+
 
 	
 
