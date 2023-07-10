@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 
@@ -135,12 +134,12 @@ public class CCADataDao extends AbstractDao<CCAData> {
 		return dbCollection.countDocuments(filters);
 	}
 
-	public List<CCAData> searchCCAData(String query, HttpServletRequest request, UriInfo uriInfo, Bson searchQuery,
+	public List<CCAData> searchCCAData( UriInfo uriInfo, Bson searchQuery,
 			int limit, int offset) throws JsonProcessingException {
 		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
 		Boolean isDeletedData = false; // Set the appropriate value for isDeletedData
 
-		Bson filters = CCAFilterUtil.getAllFilters(queryParameter, templateDao, objectMapper, null, false);
+		Bson filters = CCAFilterUtil.getAllFilters(queryParameter, templateDao, objectMapper, null, isDeletedData);
 
 		Bson projections = BsonProjectionUtil.getProjectionsForListPage(templateDao, CCAConstants.MASTER);
 		Bson intersectionQuery = Filters.and(filters, searchQuery); // Perform intersection of filters and searchQuery
@@ -150,12 +149,12 @@ public class CCADataDao extends AbstractDao<CCAData> {
 				.into(new ArrayList<>());
 	}
 
-	public List<CCAData> searchMapCCAData(String query, HttpServletRequest request, UriInfo uriInfo, Bson searchQuery)
+	public List<CCAData> searchMapCCAData( UriInfo uriInfo, Bson searchQuery)
 			throws JsonProcessingException {
 		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
 		Boolean isDeletedData = false; // Set the appropriate value for isDeletedData
 
-		Bson filters = CCAFilterUtil.getAllFilters(queryParameter, templateDao, objectMapper, null, false);
+		Bson filters = CCAFilterUtil.getAllFilters(queryParameter, templateDao, objectMapper, null, isDeletedData);
 
 		Bson projections = BsonProjectionUtil.getProjectionsForListPage(templateDao, CCAConstants.MASTER);
 		Bson intersectionQuery = Filters.and(filters, searchQuery); // Perform intersection of filters and searchQuery
