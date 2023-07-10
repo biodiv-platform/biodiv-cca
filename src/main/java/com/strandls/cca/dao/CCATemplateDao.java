@@ -69,8 +69,7 @@ public class CCATemplateDao extends AbstractDao<CCATemplate> {
 
 	public List<String> getAllCCAFieldIds() {
 	    List<String> fieldIds = new ArrayList<>();
-	    try {
-	        // Connect to the database
+	   
 
 	        // Construct the aggregation pipeline
 	        List<Bson> pipeline = Arrays.asList(
@@ -91,22 +90,18 @@ public class CCATemplateDao extends AbstractDao<CCATemplate> {
 	        for (Document document : result) {
 	            String fieldId = document.getString("_id");
 	            fieldIds.add(fieldId);
-	            System.out.println(fieldId);
 	        }
 
 	        // Get the children's field IDs recursively
 	        List<String> childFieldIds = getChildFieldIds(fieldIds);
 	        fieldIds.addAll(childFieldIds);
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        // Handle the exception
-	    }
+	   
 	    return fieldIds;
 	}
 
 	public List<String> getChildFieldIds(List<String> parentFieldIds) {
 	    List<String> childFieldIds = new ArrayList<>();
-	    try {
+	    
 	        // Construct the aggregation pipeline to get children's field IDs
 	        List<Bson> pipeline = Arrays.asList(
 	            // Match the desired documents
@@ -122,12 +117,8 @@ public class CCATemplateDao extends AbstractDao<CCATemplate> {
 	        for (Document document : result) {
 	            String fieldId = document.getString("_id");
 	            childFieldIds.add(fieldId);
-	            System.out.println(fieldId);
 	        }
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        // Handle the exception
-	    }
+	   
 	    return childFieldIds;
 	}
 
