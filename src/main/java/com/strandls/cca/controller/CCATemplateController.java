@@ -291,7 +291,7 @@ public class CCATemplateController {
 	}
 
 	@GET
-	@Path("/fieldids")
+	@Path(ApiConstants.fieldIds)
 
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
