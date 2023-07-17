@@ -721,7 +721,7 @@ public class CCADataServiceImpl implements CCADataService {
 
 
 	        // Set the default value for the query parameter if not provided
-	        if (query == null) {
+	        if (query.isEmpty()) {
 	        	query = "";
 	        }
 
@@ -737,7 +737,7 @@ public class CCADataServiceImpl implements CCADataService {
 	        
 	        Bson searchQuery = Filters.or(fieldQueries);
 	        
-	        List<CCAData> ccaData = ccaDataDao.searchCCAData( uriInfo, searchQuery, limit, offset);
+	        List<CCAData> ccaData = ccaDataDao.getSearchCCAData( uriInfo, searchQuery, limit, offset);
 
 	        List<SubsetCCADataList> list = mergeToSubsetCCADataList(ccaData,
 	                CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE));
@@ -764,7 +764,7 @@ public class CCADataServiceImpl implements CCADataService {
 	    try {
 	        
 	        // Set the default value for the query parameter if not provided
-	        if (query == null) {
+	        if (query.isEmpty()) {
 	        	query = "";
 	        }
 
@@ -781,7 +781,7 @@ public class CCADataServiceImpl implements CCADataService {
 	        
 	        Bson searchQuery = Filters.or(fieldQueries);
 	        
-	        List<CCAData> ccaData = ccaDataDao.searchMapCCAData( uriInfo,searchQuery);
+	        List<CCAData> ccaData = ccaDataDao.getSearchMapCCAData( uriInfo,searchQuery);
 	        List<MapInfo> mapInfoList = new ArrayList<>();
 			for (CCAData ccadata : ccaData) {
 				if (ccadata.getCentroid().size() >= 2) {
