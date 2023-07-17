@@ -134,32 +134,24 @@ public class CCADataDao extends AbstractDao<CCAData> {
 		return dbCollection.countDocuments(filters);
 	}
 
-	public List<CCAData> searchCCAData( UriInfo uriInfo, Bson searchQuery,
-			int limit, int offset) throws JsonProcessingException {
+	public Bson getIntersectionQuery(UriInfo uriInfo, Bson searchQuery) throws JsonProcessingException {
+		Boolean isDeletedData = false;
 		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
-		Boolean isDeletedData = false; // Set the appropriate value for isDeletedData
-
 		Bson filters = CCAFilterUtil.getAllFilters(queryParameter, templateDao, objectMapper, null, isDeletedData);
+		return Filters.and(filters, searchQuery);
+	}
 
+	public List<CCAData> getSearchCCAData(UriInfo uriInfo, Bson searchQuery, int limit, int offset)
+			throws JsonProcessingException {
+		Bson intersectionQuery = getIntersectionQuery(uriInfo, searchQuery);
 		Bson projections = BsonProjectionUtil.getProjectionsForListPage(templateDao, CCAConstants.MASTER);
-		Bson intersectionQuery = Filters.and(filters, searchQuery); // Perform intersection of filters and searchQuery
-
-		// Perform the search query
 		return dbCollection.find(intersectionQuery).projection(projections).skip(offset).limit(limit)
 				.into(new ArrayList<>());
 	}
 
-	public List<CCAData> searchMapCCAData( UriInfo uriInfo, Bson searchQuery)
-			throws JsonProcessingException {
-		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
-		Boolean isDeletedData = false; // Set the appropriate value for isDeletedData
-
-		Bson filters = CCAFilterUtil.getAllFilters(queryParameter, templateDao, objectMapper, null, isDeletedData);
-
+	public List<CCAData> getSearchMapCCAData(UriInfo uriInfo, Bson searchQuery) throws JsonProcessingException {
+		Bson intersectionQuery = getIntersectionQuery(uriInfo, searchQuery);
 		Bson projections = BsonProjectionUtil.getProjectionsForListPage(templateDao, CCAConstants.MASTER);
-		Bson intersectionQuery = Filters.and(filters, searchQuery); // Perform intersection of filters and searchQuery
-
-		// Perform the search query
 		return dbCollection.find(intersectionQuery).projection(projections).into(new ArrayList<>());
 	}
 
