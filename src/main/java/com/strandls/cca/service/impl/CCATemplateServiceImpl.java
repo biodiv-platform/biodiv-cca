@@ -332,7 +332,7 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 	
 	@Override
 	public List<String> getFieldIds(String shortName, String language) {
-		if (shortName == null || "".equals(shortName))
+		if (shortName.isEmpty() || "".equals(shortName))
 			shortName = "Long";
 
 		CCATemplate ccaTemplate = getCCAByShortName(shortName, language, false);
