@@ -458,7 +458,7 @@ public class CCADataController {
 	}
 
 	@GET
-	@Path("/search")
+	@Path(ApiConstants.SEARCH)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Search CCA data", notes = "Returns CCA data based on the search query", response = CCAData.class, responseContainer = "List")
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
@@ -472,7 +472,7 @@ public class CCADataController {
 	}
 
 	@GET
-	@Path("/search/map")
+	@Path(ApiConstants.SEARCH + ApiConstants.MAP)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Search CCA data", notes = "Returns CCA data based on the search query", response = CCAData.class, responseContainer = "List")
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
