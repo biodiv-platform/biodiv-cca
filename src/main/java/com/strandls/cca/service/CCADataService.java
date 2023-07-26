@@ -21,6 +21,8 @@ import com.strandls.cca.pojo.response.MapInfo;
 import com.strandls.cca.pojo.response.SubsetCCADataList;
 
 public interface CCADataService {
+	
+	public Map<String, Object>  searchCCAData(String query, HttpServletRequest request, UriInfo uriInfo) throws JsonProcessingException ;
 
 	public void validateData(CCAData ccaData, CCATemplate ccaTemplate);
 
@@ -53,8 +55,7 @@ public interface CCADataService {
 
 	public CCAData deepRemove(Long id);
 
-	public Map<String, Object> getCCADataAggregation(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly)
-			throws JsonProcessingException;
+
 	
 	public Map<String, Object> getCCAPageData(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly) throws JsonProcessingException;
 
@@ -68,4 +69,12 @@ public interface CCADataService {
 
 	public Boolean sendPermissionGrant(HttpServletRequest request, EncryptedKey encryptedKey);
 
+
+	List<MapInfo> searchMapCCAData(String query, HttpServletRequest request, UriInfo uriInfo)
+			throws JsonProcessingException;
+
+	Map<String, Object> getCCADataAggregation(String query, HttpServletRequest request, UriInfo uriInfo,
+			boolean myListOnly) throws JsonProcessingException;
+
+	
 }

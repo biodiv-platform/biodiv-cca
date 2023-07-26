@@ -21,4 +21,10 @@ public class ApiConstants {
 	public static final String REQUEST = "/request";
 	public static final String GRANT = "/grant";
 	public static final String DEFAULT_LANGUAGE = "default.language";
+	public static final String SEARCH = "/search";
+	public static final String MAP = "/map";
+	public static final String fieldIds = "/fieldids";
+
+
+
 }

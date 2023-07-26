@@ -74,7 +74,8 @@ public class CCATemplateController {
 	public Response getFilterableFields(@Context HttpServletRequest request, @QueryParam("shortName") String shortName,
 			@QueryParam("language") String language) throws CCAException {
 		try {
-			return Response.status(Status.OK).entity(ccaContextService.getFilterableFields(request, shortName, language)).build();
+			return Response.status(Status.OK)
+					.entity(ccaContextService.getFilterableFields(request, shortName, language)).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
@@ -95,8 +96,8 @@ public class CCATemplateController {
 			@QueryParam("language") String language,
 			@DefaultValue("true") @QueryParam("excludeFields") Boolean excludeFields) throws CCAException {
 		try {
-			return Response.status(Status.OK).entity(ccaContextService.getAllCCATemplate(request, plateform, 
-					language, excludeFields)).build();
+			return Response.status(Status.OK)
+					.entity(ccaContextService.getAllCCATemplate(request, plateform, language, excludeFields)).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
@@ -112,16 +113,18 @@ public class CCATemplateController {
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "CCA field not found", response = String.class) })
 
 	public Response getCCATemplateById(@Context HttpServletRequest request, @PathParam("shortName") String shortName,
-			@DefaultValue("en") @QueryParam("language") String language, 
+			@DefaultValue("en") @QueryParam("language") String language,
 			@DefaultValue("false") @QueryParam("isDeleted") boolean isDeleted) throws CCAException {
 		try {
 			CCATemplate ccaTemplate = ccaContextService.getCCAByShortName(shortName, language, isDeleted);
-			return Response.status(Status.OK).entity(ccaTemplate == null ? "Not found deleted template with short name : "+ shortName : ccaTemplate).build();
+			return Response.status(Status.OK).entity(
+					ccaTemplate == null ? "Not found deleted template with short name : " + shortName : ccaTemplate)
+					.build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
 	}
-	
+
 	@POST
 	@Path("/save")
 
@@ -162,7 +165,8 @@ public class CCATemplateController {
 		try {
 			AuthorizationUtil.handleAuthorization(request,
 					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_TEMPLATECURATOR), null);
-			return Response.status(Status.OK).entity(ccaContextService.pullTranslationFromMaster(request, templateId, language)).build();			
+			return Response.status(Status.OK)
+					.entity(ccaContextService.pullTranslationFromMaster(request, templateId, language)).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
@@ -203,7 +207,8 @@ public class CCATemplateController {
 	@ApiResponses(value = {
 			@ApiResponse(code = 404, message = "Could not delete the CCA Template", response = String.class) })
 
-	public Response restoreCCATemplate(@Context HttpServletRequest request, @PathParam("shortName") String shortName) throws CCAException {
+	public Response restoreCCATemplate(@Context HttpServletRequest request, @PathParam("shortName") String shortName)
+			throws CCAException {
 		try {
 			AuthorizationUtil.handleAuthorization(request,
 					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_TEMPLATECURATOR), null);
@@ -225,7 +230,8 @@ public class CCATemplateController {
 	@ApiResponses(value = {
 			@ApiResponse(code = 404, message = "Could not delete the CCA Template", response = String.class) })
 
-	public Response removeCCATemplate(@Context HttpServletRequest request, @PathParam("shortName") String shortName) throws CCAException {
+	public Response removeCCATemplate(@Context HttpServletRequest request, @PathParam("shortName") String shortName)
+			throws CCAException {
 		try {
 			AuthorizationUtil.handleAuthorization(request,
 					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_TEMPLATECURATOR), null);
@@ -248,8 +254,8 @@ public class CCATemplateController {
 	@ApiResponses(value = {
 			@ApiResponse(code = 404, message = "Could not delete the CCA Template", response = String.class) })
 
-	public Response deepRemoveCCATemplate(@Context HttpServletRequest request,
-			@PathParam("shortName") String shortName) throws CCAException {
+	public Response deepRemoveCCATemplate(@Context HttpServletRequest request, @PathParam("shortName") String shortName)
+			throws CCAException {
 		try {
 			AuthorizationUtil.handleAuthorization(request, Arrays.asList(Permissions.ROLE_ADMIN), null);
 			return Response.status(Status.OK).entity(ccaContextService.deepRemove(request, shortName)).build();
@@ -257,7 +263,7 @@ public class CCATemplateController {
 			throw new CCAException(e);
 		}
 	}
-	
+
 	@POST
 	@Path(ApiConstants.COMMENT)
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -269,18 +275,36 @@ public class CCATemplateController {
 	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to log a comment", response = String.class) })
 
 	public Response addComment(@Context HttpServletRequest request,
-			@ApiParam(name = "commentData") CommentLoggingData commentData,
-			@PathParam("shortName") String shortName) {
+			@ApiParam(name = "commentData") CommentLoggingData commentData, @PathParam("shortName") String shortName) {
 		try {
 
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			Long userId = Long.parseLong(profile.getId());
 			if (commentData.getBody().trim().length() > 0) {
-				return Response.status(Status.OK).entity(ccaContextService.addComment(request, userId, commentData)).build();
+				return Response.status(Status.OK).entity(ccaContextService.addComment(request, userId, commentData))
+						.build();
 			}
 			return Response.status(Status.NOT_ACCEPTABLE).entity("Blank Comment Not allowed").build();
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+
+	@GET
+	@Path(ApiConstants.fieldIds)
+
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ApiOperation(value = "Find CCA METADATA by ID", notes = "Returns all filterable CCA fields", response = CCAField.class, responseContainer = "List")
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "CCA field not found", response = String.class) })
+
+	public Response getFields(@Context HttpServletRequest request, @QueryParam("shortName") String shortName,
+			@QueryParam("language") String language) throws CCAException {
+		try {
+			return Response.status(Status.OK).entity(ccaContextService.getFieldIds(shortName, language)).build();
+		} catch (Exception e) {
+			throw new CCAException(e);
 		}
 	}
 }
