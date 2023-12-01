@@ -27,15 +27,21 @@ public class CCAData extends BaseEntity {
 
 	private List<Double> centroid = new ArrayList<>();
 
-	private Set<String> allowedUsers = new HashSet<> ();
+	private Set<String> allowedUsers = new HashSet<>();
 
-	private Set<String> removedUsers = new HashSet<> ();
+	private Set<String> removedUsers = new HashSet<>();
 
-	private Set<String> newUsers = new HashSet<> ();
+	private Set<String> newUsers = new HashSet<>();
 
-	private Set<String> followers = new HashSet<> ();
- 
-	private int richTextCount, textFieldCount , traitsFieldCount;
+	private Set<String> followers = new HashSet<>();
+
+	private Set<String> usergroups = new HashSet<>();
+
+	private Set<String> newUsergroups = new HashSet<>();
+
+	private Set<String> removedUsergroups = new HashSet<>();
+
+	private int richTextCount, textFieldCount, traitsFieldCount;
 
 	private Map<String, CCAFieldValue> ccaFieldValues;
 
@@ -84,7 +90,7 @@ public class CCAData extends BaseEntity {
 	public int getTextFieldCount() {
 		return textFieldCount;
 	}
-	
+
 	public void setTextFieldCount(int textFieldCount) {
 		this.textFieldCount = textFieldCount;
 	}
@@ -100,11 +106,11 @@ public class CCAData extends BaseEntity {
 	public int getTraitsFieldCount() {
 		return traitsFieldCount;
 	}
-	
+
 	public void setTraitsFieldCount(int traitsFieldCount) {
 		this.traitsFieldCount = traitsFieldCount;
 	}
-	
+
 	public String getShortName() {
 		return shortName;
 	}
@@ -129,58 +135,99 @@ public class CCAData extends BaseEntity {
 		this.ccaFieldValues = ccaFieldValues;
 	}
 
-	public CCAData overrideFieldData(HttpServletRequest request, CCAData ccaData, LogActivities logActivities, String type, 
-			Map<String, Object> summaryInfo ,CCAData dataInMem ,UserServiceApi userService) {
+	public Set<String> getUsergroups() {
+		return usergroups;
+	}
+
+	public void setUsergroups(Set<String> usergroups) {
+		this.usergroups = usergroups;
+	}
+
+	public CCAData overrideFieldData(HttpServletRequest request, CCAData ccaData, LogActivities logActivities,
+			String type, Map<String, Object> summaryInfo, CCAData dataInMem, UserServiceApi userService) {
 
 		this.shortName = ccaData.shortName;
 		this.setUpdatedOn(ccaData.getUpdatedOn());
 
 		if (type.equalsIgnoreCase("permission")) {
-			if(!ccaData.allowedUsers.equals(dataInMem.allowedUsers)) {
+			if (!ccaData.allowedUsers.equals(dataInMem.allowedUsers)) {
 				// getting permission removed users
-		        for (String prev: dataInMem.getAllowedUsers()){
-		        	if(!(ccaData.getAllowedUsers().contains(prev))) {
-		        		removedUsers.add(prev);
-		        	}
-		        }
-		        // getting permission added users
-		        for (String newUser: ccaData.getAllowedUsers()) {
-		        	if(!(dataInMem.getAllowedUsers().contains(newUser))) {
-		        		newUsers.add(newUser);
-		        	}
-		        }
+				for (String prev : dataInMem.getAllowedUsers()) {
+					if (!(ccaData.getAllowedUsers().contains(prev))) {
+						removedUsers.add(prev);
+					}
+				}
+				// getting permission added users
+				for (String newUser : ccaData.getAllowedUsers()) {
+					if (!(dataInMem.getAllowedUsers().contains(newUser))) {
+						newUsers.add(newUser);
+					}
+				}
 
-		        if(!removedUsers.isEmpty()) {
-		        	this.allowedUsers.removeAll(removedUsers);
-					MailData mailData = CCAUtil.generateMailData(this, "Permission removed", null, summaryInfo, removedUsers);
-					String activityDescription ="Removed permission for users "+getusername(userService,removedUsers);
+				if (!removedUsers.isEmpty()) {
+					this.allowedUsers.removeAll(removedUsers);
+					MailData mailData = CCAUtil.generateMailData(this, "Permission removed", null, summaryInfo,
+							removedUsers);
+					String activityDescription = "Removed permission for users "
+							+ getusername(userService, removedUsers);
 					logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), activityDescription,
-							ccaData.getId(), ccaData.getId(), "ccaData", ccaData.getId(), "Permission removed", mailData);
-		        }
+							ccaData.getId(), ccaData.getId(), "ccaData", ccaData.getId(), "Permission removed",
+							mailData);
+				}
 
-		        if(!newUsers.isEmpty()) {
+				if (!newUsers.isEmpty()) {
 					this.allowedUsers.addAll(newUsers);
 					this.followers.addAll(newUsers);
 					MailData mailData = CCAUtil.generateMailData(this, "Permission added", null, summaryInfo, newUsers);
-					String activityDescription ="Added permission for users "+getusername(userService,newUsers);
+					String activityDescription = "Added permission for users " + getusername(userService, newUsers);
 					logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), activityDescription,
 							ccaData.getId(), ccaData.getId(), "ccaData", ccaData.getId(), "Permission added", mailData);
-		        }
+				}
 			}
-		} else if(type.equalsIgnoreCase("follow")) {
+		} else if (type.equalsIgnoreCase("UpdateUsergroup")) {
+
+			if (!ccaData.usergroups.equals(dataInMem.usergroups)) {
+				// getting removed usergroups
+				for (String prev : dataInMem.getUsergroups()) {
+					if (!(ccaData.getUsergroups().contains(prev))) {
+						removedUsergroups.add(prev);
+					}
+				}
+				// getting added usergroups
+				for (String newUserGroup : ccaData.getUsergroups()) {
+					if (!(dataInMem.getUsergroups().contains(newUserGroup))) {
+						newUsergroups.add(newUserGroup);
+					}
+				}
+
+				if (!removedUsergroups.isEmpty()) {
+					this.usergroups.removeAll(removedUsergroups);
+
+				}
+
+				if (!newUsergroups.isEmpty()) {
+					this.usergroups.addAll(newUsergroups);
+
+				}
+			}
+
+		}
+
+		else if (type.equalsIgnoreCase("follow")) {
 			this.followers.addAll(ccaData.followers);
 			MailData mailData = CCAUtil.generateMailData(this, "Follower added", null, summaryInfo, ccaData.followers);
-			String activityDescription ="Followed users "+getusername(userService,ccaData.followers);
-			logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), activityDescription, ccaData.getId(),
-					ccaData.getId(), "ccaData", ccaData.getId(), "Follower added", mailData);
-		} else if(type.equalsIgnoreCase("unfollow")) {
+			String activityDescription = "Followed users " + getusername(userService, ccaData.followers);
+			logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), activityDescription,
+					ccaData.getId(), ccaData.getId(), "ccaData", ccaData.getId(), "Follower added", mailData);
+		} else if (type.equalsIgnoreCase("unfollow")) {
 			this.followers.removeAll(ccaData.followers);
-			MailData mailData = CCAUtil.generateMailData(this, "Follower removed", null, summaryInfo, ccaData.followers);
-			String activityDescription ="Unfollowed users "+getusername(userService,ccaData.followers);
-			logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), activityDescription, ccaData.getId(),
-					ccaData.getId(), "ccaData", ccaData.getId(), "Follower removed", mailData);
+			MailData mailData = CCAUtil.generateMailData(this, "Follower removed", null, summaryInfo,
+					ccaData.followers);
+			String activityDescription = "Unfollowed users " + getusername(userService, ccaData.followers);
+			logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), activityDescription,
+					ccaData.getId(), ccaData.getId(), "ccaData", ccaData.getId(), "Follower removed", mailData);
 		}
-  
+
 		Map<String, CCAFieldValue> fieldsMap = getCcaFieldValues();
 
 		for (Map.Entry<String, CCAFieldValue> e : ccaData.getCcaFieldValues().entrySet()) {
@@ -205,7 +252,7 @@ public class CCAData extends BaseEntity {
 				// Log newly added data entries
 				String desc = "Added : " + e.getValue().getName();
 				logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, ccaData.getId(),
-						ccaData.getId(), "ccaData", ccaData.getId(), "Data updated", 
+						ccaData.getId(), "ccaData", ccaData.getId(), "Data updated",
 						CCAUtil.generateMailData(ccaData, "Data updated", desc, summaryInfo, null));
 			}
 		}
@@ -232,14 +279,14 @@ public class CCAData extends BaseEntity {
 		}
 	}
 
-	public String getusername(UserServiceApi userService,Set<String> users) {
-		String userNames ="";
+	public String getusername(UserServiceApi userService, Set<String> users) {
+		String userNames = "";
 		String separator = "";
 		for (String user : users) {
 			User userDetails;
 			try {
 				userDetails = userService.getUser(user);
-				userNames = userNames.concat(separator+"@["+userDetails.getUserName()+"]("+user+")");
+				userNames = userNames.concat(separator + "@[" + userDetails.getUserName() + "](" + user + ")");
 				separator = ",  ";
 			} catch (Exception e) {
 				logger.error(e.getMessage());

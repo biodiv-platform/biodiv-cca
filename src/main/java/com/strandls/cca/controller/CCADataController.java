@@ -36,6 +36,7 @@ import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.EncryptedKey;
 import com.strandls.cca.pojo.Follower;
 import com.strandls.cca.pojo.Permission;
+import com.strandls.cca.pojo.Usergroup;
 import com.strandls.cca.pojo.response.AggregationResponse;
 import com.strandls.cca.pojo.response.SubsetCCADataList;
 import com.strandls.cca.service.CCADataService;
@@ -304,6 +305,31 @@ public class CCADataController {
 			s.addAll(permission.getAllowedUsers());
 			originalDocs.setAllowedUsers(s);
 			return Response.status(Status.OK).entity(ccaDataService.update(request, originalDocs, "Permission"))
+					.build();
+		} catch (Exception e) {
+			throw new CCAException(e);
+		}
+	}
+
+	@PUT
+	@Path("/update/usergroup")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ValidateUser
+	@ApiOperation(value = "Update usergroup for cca data", notes = "Returns CCA data fields with usergroup info", response = CCAData.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 404, message = "Could not save usergroup data", response = String.class) })
+
+	public Response updateUsergroupCCAData(@Context HttpServletRequest request,
+			@ApiParam("usergroup") Usergroup usergroup) throws CCAException {
+		try {
+			CCAData originalDocs = ccaDataService.findById(usergroup.getId(), null);
+			AuthorizationUtil.handleAuthorization(request,
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), originalDocs.getUserId());
+			Set<String> s = new HashSet<>();
+			s.addAll(usergroup.getUsergroups());
+			originalDocs.setUsergroups(s);
+			return Response.status(Status.OK).entity(ccaDataService.update(request, originalDocs, "UpdateUsergroup"))
 					.build();
 		} catch (Exception e) {
 			throw new CCAException(e);
