@@ -795,5 +795,15 @@ public class CCADataServiceImpl implements CCADataService {
 		}
 	    return Collections.emptyList();
 	}
+	
+	  @Override
+	    public List<CCAData> saveCCADataInBulk(HttpServletRequest request, List<CCAData> ccaDataList) {
+	        List<CCAData> savedDataList = new ArrayList<>();
+	        for (CCAData ccaData : ccaDataList) {
+	            CCAData savedData = save(request, ccaData);
+	            savedDataList.add(savedData);
+	        }
+	        return savedDataList;
+	    }
 
 }
