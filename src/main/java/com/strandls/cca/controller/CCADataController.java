@@ -2,6 +2,7 @@ package com.strandls.cca.controller;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -483,6 +484,24 @@ public class CCADataController {
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
+	}
+
+
+	@POST
+	@Path(ApiConstants.BULK_UPLOAD)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ValidateUser
+	@ApiOperation(value = "Save multiple CCA data", notes = "Saves multiple CCA data entries", response = CCAData.class, responseContainer = "List")
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not save the data", response = String.class) })
+	public Response saveBulkCCAData(@Context HttpServletRequest request, List<CCAData> ccaDataList)
+	        throws CCAException {
+	    try {
+	        List<CCAData> savedDataList = ccaDataService.saveCCADataInBulk(request, ccaDataList);
+	        return Response.status(Status.OK).entity(savedDataList).build();
+	    } catch (Exception e) {
+	        throw new CCAException(e);
+	    }
 	}
 
 }

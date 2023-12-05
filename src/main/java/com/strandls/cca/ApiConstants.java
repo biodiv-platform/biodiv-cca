@@ -24,6 +24,7 @@ public class ApiConstants {
 	public static final String SEARCH = "/search";
 	public static final String MAP = "/map";
 	public static final String fieldIds = "/fieldids";
+	public static final String BULK_UPLOAD = "/bulkUpload";
 
 
 
