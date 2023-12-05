@@ -1,6 +1,5 @@
 package com.strandls.cca.controller;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -488,27 +487,21 @@ public class CCADataController {
 	}
 
 
-
-@POST
-@Path(ApiConstants.BULK_UPLOAD)
-@Consumes(MediaType.APPLICATION_JSON)
-@Produces(MediaType.APPLICATION_JSON)
-@ValidateUser
-@ApiOperation(value = "Save multiple CCA data", notes = "Saves multiple CCA data entries", response = CCAData.class, responseContainer = "List")
-@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not save the data", response = String.class) })
-
-public Response saveBulkCCAData(@Context HttpServletRequest request, List<CCAData> ccaDataList)
-        throws CCAException {
-    try {
-        List<CCAData> savedDataList = new ArrayList<>();
-        for (CCAData ccaData : ccaDataList) {
-            CCAData savedData = ccaDataService.save(request, ccaData); // Call the save method for individual CCAData objects
-            savedDataList.add(savedData);
-        }
-        return Response.status(Status.OK).entity(savedDataList).build();
-    } catch (Exception e) {
-        throw new CCAException(e);
-    }
-}
+	@POST
+	@Path(ApiConstants.BULK_UPLOAD)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ValidateUser
+	@ApiOperation(value = "Save multiple CCA data", notes = "Saves multiple CCA data entries", response = CCAData.class, responseContainer = "List")
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not save the data", response = String.class) })
+	public Response saveBulkCCAData(@Context HttpServletRequest request, List<CCAData> ccaDataList)
+	        throws CCAException {
+	    try {
+	        List<CCAData> savedDataList = ccaDataService.saveCCADataInBulk(request, ccaDataList);
+	        return Response.status(Status.OK).entity(savedDataList).build();
+	    } catch (Exception e) {
+	        throw new CCAException(e);
+	    }
+	}
 
 }
