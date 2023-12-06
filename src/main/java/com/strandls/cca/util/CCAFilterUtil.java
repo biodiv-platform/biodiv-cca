@@ -43,6 +43,7 @@ public class CCAFilterUtil {
 		filters.addAll(getDataIdsFilter(queryParameter));
 		filters.addAll(getIsDeleteFilter(isDeletedData));
 		filters.addAll(getFieldCountFilters(queryParameter));
+		filters.addAll(getUserGroupFilter(queryParameter));
 
 		// Create the And filter from all the fields.
 		List<Bson> filter = CCAFilterUtil.getFilterFromFields(queryParameter, templateDao, objectMapper,
@@ -66,15 +67,16 @@ public class CCAFilterUtil {
 		filters.add(isDeleted);
 		return filters;
 	}
-	
+
 	private static List<Bson> getFieldCountFilters(MultivaluedMap<String, String> queryParameter) {
 		List<Bson> filters = new ArrayList<>();
 		if (queryParameter.containsKey(CCAConstants.RICH_TEXT_COUNT)) {
-			filters.add(Filters.gte(CCAConstants.RICH_TEXT_COUNT, Integer.parseInt(queryParameter.get(CCAConstants.RICH_TEXT_COUNT).get(0))));
+			filters.add(Filters.gte(CCAConstants.RICH_TEXT_COUNT,
+					Integer.parseInt(queryParameter.get(CCAConstants.RICH_TEXT_COUNT).get(0))));
 		}
-		
+
 		// In future, will add filter condition for traits and text field filter.
-		
+
 		return filters;
 	}
 
@@ -95,6 +97,21 @@ public class CCAFilterUtil {
 			filters.add(Filters.eq("userId", userId));
 		}
 		return filters;
+	}
+
+	public static List<Bson> getUserGroupFilter(MultivaluedMap<String, String> queryParameter) {
+		List<Bson> filters = new ArrayList<>();
+
+		if (queryParameter.containsKey(CCAConstants.USER_GROUPS)) {
+			List<String> usergroupIds = queryParameter.get(CCAConstants.USER_GROUPS);
+
+			if (usergroupIds != null && !usergroupIds.isEmpty()) {
+				filters.add(Filters.in("usergroups", usergroupIds));
+			}
+			filters.add(Filters.eq(CCAConstants.USER_GROUPS, usergroupIds));
+		}
+		return filters;
+
 	}
 
 	public static List<Bson> getShortNameFilter(MultivaluedMap<String, String> queryParameter) {
