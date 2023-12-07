@@ -66,6 +66,7 @@ import com.strandls.cca.util.CCADataCSVThread;
 import com.strandls.cca.util.CCAUtil;
 import com.strandls.cca.util.EncryptionUtils;
 import com.strandls.user.controller.UserServiceApi;
+import com.strandls.userGroup.controller.UserGroupSerivceApi;
 import com.strandls.cca.Headers;
 
 public class CCADataServiceImpl implements CCADataService {
@@ -93,6 +94,9 @@ public class CCADataServiceImpl implements CCADataService {
 
 	@Inject
 	private EncryptionUtils encryptUtils;
+
+	@Inject
+	private UserGroupSerivceApi userGroupService;
 
 	@Inject
 	private CCATemplateService ccaContextService;
@@ -361,7 +365,7 @@ public class CCADataServiceImpl implements CCADataService {
 		CCAData dataInMem = ccaDataDao.getById(ccaData.getId());
 
 		dataInMem = dataInMem.overrideFieldData(request, ccaData, logActivities, type, getSummaryInfo(dataInMem),
-				dataInMem, userService);
+				dataInMem, userService, userGroupService, om);
 
 		dataInMem.reComputeCentroid();
 		return ccaDataDao.replaceOne(dataInMem);

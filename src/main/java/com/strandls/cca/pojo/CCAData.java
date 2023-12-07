@@ -12,12 +12,17 @@ import javax.ws.rs.core.HttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.strandls.activity.pojo.MailData;
+import com.strandls.activity.pojo.UserGroupActivity;
+import com.strandls.activity.pojo.UserGroupMailData;
 import com.strandls.cca.pojo.fields.value.GeometryFieldValue;
 import com.strandls.cca.service.impl.LogActivities;
 import com.strandls.cca.util.CCAUtil;
 import com.strandls.user.controller.UserServiceApi;
 import com.strandls.user.pojo.User;
+import com.strandls.userGroup.controller.UserGroupSerivceApi;
+import com.strandls.userGroup.pojo.UserGroupIbp;
 
 public class CCAData extends BaseEntity {
 
@@ -36,10 +41,6 @@ public class CCAData extends BaseEntity {
 	private Set<String> followers = new HashSet<>();
 
 	private Set<String> usergroups = new HashSet<>();
-
-	private Set<String> newUsergroups = new HashSet<>();
-
-	private Set<String> removedUsergroups = new HashSet<>();
 
 	private int richTextCount, textFieldCount, traitsFieldCount;
 
@@ -144,7 +145,8 @@ public class CCAData extends BaseEntity {
 	}
 
 	public CCAData overrideFieldData(HttpServletRequest request, CCAData ccaData, LogActivities logActivities,
-			String type, Map<String, Object> summaryInfo, CCAData dataInMem, UserServiceApi userService) {
+			String type, Map<String, Object> summaryInfo, CCAData dataInMem, UserServiceApi userService,
+			UserGroupSerivceApi userGroupService, ObjectMapper om) {
 
 		this.shortName = ccaData.shortName;
 		this.setUpdatedOn(ccaData.getUpdatedOn());
@@ -185,32 +187,26 @@ public class CCAData extends BaseEntity {
 				}
 			}
 		} else if (type.equalsIgnoreCase("UpdateUsergroup")) {
+			Set<String> ccaUsergroups = new HashSet<>(ccaData.getUsergroups());
+			Set<String> inMemUsergroups = new HashSet<>(dataInMem.getUsergroups());
 
-			if (!ccaData.usergroups.equals(dataInMem.usergroups)) {
-				// getting removed usergroups
-				for (String prev : dataInMem.getUsergroups()) {
-					if (!(ccaData.getUsergroups().contains(prev))) {
-						removedUsergroups.add(prev);
-					}
-				}
-				// getting added usergroups
-				for (String newUserGroup : ccaData.getUsergroups()) {
-					if (!(dataInMem.getUsergroups().contains(newUserGroup))) {
-						newUsergroups.add(newUserGroup);
-					}
-				}
+			Set<String> newUsergroups = new HashSet<>(ccaUsergroups);
+			newUsergroups.removeAll(inMemUsergroups);
 
-				if (!removedUsergroups.isEmpty()) {
-					this.usergroups.removeAll(removedUsergroups);
+			Set<String> removedUsergroups = new HashSet<>(inMemUsergroups);
+			removedUsergroups.removeAll(ccaUsergroups);
 
-				}
-
-				if (!newUsergroups.isEmpty()) {
-					this.usergroups.addAll(newUsergroups);
-
-				}
+			if (!newUsergroups.isEmpty()) {
+				this.usergroups.addAll(newUsergroups);
+				processUsergroups(request, newUsergroups, "Usergroup added", userGroupService, logActivities,
+						summaryInfo, ccaData);
 			}
 
+			if (!removedUsergroups.isEmpty()) {
+				this.usergroups.removeAll(removedUsergroups);
+				processUsergroups(request, removedUsergroups, "Usergroup removed", userGroupService, logActivities,
+						summaryInfo, ccaData);
+			}
 		}
 
 		else if (type.equalsIgnoreCase("follow")) {
@@ -293,6 +289,37 @@ public class CCAData extends BaseEntity {
 			}
 		}
 		return userNames;
+	}
+
+	private void processUsergroups(HttpServletRequest request, Set<String> usergroups, String action,
+			UserGroupSerivceApi userGroupService, LogActivities logActivities, Map<String, Object> summaryInfo,
+			CCAData ccaData) {
+		ObjectMapper om = new ObjectMapper();
+
+		for (String userGroupId : usergroups) {
+			try {
+				UserGroupIbp ugIbp = userGroupService.getIbpData(userGroupId);
+				UserGroupActivity ugActivity = new UserGroupActivity();
+				ugActivity.setFeatured(null);
+				ugActivity.setUserGroupId(ugIbp.getId());
+				ugActivity.setUserGroupName(ugIbp.getName());
+				ugActivity.setWebAddress(ugIbp.getWebAddress());
+
+				String description = om.writeValueAsString(ugActivity);
+
+				MailData mailData = CCAUtil.generateMailData(ccaData, action, null, summaryInfo, allowedUsers);
+				List<UserGroupMailData> userGroupMailData = CCAUtil.generateUserGroupMailData(userGroupService,
+						usergroups);
+
+				mailData.setUserGroupData(userGroupMailData);
+
+				logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), description,
+						ccaData.getId(), ccaData.getId(), "ccaData", Long.parseLong(userGroupId),
+						action.equals("Usergroup added") ? "Posted CCA" : "Removed CCA", mailData);
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+			}
+		}
 	}
 
 }
