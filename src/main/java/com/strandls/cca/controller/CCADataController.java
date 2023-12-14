@@ -1,7 +1,9 @@
 package com.strandls.cca.controller;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -312,7 +314,7 @@ public class CCADataController {
 	}
 
 	@PUT
-	@Path("/update/usergroup")
+	@Path(ApiConstants.UPDATE + ApiConstants.USERGROUP)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ValidateUser
@@ -324,13 +326,38 @@ public class CCADataController {
 			@ApiParam("usergroup") Usergroup usergroup) throws CCAException {
 		try {
 			CCAData originalDocs = ccaDataService.findById(usergroup.getId(), null);
-			AuthorizationUtil.handleAuthorization(request,
-					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), originalDocs.getUserId());
 			Set<String> s = new HashSet<>();
 			s.addAll(usergroup.getUsergroups());
 			originalDocs.setUsergroups(s);
 			return Response.status(Status.OK).entity(ccaDataService.update(request, originalDocs, "UpdateUsergroup"))
 					.build();
+		} catch (Exception e) {
+			throw new CCAException(e);
+		}
+	}
+
+	@PUT
+	@Path(ApiConstants.UPDATE + ApiConstants.BULK + ApiConstants.USERGROUP + "/update/bulk/usergroup")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ValidateUser
+	@ApiOperation(value = "Update usergroup for List of cca data", notes = "Returns List of CCA data fields with usergroup info", response = CCAData.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 404, message = "Could not save usergroup data", response = String.class) })
+
+	public Response updateUsergroupCCAData(@Context HttpServletRequest request,
+			@ApiParam("usergroup") List<Usergroup> usergroups) throws CCAException {
+		try {
+			List<CCAData> updatedDataList = new ArrayList<>();
+			for (Usergroup usergroup : usergroups) {
+				CCAData originalDocs = ccaDataService.findById(usergroup.getId(), null);
+				Set<String> s = new HashSet<>();
+				s.addAll(usergroup.getUsergroups());
+				originalDocs.setUsergroups(s);
+				CCAData updatedData = ccaDataService.update(request, originalDocs, "UpdateUsergroup");
+				updatedDataList.add(updatedData);
+			}
+			return Response.status(Status.OK).entity(updatedDataList).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}

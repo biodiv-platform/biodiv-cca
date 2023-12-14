@@ -348,6 +348,26 @@ public class CCADataServiceImpl implements CCADataService {
 	@Override
 	public CCAData update(HttpServletRequest request, CCAData ccaData, String type) {
 
+		if (type.equalsIgnoreCase("UpdateUsergroup")) {
+			Set<String> groupsToRemove = new HashSet<>();
+			Boolean eligible = null;
+			userGroupService = headers.addUserGroupHeader(userGroupService,
+					request.getHeader(HttpHeaders.AUTHORIZATION));
+
+			for (String usergroupId : ccaData.getUsergroups()) {
+				try {
+					eligible = userGroupService.checkUserMember(usergroupId);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				if (Boolean.FALSE.equals(eligible)) {
+					groupsToRemove.add(usergroupId);
+				}
+			}
+
+			ccaData.getUsergroups().removeAll(groupsToRemove);
+		}
+
 		String shortName = ccaData.getShortName();
 		CCATemplate ccaTemplate = ccaTemplateService.getCCAByShortName(shortName,
 				CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE), false);

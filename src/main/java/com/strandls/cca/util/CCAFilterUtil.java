@@ -108,7 +108,6 @@ public class CCAFilterUtil {
 			if (usergroupIds != null && !usergroupIds.isEmpty()) {
 				filters.add(Filters.in("usergroups", usergroupIds));
 			}
-			filters.add(Filters.eq(CCAConstants.USER_GROUPS, usergroupIds));
 		}
 		return filters;
 

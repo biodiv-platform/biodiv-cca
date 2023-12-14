@@ -9,8 +9,9 @@ package com.strandls.cca;
  *
  */
 public class ApiConstants {
-	
-	private ApiConstants() {}
+
+	private ApiConstants() {
+	}
 
 	public static final String V1 = "/v1";
 	public static final String CCA = "/cca";
@@ -24,7 +25,7 @@ public class ApiConstants {
 	public static final String SEARCH = "/search";
 	public static final String MAP = "/map";
 	public static final String fieldIds = "/fieldids";
-
-
-
+	public static final String UPDATE = "/update";
+	public static final String BULK = "/bulk";
+	public static final String USERGROUP = "/usergroup";
 }
