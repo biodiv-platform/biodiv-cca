@@ -28,4 +28,5 @@ public class ApiConstants {
 	public static final String UPDATE = "/update";
 	public static final String BULK = "/bulk";
 	public static final String USERGROUP = "/usergroup";
+	public static final String BULK_UPLOAD = "/bulkUpload";
 }

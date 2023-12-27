@@ -22,8 +22,9 @@ import com.strandls.cca.pojo.response.SubsetCCADataList;
 
 public interface CCADataService {
 
-	public Map<String, Object> searchCCAData(String query, HttpServletRequest request, UriInfo uriInfo)
-			throws JsonProcessingException;
+	public List<CCAData> saveCCADataInBulk(HttpServletRequest request, List<CCAData> ccaDataList);
+	
+	public Map<String, Object>  searchCCAData(String query, HttpServletRequest request, UriInfo uriInfo) throws JsonProcessingException ;
 
 	public void validateData(CCAData ccaData, CCATemplate ccaTemplate);
 
