@@ -146,7 +146,7 @@ public class CCAData extends BaseEntity {
 
 	public CCAData overrideFieldData(HttpServletRequest request, CCAData ccaData, LogActivities logActivities,
 			String type, Map<String, Object> summaryInfo, CCAData dataInMem, UserServiceApi userService,
-			UserGroupSerivceApi userGroupService, ObjectMapper om) {
+			UserGroupSerivceApi userGroupService) {
 
 		this.shortName = ccaData.shortName;
 		this.setUpdatedOn(ccaData.getUpdatedOn());
