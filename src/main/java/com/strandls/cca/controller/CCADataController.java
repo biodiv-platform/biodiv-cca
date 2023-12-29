@@ -38,7 +38,7 @@ import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.EncryptedKey;
 import com.strandls.cca.pojo.Follower;
 import com.strandls.cca.pojo.Permission;
-import com.strandls.cca.pojo.Usergroup;
+import com.strandls.cca.pojo.UsergroupCCA;
 import com.strandls.cca.pojo.response.AggregationResponse;
 import com.strandls.cca.pojo.response.SubsetCCADataList;
 import com.strandls.cca.service.CCADataService;
@@ -323,7 +323,7 @@ public class CCADataController {
 			@ApiResponse(code = 404, message = "Could not save usergroup data", response = String.class) })
 
 	public Response updateUsergroupCCAData(@Context HttpServletRequest request,
-			@ApiParam("usergroup") Usergroup usergroup) throws CCAException {
+			@ApiParam("usergroup") UsergroupCCA usergroup) throws CCAException {
 		try {
 			CCAData originalDocs = ccaDataService.findById(usergroup.getId(), null);
 			Set<String> s = new HashSet<>();
@@ -346,10 +346,10 @@ public class CCADataController {
 			@ApiResponse(code = 404, message = "Could not save usergroup data", response = String.class) })
 
 	public Response updateBulkUsergroupCCAData(@Context HttpServletRequest request,
-			@ApiParam("usergroup") List<Usergroup> usergroups) throws CCAException {
+			@ApiParam("usergroup") List<UsergroupCCA> usergroups) throws CCAException {
 		try {
 			List<CCAData> updatedDataList = new ArrayList<>();
-			for (Usergroup usergroup : usergroups) {
+			for (UsergroupCCA usergroup : usergroups) {
 				CCAData originalDocs = ccaDataService.findById(usergroup.getId(), null);
 				Set<String> s = new HashSet<>();
 				s.addAll(usergroup.getUsergroups());
@@ -538,7 +538,6 @@ public class CCADataController {
 		}
 	}
 
-
 	@POST
 	@Path(ApiConstants.BULK_UPLOAD)
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -547,13 +546,13 @@ public class CCADataController {
 	@ApiOperation(value = "Save multiple CCA data", notes = "Saves multiple CCA data entries", response = CCAData.class, responseContainer = "List")
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not save the data", response = String.class) })
 	public Response saveBulkCCAData(@Context HttpServletRequest request, List<CCAData> ccaDataList)
-	        throws CCAException {
-	    try {
-	        List<CCAData> savedDataList = ccaDataService.saveCCADataInBulk(request, ccaDataList);
-	        return Response.status(Status.OK).entity(savedDataList).build();
-	    } catch (Exception e) {
-	        throw new CCAException(e);
-	    }
+			throws CCAException {
+		try {
+			List<CCAData> savedDataList = ccaDataService.saveCCADataInBulk(request, ccaDataList);
+			return Response.status(Status.OK).entity(savedDataList).build();
+		} catch (Exception e) {
+			throw new CCAException(e);
+		}
 	}
 
 }

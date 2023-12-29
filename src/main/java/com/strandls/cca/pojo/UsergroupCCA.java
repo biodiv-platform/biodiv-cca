@@ -2,7 +2,7 @@ package com.strandls.cca.pojo;
 
 import java.util.List;
 
-public class Usergroup {
+public class UsergroupCCA {
 
 	private Long id;
 	private List<String> usergroups;
