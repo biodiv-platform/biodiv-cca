@@ -121,14 +121,11 @@ public class CCAUtil {
 		List<UserGroupMailData> userGroupMailData = new ArrayList<>();
 		List<UserGroupIbp> updatedUG = new ArrayList<>();
 
-		for (String usergroupId : usergroups) {
-			UserGroupIbp userGroupIbp;
-			try {
-				userGroupIbp = userGroupService.getIbpData(usergroupId);
-				updatedUG.add(userGroupIbp);
-			} catch (ApiException e) {
-				e.getMessage();
-			}
+		try {
+			String userGroupIds = String.join(",", usergroups);
+			updatedUG = userGroupService.getUserGroupList(userGroupIds);
+		} catch (ApiException e) {
+			e.getMessage();
 		}
 
 		if (!updatedUG.isEmpty()) {

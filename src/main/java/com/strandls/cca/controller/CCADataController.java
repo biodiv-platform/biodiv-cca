@@ -337,7 +337,7 @@ public class CCADataController {
 	}
 
 	@PUT
-	@Path(ApiConstants.UPDATE + ApiConstants.BULK + ApiConstants.USERGROUP + "/update/bulk/usergroup")
+	@Path(ApiConstants.UPDATE + ApiConstants.BULK + ApiConstants.USERGROUP)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ValidateUser
@@ -345,7 +345,7 @@ public class CCADataController {
 	@ApiResponses(value = {
 			@ApiResponse(code = 404, message = "Could not save usergroup data", response = String.class) })
 
-	public Response updateUsergroupCCAData(@Context HttpServletRequest request,
+	public Response updateBulkUsergroupCCAData(@Context HttpServletRequest request,
 			@ApiParam("usergroup") List<Usergroup> usergroups) throws CCAException {
 		try {
 			List<CCAData> updatedDataList = new ArrayList<>();
