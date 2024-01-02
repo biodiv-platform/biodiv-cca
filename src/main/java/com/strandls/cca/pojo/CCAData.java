@@ -315,7 +315,7 @@ public class CCAData extends BaseEntity {
 
 				logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), description,
 						ccaData.getId(), ccaData.getId(), "ccaData", Long.parseLong(userGroupId),
-						action.equals("Usergroup added") ? "Posted resource" : "Removed resoruce", mailData);
+						action.equals("Usergroup added") ? "Posted resource" : "Removed resource", mailData);
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 			}

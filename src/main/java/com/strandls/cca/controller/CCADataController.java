@@ -326,9 +326,9 @@ public class CCADataController {
 			@ApiParam("usergroup") UsergroupCCA usergroup) throws CCAException {
 		try {
 			CCAData originalDocs = ccaDataService.findById(usergroup.getId(), null);
-			Set<String> s = new HashSet<>();
-			s.addAll(usergroup.getUsergroups());
-			originalDocs.setUsergroups(s);
+			Set<String> groups = new HashSet<>();
+			groups.addAll(usergroup.getUsergroups());
+			originalDocs.setUsergroups(groups);
 			return Response.status(Status.OK).entity(ccaDataService.update(request, originalDocs, "UpdateUsergroup"))
 					.build();
 		} catch (Exception e) {
@@ -351,9 +351,9 @@ public class CCADataController {
 			List<CCAData> updatedDataList = new ArrayList<>();
 			for (UsergroupCCA usergroup : usergroups) {
 				CCAData originalDocs = ccaDataService.findById(usergroup.getId(), null);
-				Set<String> s = new HashSet<>();
-				s.addAll(usergroup.getUsergroups());
-				originalDocs.setUsergroups(s);
+				Set<String> groups = new HashSet<>();
+				groups.addAll(usergroup.getUsergroups());
+				originalDocs.setUsergroups(groups);
 				CCAData updatedData = ccaDataService.update(request, originalDocs, "UpdateUsergroup");
 				updatedDataList.add(updatedData);
 			}
