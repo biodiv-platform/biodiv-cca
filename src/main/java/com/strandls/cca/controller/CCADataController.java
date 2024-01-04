@@ -1,5 +1,6 @@
 package com.strandls.cca.controller;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -37,6 +38,7 @@ import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.EncryptedKey;
 import com.strandls.cca.pojo.Follower;
 import com.strandls.cca.pojo.Permission;
+import com.strandls.cca.pojo.UsergroupCCA;
 import com.strandls.cca.pojo.response.AggregationResponse;
 import com.strandls.cca.pojo.response.SubsetCCADataList;
 import com.strandls.cca.service.CCADataService;
@@ -312,6 +314,56 @@ public class CCADataController {
 	}
 
 	@PUT
+	@Path(ApiConstants.UPDATE + ApiConstants.USERGROUP)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ValidateUser
+	@ApiOperation(value = "Update usergroup for cca data", notes = "Returns CCA data fields with usergroup info", response = CCAData.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 404, message = "Could not save usergroup data", response = String.class) })
+
+	public Response updateUsergroupCCAData(@Context HttpServletRequest request,
+			@ApiParam("usergroup") UsergroupCCA usergroup) throws CCAException {
+		try {
+			CCAData originalDocs = ccaDataService.findById(usergroup.getId(), null);
+			Set<String> groups = new HashSet<>();
+			groups.addAll(usergroup.getUsergroups());
+			originalDocs.setUsergroups(groups);
+			return Response.status(Status.OK).entity(ccaDataService.update(request, originalDocs, "UpdateUsergroup"))
+					.build();
+		} catch (Exception e) {
+			throw new CCAException(e);
+		}
+	}
+
+	@PUT
+	@Path(ApiConstants.UPDATE + ApiConstants.BULK + ApiConstants.USERGROUP)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ValidateUser
+	@ApiOperation(value = "Update usergroup for List of cca data", notes = "Returns List of CCA data fields with usergroup info", response = CCAData.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 404, message = "Could not save usergroup data", response = String.class) })
+
+	public Response updateBulkUsergroupCCAData(@Context HttpServletRequest request,
+			@ApiParam("usergroup") List<UsergroupCCA> usergroups) throws CCAException {
+		try {
+			List<CCAData> updatedDataList = new ArrayList<>();
+			for (UsergroupCCA usergroup : usergroups) {
+				CCAData originalDocs = ccaDataService.findById(usergroup.getId(), null);
+				Set<String> groups = new HashSet<>();
+				groups.addAll(usergroup.getUsergroups());
+				originalDocs.setUsergroups(groups);
+				CCAData updatedData = ccaDataService.update(request, originalDocs, "UpdateUsergroup");
+				updatedDataList.add(updatedData);
+			}
+			return Response.status(Status.OK).entity(updatedDataList).build();
+		} catch (Exception e) {
+			throw new CCAException(e);
+		}
+	}
+
+	@PUT
 	@Path("/update/followers")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -486,7 +538,6 @@ public class CCADataController {
 		}
 	}
 
-
 	@POST
 	@Path(ApiConstants.BULK_UPLOAD)
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -495,13 +546,13 @@ public class CCADataController {
 	@ApiOperation(value = "Save multiple CCA data", notes = "Saves multiple CCA data entries", response = CCAData.class, responseContainer = "List")
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not save the data", response = String.class) })
 	public Response saveBulkCCAData(@Context HttpServletRequest request, List<CCAData> ccaDataList)
-	        throws CCAException {
-	    try {
-	        List<CCAData> savedDataList = ccaDataService.saveCCADataInBulk(request, ccaDataList);
-	        return Response.status(Status.OK).entity(savedDataList).build();
-	    } catch (Exception e) {
-	        throw new CCAException(e);
-	    }
+			throws CCAException {
+		try {
+			List<CCAData> savedDataList = ccaDataService.saveCCADataInBulk(request, ccaDataList);
+			return Response.status(Status.OK).entity(savedDataList).build();
+		} catch (Exception e) {
+			throw new CCAException(e);
+		}
 	}
 
 }
