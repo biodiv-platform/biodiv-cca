@@ -28,7 +28,7 @@ public class CCAData extends BaseEntity {
 
 	private final Logger logger = LoggerFactory.getLogger(CCAData.class);
 
-	private static final String CCADATA = "ccaData";
+	private static final String CCA_DATA = "ccaData";
 
 	private String shortName;
 
@@ -188,7 +188,7 @@ public class CCAData extends BaseEntity {
 			MailData mailData = CCAUtil.generateMailData(this, "Permission removed", null, summaryInfo, removedUsers);
 			String activityDescription = "Removed permission for users " + getusername(userService, removedUsers);
 			logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), activityDescription,
-					ccaData.getId(), ccaData.getId(), CCADATA, ccaData.getId(), "Permission removed", mailData);
+					ccaData.getId(), ccaData.getId(), CCA_DATA, ccaData.getId(), "Permission removed", mailData);
 		}
 
 		if (!newUsers.isEmpty()) {
@@ -197,7 +197,7 @@ public class CCAData extends BaseEntity {
 			MailData mailData = CCAUtil.generateMailData(this, "Permission added", null, summaryInfo, newUsers);
 			String activityDescription = "Added permission for users " + getusername(userService, newUsers);
 			logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), activityDescription,
-					ccaData.getId(), ccaData.getId(), CCADATA, ccaData.getId(), "Permission added", mailData);
+					ccaData.getId(), ccaData.getId(), CCA_DATA, ccaData.getId(), "Permission added", mailData);
 		}
 	}
 
@@ -234,7 +234,7 @@ public class CCAData extends BaseEntity {
 		MailData mailData = CCAUtil.generateMailData(this, "Follower added", null, summaryInfo, ccaData.followers);
 		String activityDescription = "Followed users " + getusername(userService, ccaData.followers);
 		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), activityDescription,
-				ccaData.getId(), ccaData.getId(), CCADATA, ccaData.getId(), "Follower added", mailData);
+				ccaData.getId(), ccaData.getId(), CCA_DATA, ccaData.getId(), "Follower added", mailData);
 
 	}
 
@@ -244,7 +244,7 @@ public class CCAData extends BaseEntity {
 		MailData mailData = CCAUtil.generateMailData(this, "Follower removed", null, summaryInfo, ccaData.followers);
 		String activityDescription = "Unfollowed users " + getusername(userService, ccaData.followers);
 		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), activityDescription,
-				ccaData.getId(), ccaData.getId(), CCADATA, ccaData.getId(), "Follower removed", mailData);
+				ccaData.getId(), ccaData.getId(), CCA_DATA, ccaData.getId(), "Follower removed", mailData);
 
 	}
 
@@ -263,7 +263,7 @@ public class CCAData extends BaseEntity {
 					diff = dbFieldValue.getName() + "\n" + diff;
 					MailData mailData = CCAUtil.generateMailData(this, "Data updated", diff, summaryInfo, null);
 					logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), diff, ccaData.getId(),
-							ccaData.getId(), CCADATA, ccaData.getId(), "Data updated", mailData);
+							ccaData.getId(), CCA_DATA, ccaData.getId(), "Data updated", mailData);
 				}
 				// Persist in DB
 				this.ccaFieldValues.put(e.getKey(), e.getValue());
@@ -274,7 +274,7 @@ public class CCAData extends BaseEntity {
 				// Log newly added data entries
 				String desc = "Added : " + e.getValue().getName();
 				logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, ccaData.getId(),
-						ccaData.getId(), CCADATA, ccaData.getId(), "Data updated",
+						ccaData.getId(), CCA_DATA, ccaData.getId(), "Data updated",
 						CCAUtil.generateMailData(ccaData, "Data updated", desc, summaryInfo, null));
 			}
 		}
@@ -341,7 +341,7 @@ public class CCAData extends BaseEntity {
 				mailData.setUserGroupData(userGroupMailData);
 
 				logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), description,
-						ccaData.getId(), ccaData.getId(), "ccaData", Long.parseLong(userGroupId),
+						ccaData.getId(), ccaData.getId(), CCA_DATA, Long.parseLong(userGroupId),
 						action.equals("Usergroup added") ? "Posted resource" : "Removed resource", mailData);
 			} catch (Exception e) {
 				logger.error(e.getMessage());
