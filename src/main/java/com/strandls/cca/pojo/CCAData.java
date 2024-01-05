@@ -28,15 +28,13 @@ public class CCAData extends BaseEntity {
 
 	private final Logger logger = LoggerFactory.getLogger(CCAData.class);
 
+	private static final String CCADATA = "ccaData";
+
 	private String shortName;
 
 	private List<Double> centroid = new ArrayList<>();
 
 	private Set<String> allowedUsers = new HashSet<>();
-
-	private Set<String> removedUsers = new HashSet<>();
-
-	private Set<String> newUsers = new HashSet<>();
 
 	private Set<String> followers = new HashSet<>();
 
@@ -151,79 +149,107 @@ public class CCAData extends BaseEntity {
 		this.shortName = ccaData.shortName;
 		this.setUpdatedOn(ccaData.getUpdatedOn());
 
-		if (type.equalsIgnoreCase("permission")) {
-			if (!ccaData.allowedUsers.equals(dataInMem.allowedUsers)) {
-				// getting permission removed users
-				for (String prev : dataInMem.getAllowedUsers()) {
-					if (!(ccaData.getAllowedUsers().contains(prev))) {
-						removedUsers.add(prev);
-					}
-				}
-				// getting permission added users
-				for (String newUser : ccaData.getAllowedUsers()) {
-					if (!(dataInMem.getAllowedUsers().contains(newUser))) {
-						newUsers.add(newUser);
-					}
-				}
-
-				if (!removedUsers.isEmpty()) {
-					this.allowedUsers.removeAll(removedUsers);
-					MailData mailData = CCAUtil.generateMailData(this, "Permission removed", null, summaryInfo,
-							removedUsers);
-					String activityDescription = "Removed permission for users "
-							+ getusername(userService, removedUsers);
-					logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), activityDescription,
-							ccaData.getId(), ccaData.getId(), "ccaData", ccaData.getId(), "Permission removed",
-							mailData);
-				}
-
-				if (!newUsers.isEmpty()) {
-					this.allowedUsers.addAll(newUsers);
-					this.followers.addAll(newUsers);
-					MailData mailData = CCAUtil.generateMailData(this, "Permission added", null, summaryInfo, newUsers);
-					String activityDescription = "Added permission for users " + getusername(userService, newUsers);
-					logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), activityDescription,
-							ccaData.getId(), ccaData.getId(), "ccaData", ccaData.getId(), "Permission added", mailData);
-				}
-			}
-		} else if (type.equalsIgnoreCase("UpdateUsergroup")) {
-			Set<String> ccaUsergroups = new HashSet<>(ccaData.getUsergroups());
-			Set<String> inMemUsergroups = new HashSet<>(dataInMem.getUsergroups());
-
-			Set<String> newUsergroups = new HashSet<>(ccaUsergroups);
-			newUsergroups.removeAll(inMemUsergroups);
-
-			Set<String> removedUsergroups = new HashSet<>(inMemUsergroups);
-			removedUsergroups.removeAll(ccaUsergroups);
-
-			if (!newUsergroups.isEmpty()) {
-				this.usergroups.addAll(newUsergroups);
-				processUsergroups(request, newUsergroups, "Usergroup added", userGroupService, logActivities,
-						summaryInfo, ccaData);
-			}
-
-			if (!removedUsergroups.isEmpty()) {
-				this.usergroups.removeAll(removedUsergroups);
-				processUsergroups(request, removedUsergroups, "Usergroup removed", userGroupService, logActivities,
-						summaryInfo, ccaData);
-			}
+		switch (type.toLowerCase()) {
+		case "permission":
+			handlePermissionChanges(request, ccaData, logActivities, summaryInfo, dataInMem, userService);
+			break;
+		case "updateusergroup":
+			handleUsergroupChanges(request, ccaData, userGroupService, logActivities, summaryInfo, dataInMem);
+			break;
+		case "follow":
+			handleFollowActions(request, ccaData, logActivities, userService, summaryInfo);
+			break;
+		case "unfollow":
+			handleUnfollowActions(request, ccaData, logActivities, userService, summaryInfo);
+			break;
+		default:
+			break;
 		}
 
-		else if (type.equalsIgnoreCase("follow")) {
-			this.followers.addAll(ccaData.followers);
-			MailData mailData = CCAUtil.generateMailData(this, "Follower added", null, summaryInfo, ccaData.followers);
-			String activityDescription = "Followed users " + getusername(userService, ccaData.followers);
+		processFieldValues(request, ccaData, summaryInfo, logActivities);
+		updateFieldCounts();
+
+		return this;
+	}
+
+	private void handlePermissionChanges(HttpServletRequest request, CCAData ccaData, LogActivities logActivities,
+			Map<String, Object> summaryInfo, CCAData dataInMem, UserServiceApi userService) {
+		Set<String> ccaAllowedUsers = new HashSet<>(ccaData.getAllowedUsers());
+		Set<String> inMemAllowedUsers = new HashSet<>(dataInMem.getAllowedUsers());
+
+		Set<String> removedUsers = new HashSet<>(inMemAllowedUsers);
+		removedUsers.removeAll(ccaAllowedUsers);
+
+		Set<String> newUsers = new HashSet<>(ccaAllowedUsers);
+		newUsers.removeAll(inMemAllowedUsers);
+
+		if (!removedUsers.isEmpty()) {
+			this.allowedUsers.removeAll(removedUsers);
+			MailData mailData = CCAUtil.generateMailData(this, "Permission removed", null, summaryInfo, removedUsers);
+			String activityDescription = "Removed permission for users " + getusername(userService, removedUsers);
 			logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), activityDescription,
-					ccaData.getId(), ccaData.getId(), "ccaData", ccaData.getId(), "Follower added", mailData);
-		} else if (type.equalsIgnoreCase("unfollow")) {
-			this.followers.removeAll(ccaData.followers);
-			MailData mailData = CCAUtil.generateMailData(this, "Follower removed", null, summaryInfo,
-					ccaData.followers);
-			String activityDescription = "Unfollowed users " + getusername(userService, ccaData.followers);
-			logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), activityDescription,
-					ccaData.getId(), ccaData.getId(), "ccaData", ccaData.getId(), "Follower removed", mailData);
+					ccaData.getId(), ccaData.getId(), CCADATA, ccaData.getId(), "Permission removed", mailData);
 		}
 
+		if (!newUsers.isEmpty()) {
+			this.allowedUsers.addAll(newUsers);
+			this.followers.addAll(newUsers);
+			MailData mailData = CCAUtil.generateMailData(this, "Permission added", null, summaryInfo, newUsers);
+			String activityDescription = "Added permission for users " + getusername(userService, newUsers);
+			logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), activityDescription,
+					ccaData.getId(), ccaData.getId(), CCADATA, ccaData.getId(), "Permission added", mailData);
+		}
+	}
+
+	private void handleUsergroupChanges(HttpServletRequest request, CCAData ccaData,
+			UserGroupSerivceApi userGroupService, LogActivities logActivities, Map<String, Object> summaryInfo,
+			CCAData dataInMem) {
+
+		Set<String> ccaUsergroups = new HashSet<>(ccaData.getUsergroups());
+		Set<String> inMemUsergroups = new HashSet<>(dataInMem.getUsergroups());
+
+		Set<String> newUsergroups = new HashSet<>(ccaUsergroups);
+		newUsergroups.removeAll(inMemUsergroups);
+
+		Set<String> removedUsergroups = new HashSet<>(inMemUsergroups);
+		removedUsergroups.removeAll(ccaUsergroups);
+
+		if (!newUsergroups.isEmpty()) {
+			this.usergroups.addAll(newUsergroups);
+			processUsergroups(request, newUsergroups, "Usergroup added", userGroupService, logActivities, summaryInfo,
+					ccaData);
+		}
+
+		if (!removedUsergroups.isEmpty()) {
+			this.usergroups.removeAll(removedUsergroups);
+			processUsergroups(request, removedUsergroups, "Usergroup removed", userGroupService, logActivities,
+					summaryInfo, ccaData);
+		}
+
+	}
+
+	private void handleFollowActions(HttpServletRequest request, CCAData ccaData, LogActivities logActivities,
+			UserServiceApi userService, Map<String, Object> summaryInfo) {
+		this.followers.addAll(ccaData.followers);
+		MailData mailData = CCAUtil.generateMailData(this, "Follower added", null, summaryInfo, ccaData.followers);
+		String activityDescription = "Followed users " + getusername(userService, ccaData.followers);
+		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), activityDescription,
+				ccaData.getId(), ccaData.getId(), CCADATA, ccaData.getId(), "Follower added", mailData);
+
+	}
+
+	private void handleUnfollowActions(HttpServletRequest request, CCAData ccaData, LogActivities logActivities,
+			UserServiceApi userService, Map<String, Object> summaryInfo) {
+		this.followers.removeAll(ccaData.followers);
+		MailData mailData = CCAUtil.generateMailData(this, "Follower removed", null, summaryInfo, ccaData.followers);
+		String activityDescription = "Unfollowed users " + getusername(userService, ccaData.followers);
+		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), activityDescription,
+				ccaData.getId(), ccaData.getId(), CCADATA, ccaData.getId(), "Follower removed", mailData);
+
+	}
+
+	private void processFieldValues(HttpServletRequest request, CCAData ccaData, Map<String, Object> summaryInfo,
+			LogActivities logActivities) {
 		Map<String, CCAFieldValue> fieldsMap = getCcaFieldValues();
 
 		for (Map.Entry<String, CCAFieldValue> e : ccaData.getCcaFieldValues().entrySet()) {
@@ -237,7 +263,7 @@ public class CCAData extends BaseEntity {
 					diff = dbFieldValue.getName() + "\n" + diff;
 					MailData mailData = CCAUtil.generateMailData(this, "Data updated", diff, summaryInfo, null);
 					logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), diff, ccaData.getId(),
-							ccaData.getId(), "ccaData", ccaData.getId(), "Data updated", mailData);
+							ccaData.getId(), CCADATA, ccaData.getId(), "Data updated", mailData);
 				}
 				// Persist in DB
 				this.ccaFieldValues.put(e.getKey(), e.getValue());
@@ -248,19 +274,20 @@ public class CCAData extends BaseEntity {
 				// Log newly added data entries
 				String desc = "Added : " + e.getValue().getName();
 				logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, ccaData.getId(),
-						ccaData.getId(), "ccaData", ccaData.getId(), "Data updated",
+						ccaData.getId(), CCADATA, ccaData.getId(), "Data updated",
 						CCAUtil.generateMailData(ccaData, "Data updated", desc, summaryInfo, null));
 			}
 		}
 
+	}
+
+	private void updateFieldCounts() {
 		this.richTextCount = CCAUtil.countFieldType(this, FieldType.RICHTEXT);
 		this.textFieldCount = CCAUtil.countFieldType(this, FieldType.TEXT);
 		this.traitsFieldCount = CCAUtil.countFieldType(this, FieldType.SINGLE_SELECT_RADIO)
 				+ CCAUtil.countFieldType(this, FieldType.MULTI_SELECT_CHECKBOX)
 				+ CCAUtil.countFieldType(this, FieldType.SINGLE_SELECT_DROPDOWN)
 				+ CCAUtil.countFieldType(this, FieldType.MULTI_SELECT_DROPDOWN);
-
-		return this;
 	}
 
 	public void translate(CCATemplate template) {
