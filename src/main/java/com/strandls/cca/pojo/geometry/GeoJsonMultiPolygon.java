@@ -33,7 +33,12 @@ public class GeoJsonMultiPolygon extends GeoJsonGeometry {
 					interior.add(new Position(point));
 				}
 
-			polygonCoordinates.add(new PolygonCoordinates(exterior, interior));
+				if(polygon.size()>1) {
+				    polygonCoordinates.add(new PolygonCoordinates(exterior, interior));
+				}
+		        else {
+		            polygonCoordinates.add(new PolygonCoordinates(exterior));
+		        }
 		}
 		return new MultiPolygon(polygonCoordinates);
 	}
