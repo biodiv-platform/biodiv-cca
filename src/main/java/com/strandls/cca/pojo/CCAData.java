@@ -201,7 +201,7 @@ public class CCAData extends BaseEntity {
 		}
 	}
 
-	private void handleUsergroupChanges(HttpServletRequest request, CCAData ccaData,
+	public void handleUsergroupChanges(HttpServletRequest request, CCAData ccaData,
 			UserGroupSerivceApi userGroupService, LogActivities logActivities, Map<String, Object> summaryInfo,
 			CCAData dataInMem) {
 

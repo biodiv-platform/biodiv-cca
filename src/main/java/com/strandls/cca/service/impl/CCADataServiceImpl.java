@@ -336,7 +336,10 @@ public class CCADataServiceImpl implements CCADataService {
 				+ CCAUtil.countFieldType(ccaData, FieldType.SINGLE_SELECT_DROPDOWN)
 				+ CCAUtil.countFieldType(ccaData, FieldType.MULTI_SELECT_DROPDOWN));
 
-		ccaData = ccaDataDao.save(ccaData);
+		CCAData dataInMem = ccaDataDao.save(ccaData);
+
+		ccaData.handleUsergroupChanges(request, ccaData, userGroupService, logActivities, getSummaryInfo(dataInMem),
+				dataInMem);
 
 		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), "", ccaData.getId(),
 				ccaData.getId(), "ccaData", ccaData.getId(), "Data created",
