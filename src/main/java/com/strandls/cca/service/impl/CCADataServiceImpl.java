@@ -342,13 +342,13 @@ public class CCADataServiceImpl implements CCADataService {
 		ccaData.setUsergroups(null);
 		ccaData = ccaDataDao.save(ccaData);
 
-		CCAData ccaWithGroups = ccaData;
-		ccaWithGroups.setUsergroups(groups);
-		update(request, ccaWithGroups, UPDATEUSERGROUP);
-
 		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), "", ccaData.getId(),
 				ccaData.getId(), "ccaData", ccaData.getId(), "Data created",
 				CCAUtil.generateMailData(ccaData, null, null, getSummaryInfo(ccaData), null));
+
+		CCAData ccaWithGroups = ccaData;
+		ccaWithGroups.setUsergroups(groups);
+		update(request, ccaWithGroups, UPDATEUSERGROUP);
 
 		return ccaData;
 	}
