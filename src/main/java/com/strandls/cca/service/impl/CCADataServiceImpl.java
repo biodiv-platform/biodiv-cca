@@ -109,6 +109,8 @@ public class CCADataServiceImpl implements CCADataService {
 
 	private static final String SHORT_NAME = "shortName";
 
+	private static final String UPDATEUSERGROUP = "UpdateUsergroup";
+
 	@Inject
 	public CCADataServiceImpl() {
 		// Just for the injection purpose
@@ -338,11 +340,11 @@ public class CCADataServiceImpl implements CCADataService {
 
 		Set<String> groups = ccaData.getUsergroups();
 		ccaData.setUsergroups(null);
-		CCAData dataInMem = ccaDataDao.save(ccaData);
-		ccaData.setUsergroups(groups);
+		ccaData = ccaDataDao.save(ccaData);
 
-		ccaData.handleUsergroupChanges(request, ccaData, userGroupService, logActivities, getSummaryInfo(dataInMem),
-				dataInMem);
+		CCAData ccaWithGroups = ccaData;
+		ccaWithGroups.setUsergroups(groups);
+		update(request, ccaWithGroups, UPDATEUSERGROUP);
 
 		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), "", ccaData.getId(),
 				ccaData.getId(), "ccaData", ccaData.getId(), "Data created",
@@ -354,7 +356,7 @@ public class CCADataServiceImpl implements CCADataService {
 	@Override
 	public CCAData update(HttpServletRequest request, CCAData ccaData, String type) {
 
-		if (type.equalsIgnoreCase("UpdateUsergroup")) {
+		if (type.equalsIgnoreCase(UPDATEUSERGROUP)) {
 			Set<String> groupsToRemove = new HashSet<>();
 			Boolean eligible = null;
 			userGroupService = headers.addUserGroupHeader(userGroupService,
@@ -379,7 +381,7 @@ public class CCADataServiceImpl implements CCADataService {
 				CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE), false);
 
 		if (!type.equalsIgnoreCase("Permission") && !type.equalsIgnoreCase("Follow")
-				&& !type.equalsIgnoreCase("Unfollow") && !type.equalsIgnoreCase("UpdateUsergroup"))
+				&& !type.equalsIgnoreCase("Unfollow") && !type.equalsIgnoreCase(UPDATEUSERGROUP))
 			validateData(ccaData, ccaTemplate);
 
 		Timestamp time = new Timestamp(new Date().getTime());

@@ -318,7 +318,7 @@ public class CCAData extends BaseEntity {
 		return userNames;
 	}
 
-	private void processUsergroups(HttpServletRequest request, Set<String> usergroups, String action,
+	public void processUsergroups(HttpServletRequest request, Set<String> usergroups, String action,
 			UserGroupSerivceApi userGroupService, LogActivities logActivities, Map<String, Object> summaryInfo,
 			CCAData ccaData) {
 		ObjectMapper om = new ObjectMapper();
