@@ -12,6 +12,7 @@ public final class CCAConstants {
 	public static final String SHORT_NAME = "shortName";
 	public static final String VIEW_TEMPLATE = "viewTemplate";
 	public static final String FILTER_TEMPLATE = "filterTemplate";
+	public static final String USER_GROUPS = "usergroups";
 
 	public static final String VALUE = "value";
 

@@ -66,6 +66,7 @@ import com.strandls.cca.util.CCADataCSVThread;
 import com.strandls.cca.util.CCAUtil;
 import com.strandls.cca.util.EncryptionUtils;
 import com.strandls.user.controller.UserServiceApi;
+import com.strandls.userGroup.controller.UserGroupSerivceApi;
 import com.strandls.cca.Headers;
 
 public class CCADataServiceImpl implements CCADataService {
@@ -95,6 +96,9 @@ public class CCADataServiceImpl implements CCADataService {
 	private EncryptionUtils encryptUtils;
 
 	@Inject
+	private UserGroupSerivceApi userGroupService;
+
+	@Inject
 	private CCATemplateService ccaContextService;
 
 	private final Logger logger = LoggerFactory.getLogger(CCADataServiceImpl.class);
@@ -104,6 +108,8 @@ public class CCADataServiceImpl implements CCADataService {
 	private static final String NOTES = "notes";
 
 	private static final String SHORT_NAME = "shortName";
+
+	private static final String UPDATEUSERGROUP = "UpdateUsergroup";
 
 	@Inject
 	public CCADataServiceImpl() {
@@ -221,9 +227,9 @@ public class CCADataServiceImpl implements CCADataService {
 			language = CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE);
 
 		List<CCADataList> ccaDataList = mergeToCCADataList(ccaDatas, language);
-        Bson searchQuery = new Document();
+		Bson searchQuery = new Document();
 
-		AggregateIterable<Map> aggregation = ccaDataDao.getAggregation(uriInfo, userId,searchQuery);
+		AggregateIterable<Map> aggregation = ccaDataDao.getAggregation(uriInfo, userId, searchQuery);
 
 		AggregationResponse aggregationResponse = new AggregationResponse();
 		aggregationResponse.setCcaDataList(ccaDataList);
@@ -233,28 +239,28 @@ public class CCADataServiceImpl implements CCADataService {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public Map<String, Object> getCCADataAggregation(String query,HttpServletRequest request, UriInfo uriInfo, boolean myListOnly)
-			throws JsonProcessingException {
-		
-		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
-        
-        // Set the default value for the query parameter if not provided
-        if (query == null) {
-        	query = "";
-        }
+	public Map<String, Object> getCCADataAggregation(String query, HttpServletRequest request, UriInfo uriInfo,
+			boolean myListOnly) throws JsonProcessingException {
 
-        List<String> fieldIds = ccaTemplateService.getFieldIds("", "");
-        List<String> valueFields=ccaTemplateService.getValueFields(fieldIds);
-        
-        // Add multiple fields to the search query
-        List<Bson> fieldQueries = new ArrayList<>();
-        for (String valueField : valueFields) {
-            Bson fieldQuery = Filters.regex(valueField, query, "i");
-            fieldQueries.add(fieldQuery);
-        }
-        
-        Bson searchQuery = Filters.or(fieldQueries);
-		
+		MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
+
+		// Set the default value for the query parameter if not provided
+		if (query == null) {
+			query = "";
+		}
+
+		List<String> fieldIds = ccaTemplateService.getFieldIds("", "");
+		List<String> valueFields = ccaTemplateService.getValueFields(fieldIds);
+
+		// Add multiple fields to the search query
+		List<Bson> fieldQueries = new ArrayList<>();
+		for (String valueField : valueFields) {
+			Bson fieldQuery = Filters.regex(valueField, query, "i");
+			fieldQueries.add(fieldQuery);
+		}
+
+		Bson searchQuery = Filters.or(fieldQueries);
+
 		String userId = null;
 		if (myListOnly) {
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
@@ -262,7 +268,6 @@ public class CCADataServiceImpl implements CCADataService {
 		} else if (queryParams.containsKey(CCAConstants.USER_ID)) {
 			userId = queryParams.get(CCAConstants.USER_ID).get(0);
 		}
-
 
 		AggregateIterable<Map> aggregation = ccaDataDao.getAggregation(uriInfo, userId, searchQuery);
 		return aggregation.first();
@@ -333,11 +338,17 @@ public class CCADataServiceImpl implements CCADataService {
 				+ CCAUtil.countFieldType(ccaData, FieldType.SINGLE_SELECT_DROPDOWN)
 				+ CCAUtil.countFieldType(ccaData, FieldType.MULTI_SELECT_DROPDOWN));
 
+		Set<String> groups = ccaData.getUsergroups();
+		ccaData.setUsergroups(null);
 		ccaData = ccaDataDao.save(ccaData);
 
 		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), "", ccaData.getId(),
 				ccaData.getId(), "ccaData", ccaData.getId(), "Data created",
 				CCAUtil.generateMailData(ccaData, null, null, getSummaryInfo(ccaData), null));
+
+		CCAData ccaWithGroups = ccaData;
+		ccaWithGroups.setUsergroups(groups);
+		update(request, ccaWithGroups, UPDATEUSERGROUP);
 
 		return ccaData;
 	}
@@ -345,12 +356,32 @@ public class CCADataServiceImpl implements CCADataService {
 	@Override
 	public CCAData update(HttpServletRequest request, CCAData ccaData, String type) {
 
+		if (type.equalsIgnoreCase(UPDATEUSERGROUP)) {
+			Set<String> groupsToRemove = new HashSet<>();
+			Boolean eligible = null;
+			userGroupService = headers.addUserGroupHeader(userGroupService,
+					request.getHeader(HttpHeaders.AUTHORIZATION));
+
+			for (String usergroupId : ccaData.getUsergroups()) {
+				try {
+					eligible = userGroupService.checkUserMember(usergroupId);
+				} catch (Exception e) {
+					logger.error(e.getMessage());
+				}
+				if (Boolean.FALSE.equals(eligible)) {
+					groupsToRemove.add(usergroupId);
+				}
+			}
+
+			ccaData.getUsergroups().removeAll(groupsToRemove);
+		}
+
 		String shortName = ccaData.getShortName();
 		CCATemplate ccaTemplate = ccaTemplateService.getCCAByShortName(shortName,
 				CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE), false);
 
 		if (!type.equalsIgnoreCase("Permission") && !type.equalsIgnoreCase("Follow")
-				&& !type.equalsIgnoreCase("Unfollow"))
+				&& !type.equalsIgnoreCase("Unfollow") && !type.equalsIgnoreCase(UPDATEUSERGROUP))
 			validateData(ccaData, ccaTemplate);
 
 		Timestamp time = new Timestamp(new Date().getTime());
@@ -362,7 +393,7 @@ public class CCADataServiceImpl implements CCADataService {
 		CCAData dataInMem = ccaDataDao.getById(ccaData.getId());
 
 		dataInMem = dataInMem.overrideFieldData(request, ccaData, logActivities, type, getSummaryInfo(dataInMem),
-				dataInMem, userService);
+				dataInMem, userService, userGroupService);
 
 		dataInMem.reComputeCentroid();
 		return ccaDataDao.replaceOne(dataInMem);
@@ -708,102 +739,95 @@ public class CCADataServiceImpl implements CCADataService {
 		return false;
 	}
 
-
 	@Override
 	public Map<String, Object> searchCCAData(String query, HttpServletRequest request, UriInfo uriInfo)
-	        throws JsonProcessingException {
-	    try {
-	        MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
+			throws JsonProcessingException {
+		try {
+			MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
 
-	        // Set default values for offset and limit parameters if not provided
-	        int offset = Integer.parseInt(queryParams.getOrDefault("offset", Collections.singletonList("0")).get(0));
-	        int limit = Integer.parseInt(queryParams.getOrDefault("limit", Collections.singletonList("100")).get(0));
+			// Set default values for offset and limit parameters if not provided
+			int offset = Integer.parseInt(queryParams.getOrDefault("offset", Collections.singletonList("0")).get(0));
+			int limit = Integer.parseInt(queryParams.getOrDefault("limit", Collections.singletonList("100")).get(0));
 
+			// Set the default value for the query parameter if not provided
+			if (query.isEmpty()) {
+				query = "";
+			}
 
-	        // Set the default value for the query parameter if not provided
-	        if (query.isEmpty()) {
-	        	query = "";
-	        }
+			List<String> fieldIds = ccaTemplateService.getFieldIds("", "");
+			List<String> valueFields = ccaTemplateService.getValueFields(fieldIds);
 
-	        List<String> fieldIds = ccaTemplateService.getFieldIds("", "");
-	        List<String> valueFields=ccaTemplateService.getValueFields(fieldIds);
-	        
-	        // Add multiple fields to the search query
-	        List<Bson> fieldQueries = new ArrayList<>();
-	        for (String valueField : valueFields) {
-	            Bson fieldQuery = Filters.regex(valueField, query, "i");
-	            fieldQueries.add(fieldQuery);
-	        }
-	        
-	        Bson searchQuery = Filters.or(fieldQueries);
-	        
-	        List<CCAData> ccaData = ccaDataDao.getSearchCCAData( uriInfo, searchQuery, limit, offset);
+			// Add multiple fields to the search query
+			List<Bson> fieldQueries = new ArrayList<>();
+			for (String valueField : valueFields) {
+				Bson fieldQuery = Filters.regex(valueField, query, "i");
+				fieldQueries.add(fieldQuery);
+			}
 
-	        List<SubsetCCADataList> list = mergeToSubsetCCADataList(ccaData,
-	                CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE));
-	        Map<String, Object> res = new HashMap<>();
+			Bson searchQuery = Filters.or(fieldQueries);
 
-	        res.put("totalCount", list.size());
-	        res.put("data", list);
+			List<CCAData> ccaData = ccaDataDao.getSearchCCAData(uriInfo, searchQuery, limit, offset);
 
-	        // Return the search results as a JSON response
-	        return res;
-	    } catch (Exception e) {
+			List<SubsetCCADataList> list = mergeToSubsetCCADataList(ccaData,
+					CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE));
+			Map<String, Object> res = new HashMap<>();
+
+			res.put("totalCount", list.size());
+			res.put("data", list);
+
+			// Return the search results as a JSON response
+			return res;
+		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
-	    return Collections.emptyMap();
+		return Collections.emptyMap();
 	}
 
-
-
-
-	
 	@Override
 	public List<MapInfo> searchMapCCAData(String query, HttpServletRequest request, UriInfo uriInfo)
-	        throws JsonProcessingException {
-	    try {
-	        
-	        // Set the default value for the query parameter if not provided
-	        if (query.isEmpty()) {
-	        	query = "";
-	        }
+			throws JsonProcessingException {
+		try {
 
-	        List<String> fieldIds = ccaTemplateService.getFieldIds("", "");
-	        List<String> valueFields=ccaTemplateService.getValueFields(fieldIds);
+			// Set the default value for the query parameter if not provided
+			if (query.isEmpty()) {
+				query = "";
+			}
 
-	        // Add multiple fields to the search query
-	        List<Bson> fieldQueries = new ArrayList<>();
-	        for (String valueField : valueFields) {
-	            Bson fieldQuery = Filters.regex(valueField, query, "i");
-	            fieldQueries.add(fieldQuery);
-	        }
-	        
-	        
-	        Bson searchQuery = Filters.or(fieldQueries);
-	        
-	        List<CCAData> ccaData = ccaDataDao.getSearchMapCCAData( uriInfo,searchQuery);
-	        List<MapInfo> mapInfoList = new ArrayList<>();
+			List<String> fieldIds = ccaTemplateService.getFieldIds("", "");
+			List<String> valueFields = ccaTemplateService.getValueFields(fieldIds);
+
+			// Add multiple fields to the search query
+			List<Bson> fieldQueries = new ArrayList<>();
+			for (String valueField : valueFields) {
+				Bson fieldQuery = Filters.regex(valueField, query, "i");
+				fieldQueries.add(fieldQuery);
+			}
+
+			Bson searchQuery = Filters.or(fieldQueries);
+
+			List<CCAData> ccaData = ccaDataDao.getSearchMapCCAData(uriInfo, searchQuery);
+			List<MapInfo> mapInfoList = new ArrayList<>();
 			for (CCAData ccadata : ccaData) {
 				if (ccadata.getCentroid().size() >= 2) {
-					mapInfoList
-							.add(new MapInfo(ccadata.getId(), ccadata.getCentroid().get(1), ccadata.getCentroid().get(0)));
+					mapInfoList.add(
+							new MapInfo(ccadata.getId(), ccadata.getCentroid().get(1), ccadata.getCentroid().get(0)));
 				}
 			}
-		      return mapInfoList;
-	    } catch (Exception e) {
+			return mapInfoList;
+		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
-	    return Collections.emptyList();
+		return Collections.emptyList();
 	}
-	
-	  @Override
-	    public List<CCAData> saveCCADataInBulk(HttpServletRequest request, List<CCAData> ccaDataList) {
-	        List<CCAData> savedDataList = new ArrayList<>();
-	        for (CCAData ccaData : ccaDataList) {
-	            CCAData savedData = save(request, ccaData);
-	            savedDataList.add(savedData);
-	        }
-	        return savedDataList;
-	    }
+
+	@Override
+	public List<CCAData> saveCCADataInBulk(HttpServletRequest request, List<CCAData> ccaDataList) {
+		List<CCAData> savedDataList = new ArrayList<>();
+		for (CCAData ccaData : ccaDataList) {
+			CCAData savedData = save(request, ccaData);
+			savedDataList.add(savedData);
+		}
+		return savedDataList;
+	}
 
 }

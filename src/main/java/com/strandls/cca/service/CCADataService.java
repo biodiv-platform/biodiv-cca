@@ -21,7 +21,7 @@ import com.strandls.cca.pojo.response.MapInfo;
 import com.strandls.cca.pojo.response.SubsetCCADataList;
 
 public interface CCADataService {
-	
+
 	public List<CCAData> saveCCADataInBulk(HttpServletRequest request, List<CCAData> ccaDataList);
 	
 	public Map<String, Object>  searchCCAData(String query, HttpServletRequest request, UriInfo uriInfo) throws JsonProcessingException ;
@@ -38,11 +38,14 @@ public interface CCADataService {
 
 	public CCAData remove(HttpServletRequest request, Long id);
 
-	public List<CCAData> getAllCCAData(HttpServletRequest request, UriInfo uriInfo, Boolean isDeletedData) throws JsonProcessingException;
+	public List<CCAData> getAllCCAData(HttpServletRequest request, UriInfo uriInfo, Boolean isDeletedData)
+			throws JsonProcessingException;
 
-	public List<CCAData> downloadCCAData(HttpServletRequest request, UriInfo uriInfo, Boolean isDeletedData) throws JsonProcessingException;
+	public List<CCAData> downloadCCAData(HttpServletRequest request, UriInfo uriInfo, Boolean isDeletedData)
+			throws JsonProcessingException;
 
-	public List<CCAData> getCCADataByShortName(HttpServletRequest request, UriInfo uriInfo, String shortName, Boolean isDeletedData) throws JsonProcessingException;
+	public List<CCAData> getCCADataByShortName(HttpServletRequest request, UriInfo uriInfo, String shortName,
+			Boolean isDeletedData) throws JsonProcessingException;
 
 	public AggregationResponse getMyCCADataList(HttpServletRequest request, UriInfo uriInfo)
 			throws JsonProcessingException;
@@ -57,20 +60,19 @@ public interface CCADataService {
 
 	public CCAData deepRemove(Long id);
 
+	public Map<String, Object> getCCAPageData(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly)
+			throws JsonProcessingException;
 
-	
-	public Map<String, Object> getCCAPageData(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly) throws JsonProcessingException;
-
-	public List<MapInfo> getCCAMapData(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly) throws JsonProcessingException;
+	public List<MapInfo> getCCAMapData(HttpServletRequest request, UriInfo uriInfo, boolean myListOnly)
+			throws JsonProcessingException;
 
 	public SubsetCCADataList getSummaryData(Long id, String language);
 
 	public Activity addComment(HttpServletRequest request, Long userId, Long dataId, CommentLoggingData commentData);
 
-	public Boolean sendPermissionRequest(HttpServletRequest request, CcaPermission ccaPermissionData , CCAData ccaData);
+	public Boolean sendPermissionRequest(HttpServletRequest request, CcaPermission ccaPermissionData, CCAData ccaData);
 
 	public Boolean sendPermissionGrant(HttpServletRequest request, EncryptedKey encryptedKey);
-
 
 	List<MapInfo> searchMapCCAData(String query, HttpServletRequest request, UriInfo uriInfo)
 			throws JsonProcessingException;
@@ -78,5 +80,4 @@ public interface CCADataService {
 	Map<String, Object> getCCADataAggregation(String query, HttpServletRequest request, UriInfo uriInfo,
 			boolean myListOnly) throws JsonProcessingException;
 
-	
 }
