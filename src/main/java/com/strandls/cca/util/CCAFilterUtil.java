@@ -302,4 +302,27 @@ public class CCAFilterUtil {
 		return Aggregates.facet(facets);
 	}
 
+	public static Bson getFacetListForAllFields(MultivaluedMap<String, String> queryParameter,
+			CCATemplateDao templateDao, ObjectMapper objectMapper, String userId) throws JsonProcessingException {
+		// Take a master template as reference and create the filter
+		String filterTemplate;
+		if (queryParameter.containsKey(CCAConstants.FILTER_TEMPLATE)) {
+			filterTemplate = queryParameter.getFirst(CCAConstants.FILTER_TEMPLATE);
+		} else
+			filterTemplate = CCAConstants.MASTER;
+
+		CCATemplate ccaTemplate = templateDao.findByProperty(CCAConstants.SHORT_NAME, filterTemplate, false);
+
+		List<Facet> facets = new ArrayList<>();
+		Iterator<CCAField> templateIt = ccaTemplate.iterator();
+		while (templateIt.hasNext()) {
+			CCAField field = templateIt.next();
+			Facet facet = field.getGroupAggregation(queryParameter, templateDao, objectMapper, userId);
+			if (facet != null) {
+				facets.add(facet);
+			}
+		}
+		return Aggregates.facet(facets);
+	}
+
 }

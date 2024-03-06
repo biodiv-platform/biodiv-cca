@@ -41,12 +41,17 @@ public class CCADataDao extends AbstractDao<CCAData> {
 			throws JsonProcessingException {
 
 		MultivaluedMap<String, String> queryParameter = uriInfo.getQueryParameters();
+		Boolean allFields = false;
+		if (queryParameter.containsKey("allFields")) {
+			allFields = Boolean.parseBoolean(queryParameter.get("allFields").get(0));
+		}
 
 		// Create the facet pipeline
 		List<Bson> facetPipeline = new ArrayList<>();
 		facetPipeline.add(Aggregates.match(searchQuery));
-		facetPipeline
-				.add(CCAFilterUtil.getFacetListForFilterableFields(queryParameter, templateDao, objectMapper, userId));
+		facetPipeline.add(allFields
+				? CCAFilterUtil.getFacetListForAllFields(queryParameter, templateDao, objectMapper, userId)
+				: CCAFilterUtil.getFacetListForFilterableFields(queryParameter, templateDao, objectMapper, userId));
 		return dbCollection.aggregate(facetPipeline, Map.class);
 
 	}
