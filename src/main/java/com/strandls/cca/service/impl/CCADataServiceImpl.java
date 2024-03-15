@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -235,6 +236,50 @@ public class CCADataServiceImpl implements CCADataService {
 		aggregationResponse.setCcaDataList(ccaDataList);
 		aggregationResponse.setAggregation(aggregation.first());
 		return aggregationResponse;
+	}
+
+	@SuppressWarnings({ "rawtypes" })
+	@Override
+	public Map<String, Object> searchChartData(String query, HttpServletRequest request, UriInfo uriInfo) {
+		try {
+			// Set the default value for the query parameter if not provided
+			if (query.isEmpty()) {
+				query = "";
+			}
+
+			Map<String, Object> res = new HashMap<>();
+			List<String> fieldIds = ccaTemplateService.getFieldIds("", "");
+			List<String> valueFields = ccaTemplateService.getValueFields(fieldIds);
+
+			// Add multiple fields to the search query
+			List<Bson> fieldQueries = new ArrayList<>();
+			for (String valueField : valueFields) {
+				Bson fieldQuery = Filters.regex(valueField, query, "i");
+				fieldQueries.add(fieldQuery);
+			}
+
+			Bson searchQuery = Filters.or(fieldQueries);
+			List<CCAData> ccaData = ccaDataDao.getSearchMapCCAData(uriInfo, searchQuery);
+
+			List<Map<String, CCAFieldValue>> ccaFieldValuesList = ccaData.stream().map(CCAData::getCcaFieldValues)
+					.map(fieldValues -> fieldValues.entrySet().stream()
+							.filter(entry -> entry.getValue().getType().getValue().equals("NUMBER"))
+							.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))
+					.filter(fieldValues -> !fieldValues.isEmpty()).collect(Collectors.toList());
+
+			String userId = null;
+
+			AggregateIterable<Map> aggregation = ccaDataDao.getAggregation(uriInfo, userId, searchQuery);
+
+			res.put("numericAggregation", ccaFieldValuesList);
+			res.put("aggregation", aggregation.first());
+			res.put("total", ccaData.size());
+
+			return res;
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+		return Collections.emptyMap();
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

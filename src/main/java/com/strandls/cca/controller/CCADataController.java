@@ -139,6 +139,20 @@ public class CCADataController {
 	}
 
 	@GET
+	@Path("/chart")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Search CCA Chart data", notes = "Returns CCA Chart data based on the search query", response = CCAData.class, responseContainer = "List")
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
+	public Response searchChartData(@QueryParam("query") String query, @Context HttpServletRequest request,
+			@Context UriInfo uriInfo) throws CCAException {
+		try {
+			return Response.status(Status.OK).entity(ccaDataService.searchChartData(query, request, uriInfo)).build();
+		} catch (Exception e) {
+			throw new CCAException(e);
+		}
+	}
+
+	@GET
 	@Path("/aggregation")
 
 	@Produces(MediaType.APPLICATION_JSON)

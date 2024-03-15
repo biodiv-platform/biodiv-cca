@@ -80,4 +80,6 @@ public interface CCADataService {
 	Map<String, Object> getCCADataAggregation(String query, HttpServletRequest request, UriInfo uriInfo,
 			boolean myListOnly) throws JsonProcessingException;
 
+	public Map<String, Object> searchChartData(String query, HttpServletRequest request, UriInfo uriInfo);
+
 }
