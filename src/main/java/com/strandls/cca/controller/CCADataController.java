@@ -35,8 +35,10 @@ import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.cca.ApiConstants;
 import com.strandls.cca.exception.CCAException;
 import com.strandls.cca.pojo.CCAData;
+import com.strandls.cca.pojo.CCALocation;
 import com.strandls.cca.pojo.EncryptedKey;
 import com.strandls.cca.pojo.Follower;
+import com.strandls.cca.pojo.Location;
 import com.strandls.cca.pojo.Permission;
 import com.strandls.cca.pojo.UsergroupCCA;
 import com.strandls.cca.pojo.response.AggregationResponse;
@@ -345,6 +347,29 @@ public class CCADataController {
 			originalDocs.setUsergroups(groups);
 			return Response.status(Status.OK).entity(ccaDataService.update(request, originalDocs, "UpdateUsergroup"))
 					.build();
+		} catch (Exception e) {
+			throw new CCAException(e);
+		}
+	}
+
+	@PUT
+	@Path(ApiConstants.UPDATE + ApiConstants.LOCATION)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ValidateUser
+	@ApiOperation(value = "Update usergroup for cca data", notes = "Returns CCA data fields with usergroup info", response = CCAData.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 404, message = "Could not save usergroup data", response = String.class) })
+
+	public Response updateLocationCCAData(@Context HttpServletRequest request,
+			@ApiParam("usergroup") CCALocation location) throws CCAException {
+		try {
+			CCAData originalDocs = ccaDataService.findById(location.getId(), null);
+			AuthorizationUtil.handleAuthorization(request,
+					Arrays.asList(Permissions.ROLE_ADMIN, Permissions.ROLE_DATACURATOR), originalDocs.getUserId());
+
+			originalDocs.setLocation(location.getLocation());
+			return Response.status(Status.OK).entity(ccaDataService.update(request, originalDocs, "location")).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}

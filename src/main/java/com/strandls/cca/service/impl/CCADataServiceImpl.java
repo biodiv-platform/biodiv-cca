@@ -273,6 +273,7 @@ public class CCADataServiceImpl implements CCADataService {
 
 			res.put("numericAggregation", ccaFieldValuesList);
 			res.put("aggregation", aggregation.first());
+			res.put("satewiseAggregation", aggregateByState(ccaData));
 			res.put("total", ccaData.size());
 
 			return res;
@@ -280,6 +281,19 @@ public class CCADataServiceImpl implements CCADataService {
 			logger.error(e.getMessage());
 		}
 		return Collections.emptyMap();
+	}
+
+	public static Map<String, Integer> aggregateByState(List<CCAData> ccaDataList) {
+		Map<String, Integer> stateCountMap = new HashMap<>();
+
+		for (CCAData ccaData : ccaDataList) {
+			if (ccaData.getLocation() != null) {
+				String state = ccaData.getLocation().getState();
+				stateCountMap.put(state, stateCountMap.getOrDefault(state, 0) + 1);
+			}
+		}
+
+		return stateCountMap;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -426,7 +440,9 @@ public class CCADataServiceImpl implements CCADataService {
 				CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE), false);
 
 		if (!type.equalsIgnoreCase("Permission") && !type.equalsIgnoreCase("Follow")
-				&& !type.equalsIgnoreCase("Unfollow") && !type.equalsIgnoreCase(UPDATEUSERGROUP))
+				&& !type.equalsIgnoreCase("Unfollow") && !type.equalsIgnoreCase("Location")
+				&& !type.equalsIgnoreCase(UPDATEUSERGROUP))
+
 			validateData(ccaData, ccaTemplate);
 
 		Timestamp time = new Timestamp(new Date().getTime());

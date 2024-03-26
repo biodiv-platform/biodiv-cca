@@ -40,7 +40,7 @@ public class CCAData extends BaseEntity {
 
 	private Set<String> usergroups = new HashSet<>();
 
-	private CCALocation location;
+	private Location location;
 
 	private int richTextCount, textFieldCount, traitsFieldCount;
 
@@ -144,11 +144,11 @@ public class CCAData extends BaseEntity {
 		this.usergroups = usergroups;
 	}
 
-	public CCALocation getLocation() {
+	public Location getLocation() {
 		return location;
 	}
 
-	public void setLocation(CCALocation location) {
+	public void setLocation(Location location) {
 		this.location = location;
 	}
 
@@ -172,6 +172,9 @@ public class CCAData extends BaseEntity {
 		case "unfollow":
 			handleUnfollowActions(request, ccaData, logActivities, userService, summaryInfo);
 			break;
+		case "location":
+			handleLocationChanges(request, ccaData);
+			break;
 		default:
 			break;
 		}
@@ -180,6 +183,10 @@ public class CCAData extends BaseEntity {
 		updateFieldCounts();
 
 		return this;
+	}
+
+	private void handleLocationChanges(HttpServletRequest request, CCAData ccaData) {
+		this.setLocation(ccaData.getLocation());
 	}
 
 	private void handlePermissionChanges(HttpServletRequest request, CCAData ccaData, LogActivities logActivities,

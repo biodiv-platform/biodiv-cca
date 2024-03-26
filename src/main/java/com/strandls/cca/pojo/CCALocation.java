@@ -2,43 +2,23 @@ package com.strandls.cca.pojo;
 
 public class CCALocation {
 
-	private String state;
-	private String district;
-	private String tahsil;
+	private Long id;
+	private Location location;
 
-	public CCALocation() {
-		super();
+	public Long getId() {
+		return id;
 	}
 
-	public CCALocation(String state, String district, String tahsil) {
-		super();
-		this.state = state;
-		this.district = district;
-		this.tahsil = tahsil;
+	public void setId(Long id) {
+		this.id = id;
 	}
 
-	public String getState() {
-		return state;
+	public Location getLocation() {
+		return location;
 	}
 
-	public void setState(String state) {
-		this.state = state;
-	}
-
-	public String getDistrict() {
-		return district;
-	}
-
-	public void setDistrict(String district) {
-		this.district = district;
-	}
-
-	public String getTahsil() {
-		return tahsil;
-	}
-
-	public void setTahsil(String tahsil) {
-		this.tahsil = tahsil;
+	public void setLocation(Location location) {
+		this.location = location;
 	}
 
 }
