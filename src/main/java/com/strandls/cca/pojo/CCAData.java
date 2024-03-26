@@ -40,6 +40,8 @@ public class CCAData extends BaseEntity {
 
 	private Set<String> usergroups = new HashSet<>();
 
+	private CCALocation location;
+
 	private int richTextCount, textFieldCount, traitsFieldCount;
 
 	private Map<String, CCAFieldValue> ccaFieldValues;
@@ -140,6 +142,14 @@ public class CCAData extends BaseEntity {
 
 	public void setUsergroups(Set<String> usergroups) {
 		this.usergroups = usergroups;
+	}
+
+	public CCALocation getLocation() {
+		return location;
+	}
+
+	public void setLocation(CCALocation location) {
+		this.location = location;
 	}
 
 	public CCAData overrideFieldData(HttpServletRequest request, CCAData ccaData, LogActivities logActivities,
