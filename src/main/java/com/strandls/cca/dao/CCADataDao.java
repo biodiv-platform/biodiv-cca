@@ -49,7 +49,7 @@ public class CCADataDao extends AbstractDao<CCAData> {
 		// Create the facet pipeline
 		List<Bson> facetPipeline = new ArrayList<>();
 		facetPipeline.add(Aggregates.match(searchQuery));
-		facetPipeline.add(isChart
+		facetPipeline.add(Boolean.TRUE.equals(isChart)
 				? CCAFilterUtil.getFacetListForChartFields(queryParameter, templateDao, objectMapper, userId)
 				: CCAFilterUtil.getFacetListForFilterableFields(queryParameter, templateDao, objectMapper, userId));
 		return dbCollection.aggregate(facetPipeline, Map.class);

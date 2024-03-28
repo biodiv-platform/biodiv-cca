@@ -173,7 +173,7 @@ public class CCAData extends BaseEntity {
 			handleUnfollowActions(request, ccaData, logActivities, userService, summaryInfo);
 			break;
 		case "location":
-			handleLocationChanges(request, ccaData);
+			handleLocationChanges(ccaData);
 			break;
 		default:
 			break;
@@ -185,7 +185,7 @@ public class CCAData extends BaseEntity {
 		return this;
 	}
 
-	private void handleLocationChanges(HttpServletRequest request, CCAData ccaData) {
+	private void handleLocationChanges(CCAData ccaData) {
 		this.setLocation(ccaData.getLocation());
 	}
 

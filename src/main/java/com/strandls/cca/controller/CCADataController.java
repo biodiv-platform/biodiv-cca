@@ -38,7 +38,6 @@ import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.CCALocation;
 import com.strandls.cca.pojo.EncryptedKey;
 import com.strandls.cca.pojo.Follower;
-import com.strandls.cca.pojo.Location;
 import com.strandls.cca.pojo.Permission;
 import com.strandls.cca.pojo.UsergroupCCA;
 import com.strandls.cca.pojo.response.AggregationResponse;
