@@ -356,9 +356,9 @@ public class CCADataController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ValidateUser
-	@ApiOperation(value = "Update usergroup for cca data", notes = "Returns CCA data fields with usergroup info", response = CCAData.class)
+	@ApiOperation(value = "Update location for cca data", notes = "Returns CCA data fields with location info", response = CCAData.class)
 	@ApiResponses(value = {
-			@ApiResponse(code = 404, message = "Could not save usergroup data", response = String.class) })
+			@ApiResponse(code = 404, message = "Could not save location data", response = String.class) })
 
 	public Response updateLocationCCAData(@Context HttpServletRequest request,
 			@ApiParam("usergroup") CCALocation location) throws CCAException {
