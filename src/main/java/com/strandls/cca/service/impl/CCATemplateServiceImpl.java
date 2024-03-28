@@ -3,6 +3,7 @@ package com.strandls.cca.service.impl;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -258,6 +259,30 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 			CCAField ccaField = it.next();
 			if (ccaField.getIsFilterable().booleanValue())
 				ccaFields.add(ccaField);
+		}
+		return ccaFields;
+	}
+
+	@Override
+	public List<CCAField> getFilterableChartFields(HttpServletRequest request, String shortName, String language) {
+		if (shortName == null || "".equals(shortName))
+			shortName = CCAConstants.MASTER;
+
+		CCATemplate ccaTemplate = getCCAByShortName(shortName, language, false);
+		Iterator<CCAField> it = ccaTemplate.iterator();
+		List<CCAField> ccaFields = new ArrayList<>();
+
+		// hardcoded to get the needed aggregate
+		List<String> filteredIds = Arrays.asList("f4d0c3af-02ba-4891-b1cb-bd1a81bd0ff4",
+				"d80a1180-98e8-4722-90ab-6115d453d909", "1368d834-f297-428c-9aa6-52896834f3d4",
+				"a188d345-a4a3-4d03-bfe8-0596374ae2a5", "41440a76-d80f-4531-b43b-f48b9c72ab2b");
+
+		while (it.hasNext()) {
+			CCAField ccaField = it.next();
+
+			if (filteredIds.contains(ccaField.getFieldId())) {
+				ccaFields.add(ccaField);
+			}
 		}
 		return ccaFields;
 	}

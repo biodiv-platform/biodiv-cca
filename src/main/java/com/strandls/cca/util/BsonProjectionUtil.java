@@ -32,6 +32,7 @@ public class BsonProjectionUtil {
 		fieldNames.add(CCAConstants.SHORT_NAME);
 		fieldNames.add(CCAConstants.USER_ID);
 		fieldNames.add("centroid");
+		fieldNames.add("location");
 		fieldNames.add("createdOn");
 		fieldNames.add("updatedOn");
 

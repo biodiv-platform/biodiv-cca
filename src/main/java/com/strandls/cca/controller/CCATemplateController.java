@@ -82,6 +82,25 @@ public class CCATemplateController {
 	}
 
 	@GET
+	@Path("/filter/chart/fields")
+
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ApiOperation(value = "Find CCA chart METADATA", notes = "Returns all chartable CCA fields", response = CCAField.class, responseContainer = "List")
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "CCA chartable not found", response = String.class) })
+
+	public Response getFilterableChartFields(@Context HttpServletRequest request,
+			@QueryParam("shortName") String shortName, @QueryParam("language") String language) throws CCAException {
+		try {
+			return Response.status(Status.OK)
+					.entity(ccaContextService.getFilterableChartFields(request, shortName, language)).build();
+		} catch (Exception e) {
+			throw new CCAException(e);
+		}
+	}
+
+	@GET
 	@Path("/all")
 
 	@Consumes(MediaType.TEXT_PLAIN)

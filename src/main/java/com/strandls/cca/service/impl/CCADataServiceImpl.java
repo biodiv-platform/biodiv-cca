@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -237,6 +238,64 @@ public class CCADataServiceImpl implements CCADataService {
 		return aggregationResponse;
 	}
 
+	@SuppressWarnings({ "rawtypes" })
+	@Override
+	public Map<String, Object> searchChartData(String query, HttpServletRequest request, UriInfo uriInfo) {
+		try {
+			// Set the default value for the query parameter if not provided
+			if (query.isEmpty()) {
+				query = "";
+			}
+
+			Map<String, Object> res = new HashMap<>();
+			List<String> fieldIds = ccaTemplateService.getFieldIds("", "");
+			List<String> valueFields = ccaTemplateService.getValueFields(fieldIds);
+
+			// Add multiple fields to the search query
+			List<Bson> fieldQueries = new ArrayList<>();
+			for (String valueField : valueFields) {
+				Bson fieldQuery = Filters.regex(valueField, query, "i");
+				fieldQueries.add(fieldQuery);
+			}
+
+			Bson searchQuery = Filters.or(fieldQueries);
+			List<CCAData> ccaData = ccaDataDao.getSearchMapCCAData(uriInfo, searchQuery);
+
+			List<Map<String, CCAFieldValue>> ccaFieldValuesList = ccaData.stream().map(CCAData::getCcaFieldValues)
+					.map(fieldValues -> fieldValues.entrySet().stream()
+							.filter(entry -> entry.getValue().getType().getValue().equals("NUMBER"))
+							.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))
+					.filter(fieldValues -> !fieldValues.isEmpty()).collect(Collectors.toList());
+
+			String userId = null;
+
+			AggregateIterable<Map> aggregation = ccaDataDao.getAggregation(uriInfo, userId, searchQuery);
+
+			res.put("numericAggregation", ccaFieldValuesList);
+			res.put("aggregation", aggregation.first());
+			res.put("satewiseAggregation", aggregateByState(ccaData));
+			res.put("total", ccaData.size());
+
+			return res;
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+		return Collections.emptyMap();
+	}
+
+	public static Map<String, Integer> aggregateByState(List<CCAData> ccaDataList) {
+		Map<String, Integer> stateCountMap = new HashMap<>();
+
+		for (CCAData ccaData : ccaDataList) {
+			if (ccaData.getLocation() != null) {
+				String state = ccaData.getLocation().getState();
+				stateCountMap.put(state, stateCountMap.getOrDefault(state, 0) + 1);
+			}
+		}
+
+		return stateCountMap;
+	}
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Map<String, Object> getCCADataAggregation(String query, HttpServletRequest request, UriInfo uriInfo,
@@ -381,7 +440,9 @@ public class CCADataServiceImpl implements CCADataService {
 				CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE), false);
 
 		if (!type.equalsIgnoreCase("Permission") && !type.equalsIgnoreCase("Follow")
-				&& !type.equalsIgnoreCase("Unfollow") && !type.equalsIgnoreCase(UPDATEUSERGROUP))
+				&& !type.equalsIgnoreCase("Unfollow") && !type.equalsIgnoreCase("Location")
+				&& !type.equalsIgnoreCase(UPDATEUSERGROUP))
+
 			validateData(ccaData, ccaTemplate);
 
 		Timestamp time = new Timestamp(new Date().getTime());
