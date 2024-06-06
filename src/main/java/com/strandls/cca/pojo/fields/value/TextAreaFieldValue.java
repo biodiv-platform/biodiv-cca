@@ -24,7 +24,7 @@ public class TextAreaFieldValue extends CCAFieldValue {
 	@Override
 	public String computeDiff(CCAFieldValue value) {
 		TextAreaFieldValue inputValue = (TextAreaFieldValue) value;
-		if (!this.value.equals(inputValue.getValue())) {
+		if (this.value != null && !this.value.equals(inputValue.getValue())) {
 			return "Updated";
 		}
 		return null;

@@ -24,7 +24,7 @@ public class RichtextFieldValue extends CCAFieldValue {
 	@Override
 	public String computeDiff(CCAFieldValue value) {
 		RichtextFieldValue inputValue = (RichtextFieldValue) value;
-		if (!this.value.equals(inputValue.getValue())) {
+		if (this.value != null && !this.value.equals(inputValue.getValue())) {
 			return "Updated";
 		}
 		return null;
@@ -33,7 +33,8 @@ public class RichtextFieldValue extends CCAFieldValue {
 	@Override
 	public boolean validateValue(CCAFieldValue value) {
 		RichtextFieldValue inputValue = (RichtextFieldValue) value;
-		if(inputValue.getValue() != null && inputValue.getValue().equals("") && inputValue.getValue().equals("<p></p>")) {
+		if (inputValue.getValue() != null && inputValue.getValue().equals("")
+				&& inputValue.getValue().equals("<p></p>")) {
 			return true;
 		}
 		return false;

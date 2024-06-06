@@ -17,7 +17,6 @@ public class SingleSelectFieldValue extends CCAFieldValue {
 	@Override
 	public void translate(CCAField translatedField) {
 		super.translate(translatedField);
-		
 		if (this.value == null)
 			return;
 
@@ -34,12 +33,13 @@ public class SingleSelectFieldValue extends CCAFieldValue {
 		String diff = "";
 
 		SingleSelectFieldValue singleSelectFieldValue = (SingleSelectFieldValue) value;
-		if (!this.value.getValue().equals(singleSelectFieldValue.getValue().getValue())) {
+		if (this.value != null && !this.value.getValue().equals(singleSelectFieldValue.getValue().getValue())) {
 			diff += "Before : ";
 			diff += this.getValue();
 			diff += "\nAfter : ";
 			diff += singleSelectFieldValue.getValue();
 		}
+
 		return "".equals(diff) ? null : diff;
 	}
 
