@@ -810,6 +810,10 @@ public class CCADataServiceImpl implements CCADataService {
 			int offset = Integer.parseInt(queryParams.getOrDefault("offset", Collections.singletonList("0")).get(0));
 			int limit = Integer.parseInt(queryParams.getOrDefault("limit", Collections.singletonList("100")).get(0));
 
+			String language = queryParams.getFirst("language");
+			if (language == null || "".equals(language))
+				language = CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE);
+
 			// Set the default value for the query parameter if not provided
 			if (query.isEmpty()) {
 				query = "";
@@ -829,8 +833,7 @@ public class CCADataServiceImpl implements CCADataService {
 
 			List<CCAData> ccaData = ccaDataDao.getSearchCCAData(uriInfo, searchQuery, limit, offset);
 
-			List<SubsetCCADataList> list = mergeToSubsetCCADataList(ccaData,
-					CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE));
+			List<SubsetCCADataList> list = mergeToSubsetCCADataList(ccaData, language);
 			Map<String, Object> res = new HashMap<>();
 
 			res.put("totalCount", list.size());
