@@ -386,7 +386,7 @@ public class CCADataServiceImpl implements CCADataService {
 		ccaData.setCreatedOn(time);
 		ccaData.setUpdatedOn(time);
 
-		ccaData.setUserId(profile.getId());
+		ccaData.setUserId(ccaData.getUserId() != null ? ccaData.getUserId() : profile.getId());
 
 		ccaData.reComputeCentroid();
 
