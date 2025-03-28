@@ -402,14 +402,9 @@ public class CCADataServiceImpl implements CCADataService {
 				+ CCAUtil.countFieldType(ccaData, FieldType.SINGLE_SELECT_DROPDOWN)
 				+ CCAUtil.countFieldType(ccaData, FieldType.MULTI_SELECT_DROPDOWN));
 
-		Set<String> groups = new HashSet<>();
+		Set<String> groups = ccaData.getUsergroups();
 
-		if (roles.contains("ROLE_ADMIN")) {
-			ccaData.setUsergroups(ccaData.getUsergroups());
-		} else {
-			ccaData.setUsergroups(null);
-			groups = ccaData.getUsergroups();
-		}
+		ccaData.setUsergroups(roles.contains("ROLE_ADMIN") ? groups : null);
 
 		ccaData = ccaDataDao.save(ccaData);
 
@@ -417,9 +412,10 @@ public class CCADataServiceImpl implements CCADataService {
 				ccaData.getId(), "ccaData", ccaData.getId(), "Data created",
 				CCAUtil.generateMailData(ccaData, null, null, getSummaryInfo(ccaData), null));
 
-		CCAData ccaWithGroups = ccaData;
-		ccaWithGroups.setUsergroups(groups);
-		update(request, ccaWithGroups, UPDATEUSERGROUP);
+		if (!roles.contains("ROLE_ADMIN")) {
+			ccaData.setUsergroups(groups);
+			update(request, ccaData, UPDATEUSERGROUP);
+		}
 
 		return ccaData;
 	}
