@@ -68,6 +68,9 @@ import com.strandls.cca.util.CCAUtil;
 import com.strandls.cca.util.EncryptionUtils;
 import com.strandls.user.controller.UserServiceApi;
 import com.strandls.userGroup.controller.UserGroupSerivceApi;
+
+import net.minidev.json.JSONArray;
+
 import com.strandls.cca.Headers;
 
 public class CCADataServiceImpl implements CCADataService {
@@ -380,6 +383,8 @@ public class CCADataServiceImpl implements CCADataService {
 
 		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 
+		JSONArray roles = (JSONArray) profile.getAttribute("roles");
+
 		validateData(ccaData, ccaTemplate);
 
 		Timestamp time = new Timestamp(new Date().getTime());
@@ -397,8 +402,15 @@ public class CCADataServiceImpl implements CCADataService {
 				+ CCAUtil.countFieldType(ccaData, FieldType.SINGLE_SELECT_DROPDOWN)
 				+ CCAUtil.countFieldType(ccaData, FieldType.MULTI_SELECT_DROPDOWN));
 
-		Set<String> groups = ccaData.getUsergroups();
-		ccaData.setUsergroups(null);
+		Set<String> groups = new HashSet<>();
+
+		if (roles.contains("ROLE_ADMIN")) {
+			ccaData.setUsergroups(ccaData.getUsergroups());
+		} else {
+			ccaData.setUsergroups(null);
+			groups = ccaData.getUsergroups();
+		}
+
 		ccaData = ccaDataDao.save(ccaData);
 
 		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), "", ccaData.getId(),
