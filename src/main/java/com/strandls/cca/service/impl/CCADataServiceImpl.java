@@ -409,17 +409,17 @@ public class CCADataServiceImpl implements CCADataService {
 
 		ccaData = ccaDataDao.save(ccaData);
 
+		String jwtString = null;
+
 		try {
 			TokenGenerator tokenGenerator = new TokenGenerator();
-			String jwtString = tokenGenerator.generate(userService.getUser(ccaData.getUserId()));
-			userService = headers.addUserHeaders(userService, jwtString);
+			jwtString = tokenGenerator.generate(userService.getUser(ccaData.getUserId()));
 		} catch (Exception e) {
 			logger.error("Token generation failed: " + e.getMessage());
 		}
 
-		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), "", ccaData.getId(),
-				ccaData.getId(), "ccaData", ccaData.getId(), "Data created",
-				CCAUtil.generateMailData(ccaData, null, null, getSummaryInfo(ccaData), null));
+		logActivities.logCCAActivities(jwtString, "", ccaData.getId(), ccaData.getId(), "ccaData", ccaData.getId(),
+				"Data created", CCAUtil.generateMailData(ccaData, null, null, getSummaryInfo(ccaData), null));
 
 		if (!roles.contains("ROLE_ADMIN")) {
 			ccaData.setUsergroups(groups);
