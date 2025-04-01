@@ -66,6 +66,7 @@ import com.strandls.cca.util.AuthorizationUtil;
 import com.strandls.cca.util.CCADataCSVThread;
 import com.strandls.cca.util.CCAUtil;
 import com.strandls.cca.util.EncryptionUtils;
+import com.strandls.cca.util.TokenGenerator;
 import com.strandls.user.controller.UserServiceApi;
 import com.strandls.userGroup.controller.UserGroupSerivceApi;
 
@@ -407,6 +408,14 @@ public class CCADataServiceImpl implements CCADataService {
 		ccaData.setUsergroups(roles.contains("ROLE_ADMIN") ? groups : null);
 
 		ccaData = ccaDataDao.save(ccaData);
+
+		try {
+			TokenGenerator tokenGenerator = new TokenGenerator();
+			String jwtString = tokenGenerator.generate(userService.getUser(ccaData.getUserId()));
+			userService = headers.addUserHeaders(userService, jwtString);
+		} catch (Exception e) {
+			logger.error("Token generation failed: " + e.getMessage());
+		}
 
 		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), "", ccaData.getId(),
 				ccaData.getId(), "ccaData", ccaData.getId(), "Data created",
