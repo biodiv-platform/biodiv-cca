@@ -66,8 +66,12 @@ import com.strandls.cca.util.AuthorizationUtil;
 import com.strandls.cca.util.CCADataCSVThread;
 import com.strandls.cca.util.CCAUtil;
 import com.strandls.cca.util.EncryptionUtils;
+import com.strandls.cca.util.TokenGenerator;
 import com.strandls.user.controller.UserServiceApi;
 import com.strandls.userGroup.controller.UserGroupSerivceApi;
+
+import net.minidev.json.JSONArray;
+
 import com.strandls.cca.Headers;
 
 public class CCADataServiceImpl implements CCADataService {
@@ -380,13 +384,15 @@ public class CCADataServiceImpl implements CCADataService {
 
 		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 
+		JSONArray roles = (JSONArray) profile.getAttribute("roles");
+
 		validateData(ccaData, ccaTemplate);
 
 		Timestamp time = new Timestamp(new Date().getTime());
 		ccaData.setCreatedOn(time);
 		ccaData.setUpdatedOn(time);
 
-		ccaData.setUserId(profile.getId());
+		ccaData.setUserId(ccaData.getUserId() != null ? ccaData.getUserId() : profile.getId());
 
 		ccaData.reComputeCentroid();
 
@@ -398,16 +404,27 @@ public class CCADataServiceImpl implements CCADataService {
 				+ CCAUtil.countFieldType(ccaData, FieldType.MULTI_SELECT_DROPDOWN));
 
 		Set<String> groups = ccaData.getUsergroups();
-		ccaData.setUsergroups(null);
+
+		ccaData.setUsergroups(roles.contains("ROLE_ADMIN") ? groups : null);
+
 		ccaData = ccaDataDao.save(ccaData);
 
-		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), "", ccaData.getId(),
-				ccaData.getId(), "ccaData", ccaData.getId(), "Data created",
-				CCAUtil.generateMailData(ccaData, null, null, getSummaryInfo(ccaData), null));
+		String jwtString = null;
 
-		CCAData ccaWithGroups = ccaData;
-		ccaWithGroups.setUsergroups(groups);
-		update(request, ccaWithGroups, UPDATEUSERGROUP);
+		try {
+			TokenGenerator tokenGenerator = new TokenGenerator();
+			jwtString = tokenGenerator.generate(userService.getUser(ccaData.getUserId()));
+		} catch (Exception e) {
+			logger.error("Token generation failed: " + e.getMessage());
+		}
+
+		logActivities.logCCAActivities(jwtString, "", ccaData.getId(), ccaData.getId(), "ccaData", ccaData.getId(),
+				"Data created", CCAUtil.generateMailData(ccaData, null, null, getSummaryInfo(ccaData), null));
+
+		if (!roles.contains("ROLE_ADMIN")) {
+			ccaData.setUsergroups(groups);
+			update(request, ccaData, UPDATEUSERGROUP);
+		}
 
 		return ccaData;
 	}
