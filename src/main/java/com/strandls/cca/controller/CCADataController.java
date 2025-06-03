@@ -361,7 +361,7 @@ public class CCADataController {
 			@ApiResponse(code = 404, message = "Could not save location data", response = String.class) })
 
 	public Response updateLocationCCAData(@Context HttpServletRequest request,
-			@ApiParam("usergroup") CCALocation location) throws CCAException {
+			@ApiParam("location") CCALocation location) throws CCAException {
 		try {
 			CCAData originalDocs = ccaDataService.findById(location.getId(), null);
 			AuthorizationUtil.handleAuthorization(request,
