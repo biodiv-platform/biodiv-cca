@@ -1,8 +1,11 @@
 package com.strandls.cca.util;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -54,10 +57,13 @@ public class CCADataCSVUtil {
 
 	public CSVWriter getCsvWriter(String fileName) {
 
-		FileWriter outputfile = null;
 		try {
-			outputfile = new FileWriter(new File(fileName));
-			writer = new CSVWriter(outputfile);
+			FileOutputStream fos = new FileOutputStream(fileName);
+			fos.write(0xEF);
+			fos.write(0xBB);
+			fos.write(0xBF);
+			OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
+			writer = new CSVWriter(osw);
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 		}
