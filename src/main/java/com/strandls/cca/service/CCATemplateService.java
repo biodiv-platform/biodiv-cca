@@ -2,7 +2,7 @@ package com.strandls.cca.service;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.strandls.activity.pojo.Activity;
 import com.strandls.activity.pojo.CommentLoggingData;
@@ -12,7 +12,7 @@ import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.cca.pojo.Platform;
 
 /**
- * 
+ *
  * @author vilay
  *
  */

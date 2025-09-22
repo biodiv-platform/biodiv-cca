@@ -1,28 +1,28 @@
 /**
- * 
+ *
  */
 package com.strandls.cca.service.impl;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.strandls.activity.controller.ActivitySerivceApi;
+import com.strandls.activity.controller.ActivityServiceApi;
 import com.strandls.activity.pojo.CCAActivityLogging;
 import com.strandls.activity.pojo.CCAMailData;
 import com.strandls.activity.pojo.MailData;
 import com.strandls.cca.Headers;
 
 /**
- * 
+ *
  * @author vilay
  *
  */
 public class LogActivities {
 
 	@Inject
-	private ActivitySerivceApi activityService;
+	private ActivityServiceApi activityService;
 
 	@Inject
 	private Headers headers;

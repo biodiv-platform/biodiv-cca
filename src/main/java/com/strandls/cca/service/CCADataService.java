@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.UriInfo;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.UriInfo;
 
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
@@ -23,7 +23,7 @@ import com.strandls.cca.pojo.response.SubsetCCADataList;
 public interface CCADataService {
 
 	public List<CCAData> saveCCADataInBulk(HttpServletRequest request, List<CCAData> ccaDataList);
-	
+
 	public Map<String, Object>  searchCCAData(String query, HttpServletRequest request, UriInfo uriInfo) throws JsonProcessingException ;
 
 	public void validateData(CCAData ccaData, CCATemplate ccaTemplate);

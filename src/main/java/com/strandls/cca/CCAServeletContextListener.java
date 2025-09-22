@@ -1,12 +1,12 @@
 /**
- * 
+ *
  */
 package com.strandls.cca;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextEvent;
 
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
@@ -61,12 +61,12 @@ public class CCAServeletContextListener extends GuiceServletContextListener {
 				} finally {
 					// mongoClient.close();
 				}
-				
+
 				ObjectMapper om = new ObjectMapper();
 				bind(ObjectMapper.class).toInstance(om);
 
 				Map<String, String> props = new HashMap<>();
-				props.put("javax.ws.rs.Application", ApplicationConfig.class.getName());
+				props.put("jakarta.ws.rs.Application", ApplicationConfig.class.getName());
 				props.put("jersey.config.server.provider.packages", "com");
 				props.put("jersey.config.server.wadl.disableWadl", "true");
 

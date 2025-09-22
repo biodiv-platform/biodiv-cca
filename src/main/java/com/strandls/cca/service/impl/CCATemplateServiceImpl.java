@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.core.HttpHeaders;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.core.HttpHeaders;
 
 import org.pac4j.core.profile.CommonProfile;
 import org.slf4j.Logger;
@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 import com.strandls.activity.ApiException;
-import com.strandls.activity.controller.ActivitySerivceApi;
+import com.strandls.activity.controller.ActivityServiceApi;
 import com.strandls.activity.pojo.Activity;
 import com.strandls.activity.pojo.CCAMailData;
 import com.strandls.activity.pojo.CommentLoggingData;
@@ -40,7 +40,7 @@ import com.strandls.cca.util.AuthorizationUtil;
 import com.strandls.cca.Headers;
 
 /**
- * 
+ *
  * @author vilay
  *
  */
@@ -56,7 +56,7 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 	private CCADataDao ccaDataDao;
 
 	@Inject
-	private ActivitySerivceApi activityService;
+	private ActivityServiceApi activityService;
 
 	@Inject
 	private Headers headers;
@@ -96,9 +96,9 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 
 		String desc = "Template created with short Name : " + context.getShortName();
 		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, context.getId(),
-				context.getId(), "ccaTempate", context.getId(), "Template created", 
+				context.getId(), "ccaTempate", context.getId(), "Template created",
 				generateMailData(ccaTemplate, desc, "activity:template_created"));
-		
+
 		return ccaTemplate;
 	}
 
@@ -110,27 +110,27 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 			ccaMailData.setAuthorId(Long.parseLong(ccaTemplate.getUserId()));
 			ccaMailData.setId(ccaTemplate.getId());
 			ccaMailData.setLocation("India");
-			
+
 			Map<String, String> template = new HashMap<>();
 			template.put("short_name", ccaTemplate.getShortName());
 			template.put("url", "template/list");
 			template.put("time", ccaTemplate.getCreatedOn().toString());
 			template.put("update_time", ccaTemplate.getUpdatedOn().toString());
-			
+
 			Map<String, String> activity = new HashMap<>();
 			if(desc != null && title != null) {
 				activity.put("description", desc);
 				activity.put("title", title);
-				SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");  
-			    Date date = new Date();  
+				SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+			    Date date = new Date();
 				activity.put("time", formatter.format(date));
 			}
-			
+
 			Map<String, Object> data = new HashMap<>();
 			data.put("template", template);
 			data.put("activity", activity);
 			data.put("owner", ccaTemplate.getUserId());
-			
+
 			ccaMailData.setData(data);
 			mailData = new MailData();
 			mailData.setCcaMailData(ccaMailData);
@@ -155,7 +155,7 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 
 		masterTemplate.translate(language);
 		context.translate(language);
-		
+
 		context.pullTranslationFromMaster(masterTemplate);
 		context.setLanguage(language);
 
@@ -197,7 +197,7 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 				if (desc != null) {
 					desc = inputField.getName() + "\n" + desc;
 					logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, context.getId(),
-							context.getId(), "ccaTempate", context.getId(), "Field updated", 
+							context.getId(), "ccaTempate", context.getId(), "Field updated",
 							generateMailData(ccaTemplateDao.getById(template.getId()), desc, "Field updated"));
 				}
 			} else {
@@ -205,7 +205,7 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 				String desc = dbField.getTranslations().get(CCAConfig.getProperty(ApiConstants.DEFAULT_LANGUAGE))
 						.getName();
 				logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, context.getId(),
-						context.getId(), "ccaTempate", context.getId(), "Field deleted", 
+						context.getId(), "ccaTempate", context.getId(), "Field deleted",
 						generateMailData(ccaTemplateDao.getById(template.getId()), desc, "Field deleted"));
 			}
 		}
@@ -217,7 +217,7 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 			if (!dbFields.containsKey(fieldId)) {
 				String desc = f.getName();
 				logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, context.getId(),
-						context.getId(), "ccaTempate", context.getId(), "Field created", 
+						context.getId(), "ccaTempate", context.getId(), "Field created",
 						generateMailData(ccaTemplateDao.getById(template.getId()), desc, "Field created"));
 			}
 		}
@@ -322,10 +322,10 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 			ccaDataDao.removeOrRestoreManyCCDataByShortName(shortName, true);
 		}
 
-		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), ccaTemplate.getDescription(), 
-				ccaTemplate.getId(), ccaTemplate.getId(), "ccaTempate", ccaTemplate.getId(), 
+		logActivities.logCCAActivities(request.getHeader(HttpHeaders.AUTHORIZATION), ccaTemplate.getDescription(),
+				ccaTemplate.getId(), ccaTemplate.getId(), "ccaTempate", ccaTemplate.getId(),
 				"CCA Template Deleted", generateMailData(ccaTemplate, null, null));
-		
+
 		return ccaTemplate;
 	}
 
@@ -340,7 +340,7 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 		if(ccaTemplate == null) {
 			throw new NotFoundException("Not found template with id : " + commentData.getRootHolderId());
 		}
-		
+
 		commentData.setMailData(generateMailData(ccaTemplate, commentData.getBody(), "Commented"));
 		activityService = headers.addActivityHeader(activityService, request.getHeader(HttpHeaders.AUTHORIZATION));
 		Activity activity = null;
@@ -349,12 +349,12 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 		} catch (ApiException e) {
 			e.printStackTrace();
 		}
-		
+
 		return activity;
 	}
 
-	
-	
+
+
 	@Override
 	public List<String> getFieldIds(String shortName, String language) {
 		if (shortName.isEmpty() || "".equals(shortName))
@@ -369,7 +369,7 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 		}
 		return ccaFields;
 	}
-	
+
 	@Override
 	 public  List<String> getValueFields(List<String> fieldIds) {
 	        List<String> fieldQueries = new ArrayList<>();
@@ -381,6 +381,6 @@ public class CCATemplateServiceImpl implements CCATemplateService {
 	    }
 
 
-	
+
 
 }

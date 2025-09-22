@@ -2,7 +2,7 @@ package com.strandls.cca.pojo.filter.field;
 
 import java.util.regex.Pattern;
 
-import javax.ws.rs.DefaultValue;
+import jakarta.ws.rs.DefaultValue;
 
 import org.bson.conversions.Bson;
 
@@ -12,7 +12,7 @@ import com.strandls.cca.pojo.filter.Filter;
 public class TextFilter extends Filter {
 
 	private String value;
-	
+
 	@DefaultValue("false")
 	private Boolean isExactMatch;
 

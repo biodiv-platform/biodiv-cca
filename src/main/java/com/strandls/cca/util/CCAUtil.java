@@ -16,7 +16,7 @@ import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.FieldType;
 import com.strandls.userGroup.ApiException;
-import com.strandls.userGroup.controller.UserGroupSerivceApi;
+import com.strandls.userGroup.controller.UserGroupServiceApi;
 import com.strandls.userGroup.pojo.UserGroupIbp;
 
 public class CCAUtil {
@@ -116,7 +116,7 @@ public class CCAUtil {
 		return mailData;
 	}
 
-	public static List<UserGroupMailData> generateUserGroupMailData(UserGroupSerivceApi userGroupService,
+	public static List<UserGroupMailData> generateUserGroupMailData(UserGroupServiceApi userGroupService,
 			Set<String> usergroups) {
 		List<UserGroupMailData> userGroupMailData = new ArrayList<>();
 		List<UserGroupIbp> updatedUG = new ArrayList<>();

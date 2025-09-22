@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.MultivaluedMap;
 
 import org.bson.codecs.pojo.annotations.BsonIgnore;
 import org.bson.conversions.Bson;
@@ -117,7 +117,7 @@ public abstract class ValueOptionsField extends CCAField {
 	public String equals(Object obj, String language) {
 		String diff = super.equals(obj, language);
 		diff = diff == null ? "" : diff;
-		
+
 		if (!(obj instanceof ValueOptionsField))
 			return null;
 

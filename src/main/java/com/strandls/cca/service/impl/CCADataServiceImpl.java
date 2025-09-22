@@ -12,14 +12,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -33,7 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.model.Filters;
 import com.strandls.activity.ApiException;
-import com.strandls.activity.controller.ActivitySerivceApi;
+import com.strandls.activity.controller.ActivityServiceApi;
 import com.strandls.activity.pojo.Activity;
 import com.strandls.activity.pojo.CcaPermission;
 import com.strandls.activity.pojo.CommentLoggingData;
@@ -68,7 +68,7 @@ import com.strandls.cca.util.CCAUtil;
 import com.strandls.cca.util.EncryptionUtils;
 import com.strandls.cca.util.TokenGenerator;
 import com.strandls.user.controller.UserServiceApi;
-import com.strandls.userGroup.controller.UserGroupSerivceApi;
+import com.strandls.userGroup.controller.UserGroupServiceApi;
 
 import net.minidev.json.JSONArray;
 
@@ -86,7 +86,7 @@ public class CCADataServiceImpl implements CCADataService {
 	private LogActivities logActivities;
 
 	@Inject
-	private ActivitySerivceApi activityService;
+	private ActivityServiceApi activityService;
 
 	@Inject
 	private Headers headers;
@@ -101,7 +101,7 @@ public class CCADataServiceImpl implements CCADataService {
 	private EncryptionUtils encryptUtils;
 
 	@Inject
-	private UserGroupSerivceApi userGroupService;
+	private UserGroupServiceApi userGroupService;
 
 	@Inject
 	private CCATemplateService ccaContextService;

@@ -4,10 +4,10 @@
   "invokerPackage": "com.strandls.cca",
   "groupId": "com.strandls.cca",
   "artifactId": "cca-client",
-  "artifactVersion": "1.0.0",
+  "artifactVersion": "0.0.21",
   "fullJavaUtil": true,
   "dateLibrary": "legacy",
-  "library": "jersey2",
+  "library": "jersey3",
   "developerName": "Vilay Kandi",
   "developerEmail": "vilayk@strandls.com",
   "java8": true

@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.UriInfo;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.UriInfo;
 
 import org.bson.conversions.Bson;
 
@@ -58,12 +58,12 @@ public class CCADataDao extends AbstractDao<CCAData> {
 
 	/**
 	 * Create the filter based on query parameter given
-	 * 
+	 *
 	 * filterTemplate - This is used as reference to create all the filter. (Default
 	 * to master) viewTemplate - This is used as reference to view the list data.
 	 * (Default to master) shortName - User can pass the short name as well. We'll
 	 * get only data from the given short Name
-	 * 
+	 *
 	 * @param uriInfo
 	 * @return
 	 * @throws JsonProcessingException

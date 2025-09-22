@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
-import javax.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.MultivaluedMap;
 
 import org.bson.codecs.pojo.annotations.BsonIgnore;
 import org.bson.conversions.Bson;
@@ -40,7 +40,7 @@ public abstract class RangableField<T extends Comparable<T>> extends CCAField {
 	/**
 	 * This method is for getting minimum and maximum for the generic type T Used
 	 * only for the validation purpose.
-	 * 
+	 *
 	 * @return
 	 */
 	public abstract T fetchMaxRange();

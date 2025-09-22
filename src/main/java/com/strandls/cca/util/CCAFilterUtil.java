@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.MultivaluedMap;
 
 import org.bson.conversions.Bson;
 
@@ -159,7 +159,7 @@ public class CCAFilterUtil {
 
 	/**
 	 * Creating filter based on its type
-	 * 
+	 *
 	 * @param values
 	 * @param field
 	 * @return
@@ -210,10 +210,10 @@ public class CCAFilterUtil {
 
 	/**
 	 * Number filter with various cases
-	 * 
+	 *
 	 * 1. Less than / less than or equal to. 2. Greater than / greater than or equal
 	 * to. 3. Range filter.
-	 * 
+	 *
 	 * @param fieldId
 	 * @param fieldType
 	 * @param v
@@ -260,7 +260,7 @@ public class CCAFilterUtil {
 
 	/**
 	 * Creation of the filter in general for various type
-	 * 
+	 *
 	 * @param fieldId
 	 * @param type
 	 * @param op

@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.MultivaluedMap;
 
 import org.bson.codecs.pojo.annotations.BsonDiscriminator;
 import org.bson.codecs.pojo.annotations.BsonIgnore;
@@ -101,7 +101,7 @@ public abstract class CCAField implements IChildable<CCAField> {
 
 	/**
 	 * Do the translation for CCA field
-	 * 
+	 *
 	 * @param language
 	 * @return
 	 */
@@ -118,7 +118,7 @@ public abstract class CCAField implements IChildable<CCAField> {
 
 	/**
 	 * Add update the language for current field based
-	 * 
+	 *
 	 * @param ccaField - This is the history node. Need to copy previous translation
 	 *                 for this
 	 * @param language - Language for translation

@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opencsv.CSVWriter;
-import com.strandls.activity.controller.ActivitySerivceApi;
+import com.strandls.activity.controller.ActivityServiceApi;
 import com.strandls.cca.CCAConfig;
 import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.CCATemplate;
@@ -27,7 +27,7 @@ public class CCADataCSVThread implements Runnable {
 	private String notes;
 	private String url;
 	private UserServiceApi userServiceApi;
-	private ActivitySerivceApi activityService;
+	private ActivityServiceApi activityService;
 	private CCATemplate template;
 
 	public CCADataCSVThread() {
@@ -35,7 +35,7 @@ public class CCADataCSVThread implements Runnable {
 	}
 
 	public CCADataCSVThread(List<CCAData> ccaData, String notes, String url, UserServiceApi userServiceApi,
-			ActivitySerivceApi activityService, CCATemplate template) {
+			ActivityServiceApi activityService, CCATemplate template) {
 		super();
 
 		this.ccaData = ccaData;

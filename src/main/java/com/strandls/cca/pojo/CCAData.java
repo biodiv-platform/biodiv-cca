@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.HttpHeaders;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.HttpHeaders;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ import com.strandls.cca.service.impl.LogActivities;
 import com.strandls.cca.util.CCAUtil;
 import com.strandls.user.controller.UserServiceApi;
 import com.strandls.user.pojo.User;
-import com.strandls.userGroup.controller.UserGroupSerivceApi;
+import com.strandls.userGroup.controller.UserGroupServiceApi;
 import com.strandls.userGroup.pojo.UserGroupIbp;
 
 public class CCAData extends BaseEntity {
@@ -154,7 +154,7 @@ public class CCAData extends BaseEntity {
 
 	public CCAData overrideFieldData(HttpServletRequest request, CCAData ccaData, LogActivities logActivities,
 			String type, Map<String, Object> summaryInfo, CCAData dataInMem, UserServiceApi userService,
-			UserGroupSerivceApi userGroupService) {
+			UserGroupServiceApi userGroupService) {
 
 		this.shortName = ccaData.shortName;
 		this.setUpdatedOn(ccaData.getUpdatedOn());
@@ -219,7 +219,7 @@ public class CCAData extends BaseEntity {
 	}
 
 	public void handleUsergroupChanges(HttpServletRequest request, CCAData ccaData,
-			UserGroupSerivceApi userGroupService, LogActivities logActivities, Map<String, Object> summaryInfo,
+			UserGroupServiceApi userGroupService, LogActivities logActivities, Map<String, Object> summaryInfo,
 			CCAData dataInMem) {
 
 		Set<String> ccaUsergroups = new HashSet<>(ccaData.getUsergroups());
@@ -336,7 +336,7 @@ public class CCAData extends BaseEntity {
 	}
 
 	public void processUsergroups(HttpServletRequest request, Set<String> usergroups, String action,
-			UserGroupSerivceApi userGroupService, LogActivities logActivities, Map<String, Object> summaryInfo,
+			UserGroupServiceApi userGroupService, LogActivities logActivities, Map<String, Object> summaryInfo,
 			CCAData ccaData) {
 		ObjectMapper om = new ObjectMapper();
 
