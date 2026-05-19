@@ -14,6 +14,7 @@ import org.bson.conversions.Bson;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.client.model.Accumulators;
 import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Facet;
 import com.mongodb.client.model.Filters;
@@ -278,6 +279,19 @@ public class CCAFilterUtil {
 		return filter;
 	}
 
+	public static Facet getUserGroupAggregation(MultivaluedMap<String, String> queryParameter,
+			CCATemplateDao templateDao, ObjectMapper objectMapper, String userId) throws JsonProcessingException {
+
+		Bson match = Aggregates.match(
+				CCAFilterUtil.getAllFilters(queryParameter, templateDao, objectMapper, userId, new HashSet<>(), false));
+
+		Bson unwind = Aggregates.unwind("$usergroups");
+
+		Bson group = Aggregates.group("$usergroups", Accumulators.sum("count", 1));
+
+		return new Facet("usergroups", match, unwind, group);
+	}
+
 	public static Bson getFacetListForFilterableFields(MultivaluedMap<String, String> queryParameter,
 			CCATemplateDao templateDao, ObjectMapper objectMapper, String userId) throws JsonProcessingException {
 		// Take a master template as reference and create the filter
@@ -299,6 +313,10 @@ public class CCAFilterUtil {
 				facets.add(facet);
 			}
 		}
+
+		// USERGROUP AGGREGATION
+		Facet userGroupFacet = getUserGroupAggregation(queryParameter, templateDao, objectMapper, userId);
+		facets.add(userGroupFacet);
 		return Aggregates.facet(facets);
 	}
 
