@@ -226,6 +226,13 @@
 			<version>1.0.0</version>
 		</dependency>
 
+		<!-- DuckDB for querying parquet files -->
+		<dependency>
+			<groupId>org.duckdb</groupId>
+			<artifactId>duckdb_jdbc</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

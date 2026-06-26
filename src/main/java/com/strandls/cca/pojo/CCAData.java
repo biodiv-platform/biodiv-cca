@@ -46,6 +46,8 @@ public class CCAData extends BaseEntity {
 
 	private Map<String, CCAFieldValue> ccaFieldValues;
 
+	private List<GBIFObservation> gbifObservations = new ArrayList<>();
+
 	public void reComputeCentroid() {
 		centroid = new ArrayList<>();
 		Double x = 0.0;
@@ -150,6 +152,14 @@ public class CCAData extends BaseEntity {
 
 	public void setLocation(Location location) {
 		this.location = location;
+	}
+
+	public List<GBIFObservation> getGbifObservations() {
+		return gbifObservations;
+	}
+
+	public void setGbifObservations(List<GBIFObservation> gbifObservations) {
+		this.gbifObservations = gbifObservations;
 	}
 
 	public CCAData overrideFieldData(HttpServletRequest request, CCAData ccaData, LogActivities logActivities,
