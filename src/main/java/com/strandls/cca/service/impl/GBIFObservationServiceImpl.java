@@ -15,12 +15,15 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.strandls.cca.CCAConfig;
+import com.strandls.cca.CCAConstants;
+import com.strandls.cca.dao.CCADataDao;
 import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.FieldType;
 import com.strandls.cca.pojo.GBIFObservation;
 import com.strandls.cca.pojo.fields.value.GeometryFieldValue;
 import com.strandls.cca.pojo.geometry.FeatureCollection;
+import com.strandls.cca.pojo.response.GBIFObservationResponse;
 import com.strandls.cca.service.GBIFObservationService;
 
 public class GBIFObservationServiceImpl implements GBIFObservationService {
@@ -38,6 +41,27 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 
 	@Inject
 	private ObjectMapper objectMapper;
+
+	@Inject
+	private CCADataDao ccaDataDao;
+
+	private static final String DUCKDB_COUNT_QUERY_TEMPLATE = "WITH input AS (" + "    SELECT ? AS geojson" + "), "
+			+ "geom AS (" + "    SELECT" + "        ST_GeomFromGeoJSON("
+			+ "            json_extract(geojson, '$.features[0].geometry')::VARCHAR" + "        ) AS shape,"
+			+ "        json_extract(geojson, '$.features[0].geometry.type')::VARCHAR AS geom_type"
+			+ "    FROM input" + "), " + "bbox AS (" + "    SELECT"
+			+ "        CASE WHEN geom_type = '\"Point\"'"
+			+ "            THEN ST_YMin(shape) - 0.2" + "            ELSE ST_YMin(shape)"
+			+ "        END AS min_lat," + "        CASE WHEN geom_type = '\"Point\"'"
+			+ "            THEN ST_YMax(shape) + 0.2" + "            ELSE ST_YMax(shape)"
+			+ "        END AS max_lat," + "        CASE WHEN geom_type = '\"Point\"'"
+			+ "            THEN ST_XMin(shape) - 0.2" + "            ELSE ST_XMin(shape)"
+			+ "        END AS min_lon," + "        CASE WHEN geom_type = '\"Point\"'"
+			+ "            THEN ST_XMax(shape) + 0.2" + "            ELSE ST_XMax(shape)" + "        END AS max_lon"
+			+ "    FROM geom" + ") " + "SELECT COUNT(*) as total FROM '%s' o, bbox"
+			+ " WHERE o.decimalLatitude  BETWEEN bbox.min_lat AND bbox.max_lat"
+			+ "  AND o.decimalLongitude BETWEEN bbox.min_lon AND bbox.max_lon"
+			+ "  AND o.decimalLatitude  IS NOT NULL" + "  AND o.decimalLongitude IS NOT NULL";
 
 	private static final String DUCKDB_QUERY_TEMPLATE = "WITH input AS (" + "    SELECT ? AS geojson" + "), "
 			+ "geom AS (" + "    SELECT" + "        ST_GeomFromGeoJSON("
@@ -57,21 +81,31 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 			+ "    o.locality" + " FROM '%s' o, bbox"
 			+ " WHERE o.decimalLatitude  BETWEEN bbox.min_lat AND bbox.max_lat"
 			+ "  AND o.decimalLongitude BETWEEN bbox.min_lon AND bbox.max_lon"
-			+ "  AND o.decimalLatitude  IS NOT NULL" + "  AND o.decimalLongitude IS NOT NULL";
+			+ "  AND o.decimalLatitude  IS NOT NULL" + "  AND o.decimalLongitude IS NOT NULL"
+			+ " LIMIT ? OFFSET ?";
 
 	@Override
-	public List<GBIFObservation> getObservationsForCCA(CCAData ccaData) {
-		List<GBIFObservation> observations = new ArrayList<>();
+	public GBIFObservationResponse getObservationsForCCA(Long ccaId, Integer offset, Integer limit) {
+		// Set default values
+		if (offset == null || offset < 0) {
+			offset = 0;
+		}
+		if (limit == null || limit <= 0) {
+			limit = 10;
+		}
 
+		// Fetch CCA data
+		CCAData ccaData = ccaDataDao.findByProperty(CCAConstants.ID, ccaId, false);
 		if (ccaData == null || ccaData.getCcaFieldValues() == null) {
-			return observations;
+			logger.warn("CCA data not found for id: {}", ccaId);
+			return new GBIFObservationResponse(0L, offset, limit, new ArrayList<>());
 		}
 
 		// Extract geometry from CCAData
 		FeatureCollection featureCollection = extractGeometry(ccaData);
 		if (featureCollection == null || featureCollection.getFeatures().isEmpty()) {
-			logger.warn("No geometry found in CCAData with id: {}", ccaData.getId());
-			return observations;
+			logger.warn("No geometry found in CCAData with id: {}", ccaId);
+			return new GBIFObservationResponse(0L, offset, limit, new ArrayList<>());
 		}
 
 		try {
@@ -83,19 +117,22 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 			String parquetPath = CCAConfig.getProperty("gbif_parquet_path");
 			if (parquetPath == null || parquetPath.isEmpty()) {
 				logger.error("GBIF parquet file path not configured");
-				return observations;
+				return new GBIFObservationResponse(0L, offset, limit, new ArrayList<>());
 			}
 
-			// Execute DuckDB query
-			observations = executeQuery(geoJson, parquetPath);
+			// Execute queries
+			Long totalCount = executeCountQuery(geoJson, parquetPath);
+			List<GBIFObservation> observations = executeQuery(geoJson, parquetPath, limit, offset);
 
-			logger.info("Found {} GBIF observations for CCA id: {}", observations.size(), ccaData.getId());
+			logger.info("Found {} GBIF observations (total: {}) for CCA id: {}", observations.size(), totalCount,
+					ccaId);
+
+			return new GBIFObservationResponse(totalCount, offset, limit, observations);
 
 		} catch (Exception e) {
-			logger.error("Error querying GBIF observations for CCA id: {}", ccaData.getId(), e);
+			logger.error("Error querying GBIF observations for CCA id: {}", ccaId, e);
+			return new GBIFObservationResponse(0L, offset, limit, new ArrayList<>());
 		}
-
-		return observations;
 	}
 
 	private FeatureCollection extractGeometry(CCAData ccaData) {
@@ -110,7 +147,40 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 		return null;
 	}
 
-	private List<GBIFObservation> executeQuery(String geoJson, String parquetPath) {
+	private Long executeCountQuery(String geoJson, String parquetPath) {
+		Long count = 0L;
+
+		try (Connection conn = DriverManager.getConnection("jdbc:duckdb:")) {
+
+			// Install and load spatial extension
+			conn.createStatement().execute("INSTALL spatial;");
+			conn.createStatement().execute("LOAD spatial;");
+
+			// Build the count query with parquet path
+			String query = String.format(DUCKDB_COUNT_QUERY_TEMPLATE, parquetPath);
+
+			logger.debug("Executing DuckDB count query");
+
+			try (PreparedStatement stmt = conn.prepareStatement(query)) {
+				// Set parameters
+				stmt.setString(1, geoJson);
+
+				// Execute query
+				try (ResultSet rs = stmt.executeQuery()) {
+					if (rs.next()) {
+						count = rs.getLong("total");
+					}
+				}
+			}
+
+		} catch (Exception e) {
+			logger.error("Error executing DuckDB count query", e);
+		}
+
+		return count;
+	}
+
+	private List<GBIFObservation> executeQuery(String geoJson, String parquetPath, Integer limit, Integer offset) {
 		List<GBIFObservation> observations = new ArrayList<>();
 
 		try (Connection conn = DriverManager.getConnection("jdbc:duckdb:")) {
@@ -122,11 +192,14 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 			// Build the query with parquet path
 			String query = String.format(DUCKDB_QUERY_TEMPLATE, parquetPath);
 
-			logger.debug("Executing DuckDB query with parquet path: {}", parquetPath);
+			logger.debug("Executing DuckDB query with parquet path: {}, limit: {}, offset: {}", parquetPath, limit,
+					offset);
 
 			try (PreparedStatement stmt = conn.prepareStatement(query)) {
 				// Set parameters
 				stmt.setString(1, geoJson);
+				stmt.setInt(2, limit);
+				stmt.setInt(3, offset);
 
 				// Execute query
 				try (ResultSet rs = stmt.executeQuery()) {

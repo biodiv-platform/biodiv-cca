@@ -1,17 +1,16 @@
 package com.strandls.cca.service;
 
-import java.util.List;
-
-import com.strandls.cca.pojo.CCAData;
-import com.strandls.cca.pojo.GBIFObservation;
+import com.strandls.cca.pojo.response.GBIFObservationResponse;
 
 public interface GBIFObservationService {
 
 	/**
-	 * Query GBIF observations from parquet file based on CCA geometry
+	 * Query GBIF observations from parquet file based on CCA geometry with pagination
 	 *
-	 * @param ccaData The CCA data containing geometry information
-	 * @return List of GBIF observations within the bounding box
+	 * @param ccaId The CCA data ID
+	 * @param offset The offset for pagination (default 0)
+	 * @param limit The limit for pagination (default 10)
+	 * @return Paginated response containing GBIF observations
 	 */
-	List<GBIFObservation> getObservationsForCCA(CCAData ccaData);
+	GBIFObservationResponse getObservationsForCCA(Long ccaId, Integer offset, Integer limit);
 }

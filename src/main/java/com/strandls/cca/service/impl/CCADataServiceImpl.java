@@ -50,7 +50,6 @@ import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.CCATemplate;
 import com.strandls.cca.pojo.EncryptedKey;
 import com.strandls.cca.pojo.FieldType;
-import com.strandls.cca.pojo.GBIFObservation;
 import com.strandls.cca.pojo.ValueWithLabel;
 import com.strandls.cca.pojo.fields.value.CheckboxFieldValue;
 import com.strandls.cca.pojo.fields.value.FileFieldValue;
@@ -63,7 +62,6 @@ import com.strandls.cca.pojo.response.MapInfo;
 import com.strandls.cca.pojo.response.SubsetCCADataList;
 import com.strandls.cca.service.CCADataService;
 import com.strandls.cca.service.CCATemplateService;
-import com.strandls.cca.service.GBIFObservationService;
 import com.strandls.cca.util.AuthorizationUtil;
 import com.strandls.cca.util.CCADataCSVThread;
 import com.strandls.cca.util.CCAUtil;
@@ -108,9 +106,6 @@ public class CCADataServiceImpl implements CCADataService {
 	@Inject
 	private CCATemplateService ccaContextService;
 
-	@Inject
-	private GBIFObservationService gbifObservationService;
-
 	private final Logger logger = LoggerFactory.getLogger(CCADataServiceImpl.class);
 
 	private static final String PROJECT_ALL = "projectAll";
@@ -135,15 +130,6 @@ public class CCADataServiceImpl implements CCADataService {
 		CCATemplate template = ccaTemplateService.getCCAByShortName(ccaData.getShortName(), language, false);
 
 		ccaData.translate(template);
-
-		// Fetch GBIF observations based on CCA geometry
-		try {
-			List<GBIFObservation> observations = gbifObservationService.getObservationsForCCA(ccaData);
-			ccaData.setGbifObservations(observations);
-		} catch (Exception e) {
-			logger.error("Error fetching GBIF observations for CCA id: {}", id, e);
-		}
-
 		return ccaData;
 	}
 
