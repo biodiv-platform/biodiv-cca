@@ -2,7 +2,7 @@ package com.strandls.cca.pojo;
 
 public class GBIFObservation {
 	private String gbifID;
-	private String species;
+	private String scientificName;
 	private Double decimalLatitude;
 	private Double decimalLongitude;
 	private String stateProvince;
@@ -12,10 +12,10 @@ public class GBIFObservation {
 	public GBIFObservation() {
 	}
 
-	public GBIFObservation(String gbifID, String species, Double decimalLatitude, Double decimalLongitude,
+	public GBIFObservation(String gbifID, String scientificName, Double decimalLatitude, Double decimalLongitude,
 			String stateProvince, String eventDate, String locality) {
 		this.gbifID = gbifID;
-		this.species = species;
+		this.scientificName = scientificName;
 		this.decimalLatitude = decimalLatitude;
 		this.decimalLongitude = decimalLongitude;
 		this.stateProvince = stateProvince;
@@ -31,12 +31,12 @@ public class GBIFObservation {
 		this.gbifID = gbifID;
 	}
 
-	public String getSpecies() {
-		return species;
+	public String getScientificName() {
+		return scientificName;
 	}
 
-	public void setSpecies(String species) {
-		this.species = species;
+	public void setScientificName(String scientificName) {
+		this.scientificName = scientificName;
 	}
 
 	public Double getDecimalLatitude() {
