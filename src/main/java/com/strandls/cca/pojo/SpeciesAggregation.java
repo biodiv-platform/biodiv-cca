@@ -3,13 +3,15 @@ package com.strandls.cca.pojo;
 public class SpeciesAggregation {
 	private String scientificName;
 	private Long count;
+	private String iucnRedListCategory;
 
 	public SpeciesAggregation() {
 	}
 
-	public SpeciesAggregation(String scientificName, Long count) {
+	public SpeciesAggregation(String scientificName, Long count, String iucnRedListCategory) {
 		this.scientificName = scientificName;
 		this.count = count;
+		this.iucnRedListCategory = iucnRedListCategory;
 	}
 
 	public String getScientificName() {
@@ -26,5 +28,13 @@ public class SpeciesAggregation {
 
 	public void setCount(Long count) {
 		this.count = count;
+	}
+
+	public String getIucnRedListCategory() {
+		return iucnRedListCategory;
+	}
+
+	public void setIucnRedListCategory(String iucnRedListCategory) {
+		this.iucnRedListCategory = iucnRedListCategory;
 	}
 }
