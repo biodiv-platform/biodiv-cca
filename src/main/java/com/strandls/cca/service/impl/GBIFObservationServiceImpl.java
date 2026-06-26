@@ -27,6 +27,15 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 
 	private final Logger logger = LoggerFactory.getLogger(GBIFObservationServiceImpl.class);
 
+	static {
+		try {
+			// Explicitly load the DuckDB JDBC driver
+			Class.forName("org.duckdb.DuckDBDriver");
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException("Failed to load DuckDB JDBC driver", e);
+		}
+	}
+
 	@Inject
 	private ObjectMapper objectMapper;
 
