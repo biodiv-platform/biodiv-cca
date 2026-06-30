@@ -79,7 +79,7 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 			+ "        END AS min_lon," + "        CASE WHEN geom_type = '\"Point\"'"
 			+ "            THEN ST_XMax(shape) + 0.2" + "            ELSE ST_XMax(shape)" + "        END AS max_lon"
 			+ "    FROM geom" + ") "
-			+ "SELECT o.scientificName, COUNT(*) as count, FIRST(o.iucnRedListCategory) as iucnRedListCategory FROM '%s' o, bbox"
+			+ "SELECT o.scientificName, COUNT(*) as count, FIRST(o.iucnRedListCategory) as iucnRedListCategory, FIRST(o.speciesGroup) as speciesGroup FROM '%s' o, bbox"
 			+ " WHERE o.decimalLatitude  BETWEEN bbox.min_lat AND bbox.max_lat"
 			+ "  AND o.decimalLongitude BETWEEN bbox.min_lon AND bbox.max_lon"
 			+ "  AND o.decimalLatitude  IS NOT NULL" + "  AND o.decimalLongitude IS NOT NULL"
@@ -277,6 +277,7 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 						agg.setScientificName(rs.getString("scientificName"));
 						agg.setCount(rs.getLong("count"));
 						agg.setIucnRedListCategory(rs.getString("iucnRedListCategory"));
+						agg.setSpeciesGroup(rs.getString("speciesGroup"));
 						aggregations.add(agg);
 					}
 				}
