@@ -1,6 +1,7 @@
 package com.strandls.cca.service;
 
 import com.strandls.cca.pojo.response.GBIFObservationResponse;
+import com.strandls.cca.pojo.response.IUCNAggregationResponse;
 import com.strandls.cca.pojo.response.SpeciesGroupAggregationResponse;
 
 public interface GBIFObservationService {
@@ -22,4 +23,12 @@ public interface GBIFObservationService {
 	 * @return Response containing species group aggregations with total and unique counts
 	 */
 	SpeciesGroupAggregationResponse getSpeciesGroupAggregationForCCA(Long ccaId);
+
+	/**
+	 * Query GBIF observations aggregated by IUCN Red List Category for a CCA
+	 *
+	 * @param ccaId The CCA data ID
+	 * @return Response containing IUCN category aggregations with total and unique counts
+	 */
+	IUCNAggregationResponse getIUCNAggregationForCCA(Long ccaId);
 }

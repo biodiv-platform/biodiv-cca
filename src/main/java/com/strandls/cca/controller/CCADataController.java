@@ -42,6 +42,7 @@ import com.strandls.cca.pojo.Permission;
 import com.strandls.cca.pojo.UsergroupCCA;
 import com.strandls.cca.pojo.response.AggregationResponse;
 import com.strandls.cca.pojo.response.GBIFObservationResponse;
+import com.strandls.cca.pojo.response.IUCNAggregationResponse;
 import com.strandls.cca.pojo.response.SpeciesGroupAggregationResponse;
 import com.strandls.cca.pojo.response.SubsetCCADataList;
 import com.strandls.cca.service.CCADataService;
@@ -123,6 +124,21 @@ public class CCADataController {
 			throws CCAException {
 		try {
 			SpeciesGroupAggregationResponse response = gbifObservationService.getSpeciesGroupAggregationForCCA(id);
+			return Response.status(Status.OK).entity(response).build();
+		} catch (Exception e) {
+			throw new CCAException(e);
+		}
+	}
+
+	@GET
+	@Path("/{id}/iucn-aggregation")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get IUCN Red List Category aggregation for CCA", notes = "Returns aggregated counts by IUCN Red List Category based on CCA geometry", response = IUCNAggregationResponse.class)
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
+	public Response getIUCNAggregation(@Context HttpServletRequest request, @PathParam("id") Long id)
+			throws CCAException {
+		try {
+			IUCNAggregationResponse response = gbifObservationService.getIUCNAggregationForCCA(id);
 			return Response.status(Status.OK).entity(response).build();
 		} catch (Exception e) {
 			throw new CCAException(e);

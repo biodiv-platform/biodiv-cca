@@ -21,11 +21,13 @@ import com.strandls.cca.pojo.CCAData;
 import com.strandls.cca.pojo.CCAFieldValue;
 import com.strandls.cca.pojo.FieldType;
 import com.strandls.cca.pojo.GBIFObservation;
+import com.strandls.cca.pojo.IUCNAggregation;
 import com.strandls.cca.pojo.SpeciesAggregation;
 import com.strandls.cca.pojo.SpeciesGroupAggregation;
 import com.strandls.cca.pojo.fields.value.GeometryFieldValue;
 import com.strandls.cca.pojo.geometry.FeatureCollection;
 import com.strandls.cca.pojo.response.GBIFObservationResponse;
+import com.strandls.cca.pojo.response.IUCNAggregationResponse;
 import com.strandls.cca.pojo.response.SpeciesGroupAggregationResponse;
 import com.strandls.cca.service.GBIFObservationService;
 
@@ -128,6 +130,26 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 			+ "  AND o.decimalLongitude BETWEEN bbox.min_lon AND bbox.max_lon"
 			+ "  AND o.decimalLatitude  IS NOT NULL" + "  AND o.decimalLongitude IS NOT NULL"
 			+ "  AND o.species_group IS NOT NULL" + " GROUP BY o.species_group" + " ORDER BY totalCount DESC";
+
+	private static final String DUCKDB_IUCN_AGGREGATION_QUERY_TEMPLATE = "WITH input AS ("
+			+ "    SELECT ? AS geojson" + "), " + "geom AS (" + "    SELECT" + "        ST_GeomFromGeoJSON("
+			+ "            json_extract(geojson, '$.features[0].geometry')::VARCHAR" + "        ) AS shape,"
+			+ "        json_extract(geojson, '$.features[0].geometry.type')::VARCHAR AS geom_type"
+			+ "    FROM input" + "), " + "bbox AS (" + "    SELECT"
+			+ "        CASE WHEN geom_type = '\"Point\"'"
+			+ "            THEN ST_YMin(shape) - 0.2" + "            ELSE ST_YMin(shape)"
+			+ "        END AS min_lat," + "        CASE WHEN geom_type = '\"Point\"'"
+			+ "            THEN ST_YMax(shape) + 0.2" + "            ELSE ST_YMax(shape)"
+			+ "        END AS max_lat," + "        CASE WHEN geom_type = '\"Point\"'"
+			+ "            THEN ST_XMin(shape) - 0.2" + "            ELSE ST_XMin(shape)"
+			+ "        END AS min_lon," + "        CASE WHEN geom_type = '\"Point\"'"
+			+ "            THEN ST_XMax(shape) + 0.2" + "            ELSE ST_XMax(shape)" + "        END AS max_lon"
+			+ "    FROM geom" + ") "
+			+ "SELECT o.iucnRedListCategory, COUNT(*) as totalCount, COUNT(DISTINCT o.scientificName) as uniqueSpeciesCount FROM '%s' o, bbox"
+			+ " WHERE o.decimalLatitude  BETWEEN bbox.min_lat AND bbox.max_lat"
+			+ "  AND o.decimalLongitude BETWEEN bbox.min_lon AND bbox.max_lon"
+			+ "  AND o.decimalLatitude  IS NOT NULL" + "  AND o.decimalLongitude IS NOT NULL"
+			+ "  AND o.iucnRedListCategory IS NOT NULL" + " GROUP BY o.iucnRedListCategory" + " ORDER BY totalCount DESC";
 
 	@Override
 	public GBIFObservationResponse getObservationsForCCA(Long ccaId, Integer offset, Integer limit) {
@@ -385,6 +407,84 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 
 		} catch (Exception e) {
 			logger.error("Error executing DuckDB species group aggregation query", e);
+		}
+
+		return aggregations;
+	}
+
+	@Override
+	public IUCNAggregationResponse getIUCNAggregationForCCA(Long ccaId) {
+		// Fetch CCA data
+		CCAData ccaData = ccaDataDao.findByProperty(CCAConstants.ID, ccaId, false);
+		if (ccaData == null || ccaData.getCcaFieldValues() == null) {
+			logger.warn("CCA data not found for id: {}", ccaId);
+			return new IUCNAggregationResponse(new ArrayList<>());
+		}
+
+		// Extract geometry from CCAData
+		FeatureCollection featureCollection = extractGeometry(ccaData);
+		if (featureCollection == null || featureCollection.getFeatures().isEmpty()) {
+			logger.warn("No geometry found in CCAData with id: {}", ccaId);
+			return new IUCNAggregationResponse(new ArrayList<>());
+		}
+
+		try {
+			// Convert FeatureCollection to GeoJSON string
+			String geoJson = objectMapper.writeValueAsString(featureCollection);
+			logger.debug("Generated GeoJSON for IUCN aggregation: {}", geoJson);
+
+			// Get parquet file path from configuration
+			String parquetPath = CCAConfig.getProperty("gbif_parquet_path");
+			if (parquetPath == null || parquetPath.isEmpty()) {
+				logger.error("GBIF parquet file path not configured");
+				return new IUCNAggregationResponse(new ArrayList<>());
+			}
+
+			// Execute IUCN aggregation query
+			List<IUCNAggregation> aggregations = executeIUCNAggregationQuery(geoJson, parquetPath);
+
+			logger.info("Found {} IUCN category aggregations for CCA id: {}", aggregations.size(), ccaId);
+
+			return new IUCNAggregationResponse(aggregations);
+
+		} catch (Exception e) {
+			logger.error("Error querying IUCN aggregations for CCA id: {}", ccaId, e);
+			return new IUCNAggregationResponse(new ArrayList<>());
+		}
+	}
+
+	private List<IUCNAggregation> executeIUCNAggregationQuery(String geoJson, String parquetPath) {
+		List<IUCNAggregation> aggregations = new ArrayList<>();
+
+		try (Connection conn = DriverManager.getConnection("jdbc:duckdb:")) {
+
+			// Install and load spatial extension
+			conn.createStatement().execute("INSTALL spatial;");
+			conn.createStatement().execute("LOAD spatial;");
+
+			// Build the IUCN aggregation query with parquet path
+			String query = String.format(DUCKDB_IUCN_AGGREGATION_QUERY_TEMPLATE, parquetPath);
+
+			logger.debug("Executing DuckDB IUCN aggregation query with parquet path: {}", parquetPath);
+
+			try (PreparedStatement stmt = conn.prepareStatement(query)) {
+				// Set parameters
+				stmt.setString(1, geoJson);
+
+				// Execute query
+				try (ResultSet rs = stmt.executeQuery()) {
+					while (rs.next()) {
+						IUCNAggregation agg = new IUCNAggregation();
+						agg.setIucnRedListCategory(rs.getString("iucnRedListCategory"));
+						agg.setTotalCount(rs.getLong("totalCount"));
+						agg.setUniqueSpeciesCount(rs.getLong("uniqueSpeciesCount"));
+						aggregations.add(agg);
+					}
+				}
+			}
+
+		} catch (Exception e) {
+			logger.error("Error executing DuckDB IUCN aggregation query", e);
 		}
 
 		return aggregations;
