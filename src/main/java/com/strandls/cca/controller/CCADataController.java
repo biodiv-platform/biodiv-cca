@@ -42,6 +42,7 @@ import com.strandls.cca.pojo.Permission;
 import com.strandls.cca.pojo.UsergroupCCA;
 import com.strandls.cca.pojo.response.AggregationResponse;
 import com.strandls.cca.pojo.response.GBIFObservationResponse;
+import com.strandls.cca.pojo.response.SpeciesGroupAggregationResponse;
 import com.strandls.cca.pojo.response.SubsetCCADataList;
 import com.strandls.cca.service.CCADataService;
 import com.strandls.cca.service.GBIFObservationService;
@@ -107,6 +108,21 @@ public class CCADataController {
 			@QueryParam("offset") Integer offset, @QueryParam("limit") Integer limit) throws CCAException {
 		try {
 			GBIFObservationResponse response = gbifObservationService.getObservationsForCCA(id, offset, limit);
+			return Response.status(Status.OK).entity(response).build();
+		} catch (Exception e) {
+			throw new CCAException(e);
+		}
+	}
+
+	@GET
+	@Path("/{id}/species-group-aggregation")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get species group aggregation for CCA", notes = "Returns aggregated counts by species group based on CCA geometry", response = SpeciesGroupAggregationResponse.class)
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
+	public Response getSpeciesGroupAggregation(@Context HttpServletRequest request, @PathParam("id") Long id)
+			throws CCAException {
+		try {
+			SpeciesGroupAggregationResponse response = gbifObservationService.getSpeciesGroupAggregationForCCA(id);
 			return Response.status(Status.OK).entity(response).build();
 		} catch (Exception e) {
 			throw new CCAException(e);

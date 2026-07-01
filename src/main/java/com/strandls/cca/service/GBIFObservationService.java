@@ -1,6 +1,7 @@
 package com.strandls.cca.service;
 
 import com.strandls.cca.pojo.response.GBIFObservationResponse;
+import com.strandls.cca.pojo.response.SpeciesGroupAggregationResponse;
 
 public interface GBIFObservationService {
 
@@ -13,4 +14,12 @@ public interface GBIFObservationService {
 	 * @return Paginated response containing GBIF observations
 	 */
 	GBIFObservationResponse getObservationsForCCA(Long ccaId, Integer offset, Integer limit);
+
+	/**
+	 * Query GBIF observations aggregated by species group for a CCA
+	 *
+	 * @param ccaId The CCA data ID
+	 * @return Response containing species group aggregations with total and unique counts
+	 */
+	SpeciesGroupAggregationResponse getSpeciesGroupAggregationForCCA(Long ccaId);
 }
