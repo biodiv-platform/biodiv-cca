@@ -106,9 +106,10 @@ public class CCADataController {
 	@ApiOperation(value = "Get GBIF observations for CCA", notes = "Returns paginated GBIF observations based on CCA geometry", response = GBIFObservationResponse.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
 	public Response getGBIFObservations(@Context HttpServletRequest request, @PathParam("id") Long id,
-			@QueryParam("offset") Integer offset, @QueryParam("limit") Integer limit) throws CCAException {
+			@QueryParam("offset") Integer offset, @QueryParam("limit") Integer limit,
+			@QueryParam("speciesGroup") String speciesGroup) throws CCAException {
 		try {
-			GBIFObservationResponse response = gbifObservationService.getObservationsForCCA(id, offset, limit);
+			GBIFObservationResponse response = gbifObservationService.getObservationsForCCA(id, offset, limit, speciesGroup);
 			return Response.status(Status.OK).entity(response).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
