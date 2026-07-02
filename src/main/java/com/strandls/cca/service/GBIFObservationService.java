@@ -13,9 +13,10 @@ public interface GBIFObservationService {
 	 * @param offset The offset for pagination (default 0)
 	 * @param limit The limit for pagination (default 10)
 	 * @param speciesGroup Optional species group filter
+	 * @param iucnCategory Optional IUCN Red List Category filter
 	 * @return Paginated response containing GBIF observations
 	 */
-	GBIFObservationResponse getObservationsForCCA(Long ccaId, Integer offset, Integer limit, String speciesGroup);
+	GBIFObservationResponse getObservationsForCCA(Long ccaId, Integer offset, Integer limit, String speciesGroup, String iucnCategory);
 
 	/**
 	 * Query GBIF observations aggregated by species group for a CCA

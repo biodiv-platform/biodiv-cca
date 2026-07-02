@@ -152,7 +152,7 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 			+ "  AND o.iucnRedListCategory IS NOT NULL" + " GROUP BY o.iucnRedListCategory" + " ORDER BY totalCount DESC";
 
 	@Override
-	public GBIFObservationResponse getObservationsForCCA(Long ccaId, Integer offset, Integer limit, String speciesGroup) {
+	public GBIFObservationResponse getObservationsForCCA(Long ccaId, Integer offset, Integer limit, String speciesGroup, String iucnCategory) {
 		// Set default values
 		if (offset == null || offset < 0) {
 			offset = 0;
@@ -188,12 +188,12 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 			}
 
 			// Execute queries
-			Long totalCount = executeCountQuery(geoJson, parquetPath, speciesGroup);
-			List<SpeciesAggregation> aggregations = executeAggregationQuery(geoJson, parquetPath, limit, offset, speciesGroup);
-			List<GBIFObservation> observations = executeQuery(geoJson, parquetPath, limit, offset, speciesGroup);
+			Long totalCount = executeCountQuery(geoJson, parquetPath, speciesGroup, iucnCategory);
+			List<SpeciesAggregation> aggregations = executeAggregationQuery(geoJson, parquetPath, limit, offset, speciesGroup, iucnCategory);
+			List<GBIFObservation> observations = executeQuery(geoJson, parquetPath, limit, offset, speciesGroup, iucnCategory);
 
-			logger.info("Found {} species aggregations and {} GBIF observations (total species: {}) for CCA id: {} with speciesGroup filter: {}",
-					aggregations.size(), observations.size(), totalCount, ccaId, speciesGroup);
+			logger.info("Found {} species aggregations and {} GBIF observations (total species: {}) for CCA id: {} with speciesGroup filter: {}, iucnCategory filter: {}",
+					aggregations.size(), observations.size(), totalCount, ccaId, speciesGroup, iucnCategory);
 
 			return new GBIFObservationResponse(totalCount, offset, limit, aggregations, observations);
 
@@ -215,7 +215,7 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 		return null;
 	}
 
-	private Long executeCountQuery(String geoJson, String parquetPath, String speciesGroup) {
+	private Long executeCountQuery(String geoJson, String parquetPath, String speciesGroup, String iucnCategory) {
 		Long count = 0L;
 
 		try (Connection conn = DriverManager.getConnection("jdbc:duckdb:")) {
@@ -224,19 +224,26 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 			conn.createStatement().execute("INSTALL spatial;");
 			conn.createStatement().execute("LOAD spatial;");
 
-			// Build the count query with parquet path and optional species group filter
+			// Build the count query with parquet path and optional filters
 			String baseQuery = String.format(DUCKDB_COUNT_QUERY_TEMPLATE, parquetPath);
+			int paramIndex = 2;
 			if (speciesGroup != null && !speciesGroup.isEmpty()) {
 				baseQuery = baseQuery + " AND o.species_group = ?";
 			}
+			if (iucnCategory != null && !iucnCategory.isEmpty()) {
+				baseQuery = baseQuery + " AND o.iucnRedListCategory = ?";
+			}
 
-			logger.debug("Executing DuckDB count query with speciesGroup: {}", speciesGroup);
+			logger.debug("Executing DuckDB count query with speciesGroup: {}, iucnCategory: {}", speciesGroup, iucnCategory);
 
 			try (PreparedStatement stmt = conn.prepareStatement(baseQuery)) {
 				// Set parameters
 				stmt.setString(1, geoJson);
 				if (speciesGroup != null && !speciesGroup.isEmpty()) {
-					stmt.setString(2, speciesGroup);
+					stmt.setString(paramIndex++, speciesGroup);
+				}
+				if (iucnCategory != null && !iucnCategory.isEmpty()) {
+					stmt.setString(paramIndex++, iucnCategory);
 				}
 
 				// Execute query
@@ -254,7 +261,7 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 		return count;
 	}
 
-	private List<GBIFObservation> executeQuery(String geoJson, String parquetPath, Integer limit, Integer offset, String speciesGroup) {
+	private List<GBIFObservation> executeQuery(String geoJson, String parquetPath, Integer limit, Integer offset, String speciesGroup, String iucnCategory) {
 		List<GBIFObservation> observations = new ArrayList<>();
 
 		try (Connection conn = DriverManager.getConnection("jdbc:duckdb:")) {
@@ -263,17 +270,20 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 			conn.createStatement().execute("INSTALL spatial;");
 			conn.createStatement().execute("LOAD spatial;");
 
-			// Build the query with parquet path and optional species group filter
+			// Build the query with parquet path and optional filters
 			String baseQuery = String.format(DUCKDB_QUERY_TEMPLATE, parquetPath);
-			// Remove the LIMIT/OFFSET to add species group filter before them
+			// Remove the LIMIT/OFFSET to add filters before them
 			baseQuery = baseQuery.replace(" LIMIT ? OFFSET ?", "");
 			if (speciesGroup != null && !speciesGroup.isEmpty()) {
 				baseQuery = baseQuery + " AND o.species_group = ?";
 			}
+			if (iucnCategory != null && !iucnCategory.isEmpty()) {
+				baseQuery = baseQuery + " AND o.iucnRedListCategory = ?";
+			}
 			baseQuery = baseQuery + " LIMIT ? OFFSET ?";
 
-			logger.debug("Executing DuckDB query with parquet path: {}, limit: {}, offset: {}, speciesGroup: {}", parquetPath, limit,
-					offset, speciesGroup);
+			logger.debug("Executing DuckDB query with parquet path: {}, limit: {}, offset: {}, speciesGroup: {}, iucnCategory: {}", parquetPath, limit,
+					offset, speciesGroup, iucnCategory);
 
 			try (PreparedStatement stmt = conn.prepareStatement(baseQuery)) {
 				// Set parameters
@@ -281,6 +291,9 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 				stmt.setString(paramIndex++, geoJson);
 				if (speciesGroup != null && !speciesGroup.isEmpty()) {
 					stmt.setString(paramIndex++, speciesGroup);
+				}
+				if (iucnCategory != null && !iucnCategory.isEmpty()) {
+					stmt.setString(paramIndex++, iucnCategory);
 				}
 				stmt.setInt(paramIndex++, limit);
 				stmt.setInt(paramIndex++, offset);
@@ -309,7 +322,7 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 	}
 
 	private List<SpeciesAggregation> executeAggregationQuery(String geoJson, String parquetPath, Integer limit,
-			Integer offset, String speciesGroup) {
+			Integer offset, String speciesGroup, String iucnCategory) {
 		List<SpeciesAggregation> aggregations = new ArrayList<>();
 
 		try (Connection conn = DriverManager.getConnection("jdbc:duckdb:")) {
@@ -318,17 +331,24 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 			conn.createStatement().execute("INSTALL spatial;");
 			conn.createStatement().execute("LOAD spatial;");
 
-			// Build the aggregation query with parquet path and optional species group filter
+			// Build the aggregation query with parquet path and optional filters
 			String baseQuery = String.format(DUCKDB_AGGREGATION_QUERY_TEMPLATE, parquetPath);
-			// Remove the LIMIT/OFFSET to add species group filter before them
+			// Remove the LIMIT/OFFSET to add filters before them
 			baseQuery = baseQuery.replace(" LIMIT ? OFFSET ?", "");
+			String filterClause = "";
 			if (speciesGroup != null && !speciesGroup.isEmpty()) {
-				baseQuery = baseQuery.replace(" GROUP BY o.scientificName", " AND o.species_group = ? GROUP BY o.scientificName");
+				filterClause += " AND o.species_group = ?";
+			}
+			if (iucnCategory != null && !iucnCategory.isEmpty()) {
+				filterClause += " AND o.iucnRedListCategory = ?";
+			}
+			if (!filterClause.isEmpty()) {
+				baseQuery = baseQuery.replace(" GROUP BY o.scientificName", filterClause + " GROUP BY o.scientificName");
 			}
 			baseQuery = baseQuery + " LIMIT ? OFFSET ?";
 
-			logger.debug("Executing DuckDB aggregation query with parquet path: {}, limit: {}, offset: {}, speciesGroup: {}",
-					parquetPath, limit, offset, speciesGroup);
+			logger.debug("Executing DuckDB aggregation query with parquet path: {}, limit: {}, offset: {}, speciesGroup: {}, iucnCategory: {}",
+					parquetPath, limit, offset, speciesGroup, iucnCategory);
 
 			try (PreparedStatement stmt = conn.prepareStatement(baseQuery)) {
 				// Set parameters
@@ -336,6 +356,9 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 				stmt.setString(paramIndex++, geoJson);
 				if (speciesGroup != null && !speciesGroup.isEmpty()) {
 					stmt.setString(paramIndex++, speciesGroup);
+				}
+				if (iucnCategory != null && !iucnCategory.isEmpty()) {
+					stmt.setString(paramIndex++, iucnCategory);
 				}
 				stmt.setInt(paramIndex++, limit);
 				stmt.setInt(paramIndex++, offset);
