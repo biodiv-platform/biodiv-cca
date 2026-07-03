@@ -34,6 +34,7 @@ import com.strandls.cca.service.GBIFObservationService;
 public class GBIFObservationServiceImpl implements GBIFObservationService {
 
 	private final Logger logger = LoggerFactory.getLogger(GBIFObservationServiceImpl.class);
+	private static final double GBIF_POINT_PADDING;
 
 	static {
 		try {
@@ -42,6 +43,10 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 		} catch (ClassNotFoundException e) {
 			throw new RuntimeException("Failed to load DuckDB JDBC driver", e);
 		}
+
+		// Load padding value from config
+		String paddingStr = CCAConfig.getProperty("gbif_point_padding");
+		GBIF_POINT_PADDING = (paddingStr != null && !paddingStr.isEmpty()) ? Double.parseDouble(paddingStr) : 0.1;
 	}
 
 	@Inject
@@ -50,38 +55,41 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 	@Inject
 	private CCADataDao ccaDataDao;
 
-	private static final String DUCKDB_COUNT_QUERY_TEMPLATE = "WITH input AS (" + "    SELECT ? AS geojson" + "), "
+	private static String buildCountQueryTemplate(double padding) {
+		return "WITH input AS (" + "    SELECT ? AS geojson" + "), "
 			+ "geom AS (" + "    SELECT" + "        ST_GeomFromGeoJSON("
 			+ "            json_extract(geojson, '$.features[0].geometry')::VARCHAR" + "        ) AS shape,"
 			+ "        json_extract(geojson, '$.features[0].geometry.type')::VARCHAR AS geom_type"
 			+ "    FROM input" + "), " + "bbox AS (" + "    SELECT"
 			+ "        CASE WHEN geom_type = '\"Point\"'"
-			+ "            THEN ST_YMin(shape) - 0.2" + "            ELSE ST_YMin(shape)"
+			+ "            THEN ST_YMin(shape) - " + padding + "            ELSE ST_YMin(shape)"
 			+ "        END AS min_lat," + "        CASE WHEN geom_type = '\"Point\"'"
-			+ "            THEN ST_YMax(shape) + 0.2" + "            ELSE ST_YMax(shape)"
+			+ "            THEN ST_YMax(shape) + " + padding + "            ELSE ST_YMax(shape)"
 			+ "        END AS max_lat," + "        CASE WHEN geom_type = '\"Point\"'"
-			+ "            THEN ST_XMin(shape) - 0.2" + "            ELSE ST_XMin(shape)"
+			+ "            THEN ST_XMin(shape) - " + padding + "            ELSE ST_XMin(shape)"
 			+ "        END AS min_lon," + "        CASE WHEN geom_type = '\"Point\"'"
-			+ "            THEN ST_XMax(shape) + 0.2" + "            ELSE ST_XMax(shape)" + "        END AS max_lon"
+			+ "            THEN ST_XMax(shape) + " + padding + "            ELSE ST_XMax(shape)" + "        END AS max_lon"
 			+ "    FROM geom" + ") " + "SELECT COUNT(DISTINCT o.scientificName) as total FROM '%s' o, bbox"
 			+ " WHERE o.decimalLatitude  BETWEEN bbox.min_lat AND bbox.max_lat"
 			+ "  AND o.decimalLongitude BETWEEN bbox.min_lon AND bbox.max_lon"
 			+ "  AND o.decimalLatitude  IS NOT NULL" + "  AND o.decimalLongitude IS NOT NULL"
 			+ "  AND o.scientificName IS NOT NULL";
+	}
 
-	private static final String DUCKDB_AGGREGATION_QUERY_TEMPLATE = "WITH input AS (" + "    SELECT ? AS geojson"
+	private static String buildAggregationQueryTemplate(double padding) {
+		return "WITH input AS (" + "    SELECT ? AS geojson"
 			+ "), " + "geom AS (" + "    SELECT" + "        ST_GeomFromGeoJSON("
 			+ "            json_extract(geojson, '$.features[0].geometry')::VARCHAR" + "        ) AS shape,"
 			+ "        json_extract(geojson, '$.features[0].geometry.type')::VARCHAR AS geom_type"
 			+ "    FROM input" + "), " + "bbox AS (" + "    SELECT"
 			+ "        CASE WHEN geom_type = '\"Point\"'"
-			+ "            THEN ST_YMin(shape) - 0.2" + "            ELSE ST_YMin(shape)"
+			+ "            THEN ST_YMin(shape) - " + padding + "            ELSE ST_YMin(shape)"
 			+ "        END AS min_lat," + "        CASE WHEN geom_type = '\"Point\"'"
-			+ "            THEN ST_YMax(shape) + 0.2" + "            ELSE ST_YMax(shape)"
+			+ "            THEN ST_YMax(shape) + " + padding + "            ELSE ST_YMax(shape)"
 			+ "        END AS max_lat," + "        CASE WHEN geom_type = '\"Point\"'"
-			+ "            THEN ST_XMin(shape) - 0.2" + "            ELSE ST_XMin(shape)"
+			+ "            THEN ST_XMin(shape) - " + padding + "            ELSE ST_XMin(shape)"
 			+ "        END AS min_lon," + "        CASE WHEN geom_type = '\"Point\"'"
-			+ "            THEN ST_XMax(shape) + 0.2" + "            ELSE ST_XMax(shape)" + "        END AS max_lon"
+			+ "            THEN ST_XMax(shape) + " + padding + "            ELSE ST_XMax(shape)" + "        END AS max_lon"
 			+ "    FROM geom" + ") "
 			+ "SELECT o.scientificName, COUNT(*) as count, FIRST(o.iucnRedListCategory) as iucnRedListCategory, FIRST(o.species_group) as speciesGroup, FIRST(o.taxonKey) as taxonKey, FIRST(o.iucn_link) as iucnLink FROM '%s' o, bbox"
 			+ " WHERE o.decimalLatitude  BETWEEN bbox.min_lat AND bbox.max_lat"
@@ -89,20 +97,22 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 			+ "  AND o.decimalLatitude  IS NOT NULL" + "  AND o.decimalLongitude IS NOT NULL"
 			+ "  AND o.scientificName IS NOT NULL" + " GROUP BY o.scientificName" + " ORDER BY count DESC"
 			+ " LIMIT ? OFFSET ?";
+	}
 
-	private static final String DUCKDB_QUERY_TEMPLATE = "WITH input AS (" + "    SELECT ? AS geojson" + "), "
+	private static String buildQueryTemplate(double padding) {
+		return "WITH input AS (" + "    SELECT ? AS geojson" + "), "
 			+ "geom AS (" + "    SELECT" + "        ST_GeomFromGeoJSON("
 			+ "            json_extract(geojson, '$.features[0].geometry')::VARCHAR" + "        ) AS shape,"
 			+ "        json_extract(geojson, '$.features[0].geometry.type')::VARCHAR AS geom_type"
 			+ "    FROM input" + "), " + "bbox AS (" + "    SELECT"
 			+ "        CASE WHEN geom_type = '\"Point\"'"
-			+ "            THEN ST_YMin(shape) - 0.2" + "            ELSE ST_YMin(shape)"
+			+ "            THEN ST_YMin(shape) - " + padding + "            ELSE ST_YMin(shape)"
 			+ "        END AS min_lat," + "        CASE WHEN geom_type = '\"Point\"'"
-			+ "            THEN ST_YMax(shape) + 0.2" + "            ELSE ST_YMax(shape)"
+			+ "            THEN ST_YMax(shape) + " + padding + "            ELSE ST_YMax(shape)"
 			+ "        END AS max_lat," + "        CASE WHEN geom_type = '\"Point\"'"
-			+ "            THEN ST_XMin(shape) - 0.2" + "            ELSE ST_XMin(shape)"
+			+ "            THEN ST_XMin(shape) - " + padding + "            ELSE ST_XMin(shape)"
 			+ "        END AS min_lon," + "        CASE WHEN geom_type = '\"Point\"'"
-			+ "            THEN ST_XMax(shape) + 0.2" + "            ELSE ST_XMax(shape)" + "        END AS max_lon"
+			+ "            THEN ST_XMax(shape) + " + padding + "            ELSE ST_XMax(shape)" + "        END AS max_lon"
 			+ "    FROM geom" + ") " + "SELECT" + "    o.gbifID," + "    o.scientificName,"
 			+ "    o.decimalLatitude," + "    o.decimalLongitude," + "    o.stateProvince," + "    o.eventDate,"
 			+ "    o.locality" + " FROM '%s' o, bbox"
@@ -110,46 +120,51 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 			+ "  AND o.decimalLongitude BETWEEN bbox.min_lon AND bbox.max_lon"
 			+ "  AND o.decimalLatitude  IS NOT NULL" + "  AND o.decimalLongitude IS NOT NULL"
 			+ " LIMIT ? OFFSET ?";
+	}
 
-	private static final String DUCKDB_SPECIES_GROUP_AGGREGATION_QUERY_TEMPLATE = "WITH input AS ("
+	private static String buildSpeciesGroupAggregationQueryTemplate(double padding) {
+		return "WITH input AS ("
 			+ "    SELECT ? AS geojson" + "), " + "geom AS (" + "    SELECT" + "        ST_GeomFromGeoJSON("
 			+ "            json_extract(geojson, '$.features[0].geometry')::VARCHAR" + "        ) AS shape,"
 			+ "        json_extract(geojson, '$.features[0].geometry.type')::VARCHAR AS geom_type"
 			+ "    FROM input" + "), " + "bbox AS (" + "    SELECT"
 			+ "        CASE WHEN geom_type = '\"Point\"'"
-			+ "            THEN ST_YMin(shape) - 0.2" + "            ELSE ST_YMin(shape)"
+			+ "            THEN ST_YMin(shape) - " + padding + "            ELSE ST_YMin(shape)"
 			+ "        END AS min_lat," + "        CASE WHEN geom_type = '\"Point\"'"
-			+ "            THEN ST_YMax(shape) + 0.2" + "            ELSE ST_YMax(shape)"
+			+ "            THEN ST_YMax(shape) + " + padding + "            ELSE ST_YMax(shape)"
 			+ "        END AS max_lat," + "        CASE WHEN geom_type = '\"Point\"'"
-			+ "            THEN ST_XMin(shape) - 0.2" + "            ELSE ST_XMin(shape)"
+			+ "            THEN ST_XMin(shape) - " + padding + "            ELSE ST_XMin(shape)"
 			+ "        END AS min_lon," + "        CASE WHEN geom_type = '\"Point\"'"
-			+ "            THEN ST_XMax(shape) + 0.2" + "            ELSE ST_XMax(shape)" + "        END AS max_lon"
+			+ "            THEN ST_XMax(shape) + " + padding + "            ELSE ST_XMax(shape)" + "        END AS max_lon"
 			+ "    FROM geom" + ") "
 			+ "SELECT o.species_group, COUNT(*) as totalCount, COUNT(DISTINCT o.scientificName) as uniqueSpeciesCount FROM '%s' o, bbox"
 			+ " WHERE o.decimalLatitude  BETWEEN bbox.min_lat AND bbox.max_lat"
 			+ "  AND o.decimalLongitude BETWEEN bbox.min_lon AND bbox.max_lon"
 			+ "  AND o.decimalLatitude  IS NOT NULL" + "  AND o.decimalLongitude IS NOT NULL"
 			+ "  AND o.species_group IS NOT NULL" + " GROUP BY o.species_group" + " ORDER BY totalCount DESC";
+	}
 
-	private static final String DUCKDB_IUCN_AGGREGATION_QUERY_TEMPLATE = "WITH input AS ("
+	private static String buildIUCNAggregationQueryTemplate(double padding) {
+		return "WITH input AS ("
 			+ "    SELECT ? AS geojson" + "), " + "geom AS (" + "    SELECT" + "        ST_GeomFromGeoJSON("
 			+ "            json_extract(geojson, '$.features[0].geometry')::VARCHAR" + "        ) AS shape,"
 			+ "        json_extract(geojson, '$.features[0].geometry.type')::VARCHAR AS geom_type"
 			+ "    FROM input" + "), " + "bbox AS (" + "    SELECT"
 			+ "        CASE WHEN geom_type = '\"Point\"'"
-			+ "            THEN ST_YMin(shape) - 0.2" + "            ELSE ST_YMin(shape)"
+			+ "            THEN ST_YMin(shape) - " + padding + "            ELSE ST_YMin(shape)"
 			+ "        END AS min_lat," + "        CASE WHEN geom_type = '\"Point\"'"
-			+ "            THEN ST_YMax(shape) + 0.2" + "            ELSE ST_YMax(shape)"
+			+ "            THEN ST_YMax(shape) + " + padding + "            ELSE ST_YMax(shape)"
 			+ "        END AS max_lat," + "        CASE WHEN geom_type = '\"Point\"'"
-			+ "            THEN ST_XMin(shape) - 0.2" + "            ELSE ST_XMin(shape)"
+			+ "            THEN ST_XMin(shape) - " + padding + "            ELSE ST_XMin(shape)"
 			+ "        END AS min_lon," + "        CASE WHEN geom_type = '\"Point\"'"
-			+ "            THEN ST_XMax(shape) + 0.2" + "            ELSE ST_XMax(shape)" + "        END AS max_lon"
+			+ "            THEN ST_XMax(shape) + " + padding + "            ELSE ST_XMax(shape)" + "        END AS max_lon"
 			+ "    FROM geom" + ") "
 			+ "SELECT o.iucnRedListCategory, COUNT(*) as totalCount, COUNT(DISTINCT o.scientificName) as uniqueSpeciesCount FROM '%s' o, bbox"
 			+ " WHERE o.decimalLatitude  BETWEEN bbox.min_lat AND bbox.max_lat"
 			+ "  AND o.decimalLongitude BETWEEN bbox.min_lon AND bbox.max_lon"
 			+ "  AND o.decimalLatitude  IS NOT NULL" + "  AND o.decimalLongitude IS NOT NULL"
 			+ "  AND o.iucnRedListCategory IS NOT NULL" + " GROUP BY o.iucnRedListCategory" + " ORDER BY totalCount DESC";
+	}
 
 	@Override
 	public GBIFObservationResponse getObservationsForCCA(Long ccaId, Integer offset, Integer limit, String speciesGroup, String iucnCategory) {
@@ -225,7 +240,7 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 			conn.createStatement().execute("LOAD spatial;");
 
 			// Build the count query with parquet path and optional filters
-			String baseQuery = String.format(DUCKDB_COUNT_QUERY_TEMPLATE, parquetPath);
+			String baseQuery = String.format(buildCountQueryTemplate(GBIF_POINT_PADDING), parquetPath);
 			int paramIndex = 2;
 			if (speciesGroup != null && !speciesGroup.isEmpty()) {
 				baseQuery = baseQuery + " AND o.species_group = ?";
@@ -271,7 +286,7 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 			conn.createStatement().execute("LOAD spatial;");
 
 			// Build the query with parquet path and optional filters
-			String baseQuery = String.format(DUCKDB_QUERY_TEMPLATE, parquetPath);
+			String baseQuery = String.format(buildQueryTemplate(GBIF_POINT_PADDING), parquetPath);
 			// Remove the LIMIT/OFFSET to add filters before them
 			baseQuery = baseQuery.replace(" LIMIT ? OFFSET ?", "");
 			if (speciesGroup != null && !speciesGroup.isEmpty()) {
@@ -332,7 +347,7 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 			conn.createStatement().execute("LOAD spatial;");
 
 			// Build the aggregation query with parquet path and optional filters
-			String baseQuery = String.format(DUCKDB_AGGREGATION_QUERY_TEMPLATE, parquetPath);
+			String baseQuery = String.format(buildAggregationQueryTemplate(GBIF_POINT_PADDING), parquetPath);
 			// Remove the LIMIT/OFFSET to add filters before them
 			baseQuery = baseQuery.replace(" LIMIT ? OFFSET ?", "");
 			String filterClause = "";
@@ -436,7 +451,7 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 			conn.createStatement().execute("LOAD spatial;");
 
 			// Build the species group aggregation query with parquet path
-			String query = String.format(DUCKDB_SPECIES_GROUP_AGGREGATION_QUERY_TEMPLATE, parquetPath);
+			String query = String.format(buildSpeciesGroupAggregationQueryTemplate(GBIF_POINT_PADDING), parquetPath);
 
 			logger.debug("Executing DuckDB species group aggregation query with parquet path: {}", parquetPath);
 
@@ -514,7 +529,7 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 			conn.createStatement().execute("LOAD spatial;");
 
 			// Build the IUCN aggregation query with parquet path
-			String query = String.format(DUCKDB_IUCN_AGGREGATION_QUERY_TEMPLATE, parquetPath);
+			String query = String.format(buildIUCNAggregationQueryTemplate(GBIF_POINT_PADDING), parquetPath);
 
 			logger.debug("Executing DuckDB IUCN aggregation query with parquet path: {}", parquetPath);
 
