@@ -141,7 +141,8 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 			+ " WHERE o.decimalLatitude  BETWEEN bbox.min_lat AND bbox.max_lat"
 			+ "  AND o.decimalLongitude BETWEEN bbox.min_lon AND bbox.max_lon"
 			+ "  AND o.decimalLatitude  IS NOT NULL" + "  AND o.decimalLongitude IS NOT NULL"
-			+ "  AND o.species_group IS NOT NULL" + " GROUP BY o.species_group" + " ORDER BY totalCount DESC";
+			+ "  AND o.species_group IS NOT NULL" + " GROUP BY o.species_group"
+			+ " ORDER BY CASE WHEN o.species_group = 'Others' THEN 1 ELSE 0 END, totalCount DESC";
 	}
 
 	private static String buildIUCNAggregationQueryTemplate(double padding) {
@@ -158,12 +159,26 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 			+ "            THEN ST_XMin(shape) - " + padding + "            ELSE ST_XMin(shape)"
 			+ "        END AS min_lon," + "        CASE WHEN geom_type = '\"Point\"'"
 			+ "            THEN ST_XMax(shape) + " + padding + "            ELSE ST_XMax(shape)" + "        END AS max_lon"
-			+ "    FROM geom" + ") "
-			+ "SELECT o.iucnRedListCategory, COUNT(*) as totalCount, COUNT(DISTINCT o.scientificName) as uniqueSpeciesCount FROM '%s' o, bbox"
-			+ " WHERE o.decimalLatitude  BETWEEN bbox.min_lat AND bbox.max_lat"
-			+ "  AND o.decimalLongitude BETWEEN bbox.min_lon AND bbox.max_lon"
-			+ "  AND o.decimalLatitude  IS NOT NULL" + "  AND o.decimalLongitude IS NOT NULL"
-			+ "  AND o.iucnRedListCategory IS NOT NULL" + " GROUP BY o.iucnRedListCategory" + " ORDER BY totalCount DESC";
+			+ "    FROM geom" + "), "
+			+ "all_categories AS ("
+			+ "    SELECT unnest(['CR', 'EN', 'VU', 'NT', 'LC', 'DD', 'NE']) as category"
+			+ "), "
+			+ "observed_counts AS ("
+			+ "    SELECT o.iucnRedListCategory, COUNT(*) as totalCount, COUNT(DISTINCT o.scientificName) as uniqueSpeciesCount"
+			+ "    FROM '%s' o, bbox"
+			+ "    WHERE o.decimalLatitude BETWEEN bbox.min_lat AND bbox.max_lat"
+			+ "      AND o.decimalLongitude BETWEEN bbox.min_lon AND bbox.max_lon"
+			+ "      AND o.decimalLatitude IS NOT NULL"
+			+ "      AND o.decimalLongitude IS NOT NULL"
+			+ "      AND o.iucnRedListCategory IS NOT NULL"
+			+ "    GROUP BY o.iucnRedListCategory"
+			+ ") "
+			+ "SELECT ac.category as iucnRedListCategory, "
+			+ "    COALESCE(oc.totalCount, 0) as totalCount, "
+			+ "    COALESCE(oc.uniqueSpeciesCount, 0) as uniqueSpeciesCount "
+			+ "FROM all_categories ac "
+			+ "LEFT JOIN observed_counts oc ON ac.category = oc.iucnRedListCategory "
+			+ "ORDER BY totalCount DESC";
 	}
 
 	@Override
