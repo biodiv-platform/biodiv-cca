@@ -2,7 +2,6 @@ package com.strandls.cca.pojo.response;
 
 import java.util.List;
 
-import com.strandls.cca.pojo.GBIFObservation;
 import com.strandls.cca.pojo.SpeciesAggregation;
 
 public class GBIFObservationResponse {
@@ -10,18 +9,16 @@ public class GBIFObservationResponse {
 	private Integer offset;
 	private Integer limit;
 	private List<SpeciesAggregation> aggregations;
-	private List<GBIFObservation> observations;
 
 	public GBIFObservationResponse() {
 	}
 
 	public GBIFObservationResponse(Long totalCount, Integer offset, Integer limit,
-			List<SpeciesAggregation> aggregations, List<GBIFObservation> observations) {
+			List<SpeciesAggregation> aggregations) {
 		this.totalCount = totalCount;
 		this.offset = offset;
 		this.limit = limit;
 		this.aggregations = aggregations;
-		this.observations = observations;
 	}
 
 	public Long getTotalCount() {
@@ -46,14 +43,6 @@ public class GBIFObservationResponse {
 
 	public void setLimit(Integer limit) {
 		this.limit = limit;
-	}
-
-	public List<GBIFObservation> getObservations() {
-		return observations;
-	}
-
-	public void setObservations(List<GBIFObservation> observations) {
-		this.observations = observations;
 	}
 
 	public List<SpeciesAggregation> getAggregations() {
