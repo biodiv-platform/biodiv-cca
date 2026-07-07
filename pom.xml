@@ -233,6 +233,13 @@
 			<version>1.5.4.0</version>
 		</dependency>
 
+		<!-- HikariCP for DuckDB connection pooling -->
+		<dependency>
+			<groupId>com.zaxxer</groupId>
+			<artifactId>HikariCP</artifactId>
+			<version>5.0.1</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

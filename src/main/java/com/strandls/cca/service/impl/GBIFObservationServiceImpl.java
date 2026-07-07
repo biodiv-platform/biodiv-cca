@@ -219,7 +219,7 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 
 	private Long executeCountQuery(String geoJson, String parquetPath, String speciesGroup, String iucnCategory) {
 		try {
-			return DuckDBUtil.withSpatialConnection(conn -> {
+			return DuckDBUtil.withConnection(conn -> {
 				Long count = 0L;
 
 				// Build the count query with parquet path and optional filters
@@ -263,7 +263,7 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 	private List<SpeciesAggregation> executeAggregationQuery(String geoJson, String parquetPath, Integer limit,
 			Integer offset, String speciesGroup, String iucnCategory) {
 		try {
-			return DuckDBUtil.withSpatialConnection(conn -> {
+			return DuckDBUtil.withConnection(conn -> {
 				List<SpeciesAggregation> aggregations = new ArrayList<>();
 
 				// Build the aggregation query with parquet path and optional filters
@@ -364,7 +364,7 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 
 	private List<SpeciesGroupAggregation> executeSpeciesGroupAggregationQuery(String geoJson, String parquetPath) {
 		try {
-			return DuckDBUtil.withSpatialConnection(conn -> {
+			return DuckDBUtil.withConnection(conn -> {
 				List<SpeciesGroupAggregation> aggregations = new ArrayList<>();
 
 				// Build the species group aggregation query with parquet path
@@ -439,7 +439,7 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 
 	private List<IUCNAggregation> executeIUCNAggregationQuery(String geoJson, String parquetPath) {
 		try {
-			return DuckDBUtil.withSpatialConnection(conn -> {
+			return DuckDBUtil.withConnection(conn -> {
 				List<IUCNAggregation> aggregations = new ArrayList<>();
 
 				// Build the IUCN aggregation query with parquet path

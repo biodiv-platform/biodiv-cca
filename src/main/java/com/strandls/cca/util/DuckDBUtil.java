@@ -1,65 +1,196 @@
 package com.strandls.cca.util;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.strandls.cca.CCAConfig;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
 /**
- * Utility class for managing DuckDB connections and resources.
- * Ensures proper resource cleanup to prevent native memory leaks.
+ * Singleton manager for a shared DuckDB database instance with connection pooling.
+ *
+ * This ensures:
+ * - Single DuckDB database shared across all requests
+ * - Memory limit enforced globally (default 500MB)
+ * - Spatial extension loaded once at initialization
+ * - Efficient connection reuse via pooling
  */
 public class DuckDBUtil {
 
 	private static final Logger logger = LoggerFactory.getLogger(DuckDBUtil.class);
-	private static final String JDBC_URL = "jdbc:duckdb:";
 
-	static {
+	// Singleton instance
+	private static volatile DuckDBUtil instance;
+	private static final Object LOCK = new Object();
+
+	// Connection pool
+	private final HikariDataSource dataSource;
+	private final String databasePath;
+
+	/**
+	 * Private constructor - initializes the DuckDB database and connection pool.
+	 */
+	private DuckDBUtil() throws SQLException {
+		logger.info("Initializing shared DuckDB instance...");
+
+		// Load configuration
+		String dbPath = CCAConfig.getProperty("duckdb.database.path");
+		String memoryLimit = CCAConfig.getProperty("duckdb.memory.limit");
+		String tempDir = CCAConfig.getProperty("duckdb.temp.directory");
+
+		// Use defaults if not configured
+		if (dbPath == null || dbPath.isEmpty()) {
+			dbPath = "/tmp/cca_duckdb.db";
+			logger.warn("duckdb.database.path not configured, using default: {}", dbPath);
+		}
+		if (memoryLimit == null || memoryLimit.isEmpty()) {
+			memoryLimit = "500MB";
+			logger.info("duckdb.memory.limit not configured, using default: {}", memoryLimit);
+		}
+		if (tempDir == null || tempDir.isEmpty()) {
+			tempDir = "/tmp/duckdb_temp";
+			logger.info("duckdb.temp.directory not configured, using default: {}", tempDir);
+		}
+
+		this.databasePath = dbPath;
+
+		// Ensure DuckDB JDBC driver is loaded
 		try {
-			// Explicitly load the DuckDB JDBC driver once
 			Class.forName("org.duckdb.DuckDBDriver");
 			logger.info("DuckDB JDBC driver loaded successfully");
 		} catch (ClassNotFoundException e) {
-			throw new RuntimeException("Failed to load DuckDB JDBC driver", e);
+			throw new SQLException("Failed to load DuckDB JDBC driver", e);
 		}
+
+		// Initialize database with spatial extension and memory settings
+		initializeDatabase(dbPath, memoryLimit, tempDir);
+
+		// Setup connection pool
+		HikariConfig config = new HikariConfig();
+		config.setJdbcUrl("jdbc:duckdb:" + dbPath);
+		config.setMaximumPoolSize(10); // Max 10 concurrent connections
+		config.setMinimumIdle(2);      // Keep 2 connections ready
+		config.setConnectionTimeout(30000); // 30 seconds
+		config.setIdleTimeout(600000);      // 10 minutes
+		config.setMaxLifetime(1800000);     // 30 minutes
+		config.setPoolName("DuckDB-CCA-Pool");
+
+		// Enable auto-commit for read-only queries
+		config.setAutoCommit(true);
+
+		this.dataSource = new HikariDataSource(config);
+
+		logger.info("DuckDB connection pool initialized successfully. Database: {}, Memory Limit: {}",
+				dbPath, memoryLimit);
 	}
 
 	/**
-	 * Creates a new DuckDB connection with spatial extension loaded.
-	 *
-	 * @return Connection with spatial extension enabled
-	 * @throws SQLException if connection or extension loading fails
+	 * Initialize the DuckDB database with required extensions and settings.
 	 */
-	public static Connection createConnectionWithSpatial() throws SQLException {
-		Connection conn = null;
-		Statement stmt = null;
-		try {
-			conn = DriverManager.getConnection(JDBC_URL);
+	private void initializeDatabase(String dbPath, String memoryLimit, String tempDir) throws SQLException {
+		String jdbcUrl = "jdbc:duckdb:" + dbPath;
 
-			// Install and load spatial extension
-			stmt = conn.createStatement();
-			stmt.execute("INSTALL spatial;");
-			stmt.execute("LOAD spatial;");
+		logger.info("Initializing DuckDB database at: {}", dbPath);
 
-			logger.debug("DuckDB connection created with spatial extension loaded");
-			return conn;
+		try (Connection conn = java.sql.DriverManager.getConnection(jdbcUrl)) {
+			try (Statement stmt = conn.createStatement()) {
+				// Set memory limit (applies to all connections to this database)
+				logger.info("Setting DuckDB memory_limit to: {}", memoryLimit);
+				stmt.execute("SET memory_limit = '" + memoryLimit + "'");
 
+				// Set temp directory for disk spilling
+				logger.info("Setting DuckDB temp_directory to: {}", tempDir);
+				stmt.execute("SET temp_directory = '" + tempDir + "'");
+
+				// Install and load spatial extension (persists in the database file)
+				logger.info("Installing and loading spatial extension...");
+				stmt.execute("INSTALL spatial");
+				stmt.execute("LOAD spatial");
+
+				logger.info("DuckDB database initialized successfully with spatial extension");
+			}
 		} catch (SQLException e) {
-			// Clean up resources on error
-			closeQuietly(stmt);
-			closeQuietly(conn);
+			logger.error("Failed to initialize DuckDB database", e);
 			throw e;
-		} finally {
-			// Always close the statement used for setup
-			closeQuietly(stmt);
 		}
 	}
 
 	/**
-	 * Closes a SQL statement quietly without throwing exceptions.
+	 * Get the singleton DuckDBUtil instance.
+	 */
+	public static DuckDBUtil getInstance() {
+		if (instance == null) {
+			synchronized (LOCK) {
+				if (instance == null) {
+					try {
+						instance = new DuckDBUtil();
+					} catch (SQLException e) {
+						logger.error("Failed to initialize DuckDBUtil", e);
+						throw new RuntimeException("Failed to initialize DuckDB", e);
+					}
+				}
+			}
+		}
+		return instance;
+	}
+
+	/**
+	 * Get a connection from the pool.
+	 *
+	 * IMPORTANT: Caller MUST close the connection (use try-with-resources).
+	 * The spatial extension is already loaded, no need to load it again.
+	 *
+	 * @return Connection from the pool
+	 * @throws SQLException if unable to get connection
+	 */
+	public Connection getConnection() throws SQLException {
+		return dataSource.getConnection();
+	}
+
+	/**
+	 * Get the database file path.
+	 *
+	 * @return Path to the DuckDB database file
+	 */
+	public String getDatabasePath() {
+		return databasePath;
+	}
+
+	/**
+	 * Interface for executing operations with a DuckDB connection.
+	 * Ensures proper resource cleanup.
+	 *
+	 * @param <T> Return type of the operation
+	 */
+	@FunctionalInterface
+	public interface DuckDBOperation<T> {
+		T execute(Connection conn) throws Exception;
+	}
+
+	/**
+	 * Execute an operation with a connection from the pool.
+	 * Automatically handles connection cleanup.
+	 *
+	 * @param <T> Return type
+	 * @param operation Operation to execute
+	 * @return Result of the operation
+	 * @throws Exception if operation fails
+	 */
+	public static <T> T withConnection(DuckDBOperation<T> operation) throws Exception {
+		try (Connection conn = getInstance().getConnection()) {
+			return operation.execute(conn);
+		}
+	}
+
+	/**
+	 * Closes a statement quietly without throwing exceptions.
 	 *
 	 * @param stmt Statement to close, can be null
 	 */
@@ -89,28 +220,15 @@ public class DuckDBUtil {
 	}
 
 	/**
-	 * Interface for executing operations with a DuckDB connection.
-	 * Ensures proper resource cleanup.
-	 *
-	 * @param <T> Return type of the operation
+	 * Shutdown the connection pool gracefully.
+	 * Call this on application shutdown.
 	 */
-	@FunctionalInterface
-	public interface DuckDBOperation<T> {
-		T execute(Connection conn) throws Exception;
-	}
-
-	/**
-	 * Executes an operation with a DuckDB connection that has spatial extension loaded.
-	 * Automatically handles connection creation and cleanup.
-	 *
-	 * @param <T> Return type
-	 * @param operation Operation to execute
-	 * @return Result of the operation
-	 * @throws Exception if operation fails
-	 */
-	public static <T> T withSpatialConnection(DuckDBOperation<T> operation) throws Exception {
-		try (Connection conn = createConnectionWithSpatial()) {
-			return operation.execute(conn);
+	public static void shutdown() {
+		if (instance != null && instance.dataSource != null) {
+			logger.info("Shutting down DuckDB connection pool...");
+			instance.dataSource.close();
+			instance = null;
+			logger.info("DuckDB connection pool closed successfully");
 		}
 	}
 }
