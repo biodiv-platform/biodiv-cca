@@ -41,22 +41,22 @@ public class DuckDBUtil {
 		logger.info("Initializing shared DuckDB instance...");
 
 		// Load configuration
-		String dbPath = CCAConfig.getProperty("duckdb.database.path");
-		String memoryLimit = CCAConfig.getProperty("duckdb.memory.limit");
-		String tempDir = CCAConfig.getProperty("duckdb.temp.directory");
+		String dbPath = CCAConfig.getProperty("duckdb_database_path");
+		String memoryLimit = CCAConfig.getProperty("duckdb_memory_limit");
+		String tempDir = CCAConfig.getProperty("duckdb_temp_directory");
 
 		// Use defaults if not configured
 		if (dbPath == null || dbPath.isEmpty()) {
 			dbPath = "/tmp/cca_duckdb.db";
-			logger.warn("duckdb.database.path not configured, using default: {}", dbPath);
+			logger.warn("duckdb_database_path not configured, using default: {}", dbPath);
 		}
 		if (memoryLimit == null || memoryLimit.isEmpty()) {
 			memoryLimit = "500MB";
-			logger.info("duckdb.memory.limit not configured, using default: {}", memoryLimit);
+			logger.info("duckdb_memory_limit not configured, using default: {}", memoryLimit);
 		}
 		if (tempDir == null || tempDir.isEmpty()) {
 			tempDir = "/tmp/duckdb_temp";
-			logger.info("duckdb.temp.directory not configured, using default: {}", tempDir);
+			logger.info("duckdb_temp_directory not configured, using default: {}", tempDir);
 		}
 
 		this.databasePath = dbPath;
