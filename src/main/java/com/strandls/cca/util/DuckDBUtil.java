@@ -85,6 +85,10 @@ public class DuckDBUtil {
 		// Enable auto-commit for read-only queries
 		config.setAutoCommit(true);
 
+		// CRITICAL: Load spatial extension for each connection from the pool
+		// INSTALL persists to the database, but LOAD is per-connection
+		config.setConnectionInitSql("LOAD spatial");
+
 		this.dataSource = new HikariDataSource(config);
 
 		logger.info("DuckDB connection pool initialized successfully. Database: {}, Memory Limit: {}",
@@ -109,10 +113,11 @@ public class DuckDBUtil {
 				logger.info("Setting DuckDB temp_directory to: {}", tempDir);
 				stmt.execute("SET temp_directory = '" + tempDir + "'");
 
-				// Install and load spatial extension (persists in the database file)
-				logger.info("Installing and loading spatial extension...");
+				// Install spatial extension (persists in the database file)
+				// Note: INSTALL persists, but LOAD is per-connection (handled by HikariCP connectionInitSql)
+				logger.info("Installing spatial extension...");
 				stmt.execute("INSTALL spatial");
-				stmt.execute("LOAD spatial");
+				stmt.execute("LOAD spatial"); // Load for this initialization connection
 
 				logger.info("DuckDB database initialized successfully with spatial extension");
 			}
