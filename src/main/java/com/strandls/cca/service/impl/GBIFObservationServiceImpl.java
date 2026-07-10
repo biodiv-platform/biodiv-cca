@@ -62,7 +62,8 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 			+ "            THEN ST_XMin(shape) - " + padding + "            ELSE ST_XMin(shape)"
 			+ "        END AS min_lon," + "        CASE WHEN geom_type = '\"Point\"'"
 			+ "            THEN ST_XMax(shape) + " + padding + "            ELSE ST_XMax(shape)" + "        END AS max_lon"
-			+ "    FROM geom" + ") " + "SELECT COUNT(DISTINCT o.scientificName) as total FROM '%s' o, bbox"
+			+ "    FROM geom" + ") "
+			+ "SELECT COUNT(DISTINCT o.scientificName) as totalSpecies, COUNT(*) as totalRecords FROM '%s' o, bbox"
 			+ " WHERE o.decimalLatitude  BETWEEN bbox.min_lat AND bbox.max_lat"
 			+ "  AND o.decimalLongitude BETWEEN bbox.min_lon AND bbox.max_lon"
 			+ "  AND o.decimalLatitude  IS NOT NULL" + "  AND o.decimalLongitude IS NOT NULL"
@@ -188,16 +189,16 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 			}
 
 			// Execute queries
-			Long totalCount = executeCountQuery(geoJson, parquetPath, speciesGroup, iucnCategory);
+			CountResult countResult = executeCountQuery(geoJson, parquetPath, speciesGroup, iucnCategory);
 			List<SpeciesAggregation> aggregations = executeAggregationQuery(geoJson, parquetPath, limit, offset, speciesGroup, iucnCategory);
 
 			// Individual observations not needed - only returning aggregations
 			// List<GBIFObservation> observations = executeQuery(geoJson, parquetPath, limit, offset, speciesGroup, iucnCategory);
 
-			logger.info("Found {} species aggregations (total species: {}) for CCA id: {} with speciesGroup filter: {}, iucnCategory filter: {}",
-					aggregations.size(), totalCount, ccaId, speciesGroup, iucnCategory);
+			logger.info("Found {} species aggregations (total species: {}, total occurrence records: {}) for CCA id: {} with speciesGroup filter: {}, iucnCategory filter: {}",
+					aggregations.size(), countResult.totalSpecies, countResult.totalRecords, ccaId, speciesGroup, iucnCategory);
 
-			return new GBIFObservationResponse(totalCount, offset, limit, aggregations);
+			return new GBIFObservationResponse(countResult.totalSpecies, countResult.totalRecords, offset, limit, aggregations);
 
 		} catch (Exception e) {
 			logger.error("Error querying GBIF observations for CCA id: {}", ccaId, e);
@@ -217,10 +218,20 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 		return null;
 	}
 
-	private Long executeCountQuery(String geoJson, String parquetPath, String speciesGroup, String iucnCategory) {
+	private static final class CountResult {
+		private final Long totalSpecies;
+		private final Long totalRecords;
+
+		private CountResult(Long totalSpecies, Long totalRecords) {
+			this.totalSpecies = totalSpecies;
+			this.totalRecords = totalRecords;
+		}
+	}
+
+	private CountResult executeCountQuery(String geoJson, String parquetPath, String speciesGroup, String iucnCategory) {
 		try {
 			return DuckDBUtil.withConnection(conn -> {
-				Long count = 0L;
+				CountResult result = new CountResult(0L, 0L);
 
 				// Build the count query with parquet path and optional filters
 				String baseQuery = String.format(buildCountQueryTemplate(GBIF_POINT_PADDING), parquetPath);
@@ -247,16 +258,16 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 					// Execute query
 					try (ResultSet rs = stmt.executeQuery()) {
 						if (rs.next()) {
-							count = rs.getLong("total");
+							result = new CountResult(rs.getLong("totalSpecies"), rs.getLong("totalRecords"));
 						}
 					}
 				}
 
-				return count;
+				return result;
 			});
 		} catch (Exception e) {
 			logger.error("Error executing DuckDB count query", e);
-			return 0L;
+			return new CountResult(0L, 0L);
 		}
 	}
 

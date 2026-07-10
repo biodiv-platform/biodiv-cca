@@ -6,6 +6,7 @@ import com.strandls.cca.pojo.SpeciesAggregation;
 
 public class GBIFObservationResponse {
 	private Long totalCount; // Total count of unique scientificNames
+	private Long totalOccurrenceRecords; // Total count of GBIF occurrence records
 	private Integer offset;
 	private Integer limit;
 	private List<SpeciesAggregation> aggregations;
@@ -15,7 +16,13 @@ public class GBIFObservationResponse {
 
 	public GBIFObservationResponse(Long totalCount, Integer offset, Integer limit,
 			List<SpeciesAggregation> aggregations) {
+		this(totalCount, 0L, offset, limit, aggregations);
+	}
+
+	public GBIFObservationResponse(Long totalCount, Long totalOccurrenceRecords, Integer offset, Integer limit,
+			List<SpeciesAggregation> aggregations) {
 		this.totalCount = totalCount;
+		this.totalOccurrenceRecords = totalOccurrenceRecords;
 		this.offset = offset;
 		this.limit = limit;
 		this.aggregations = aggregations;
@@ -27,6 +34,14 @@ public class GBIFObservationResponse {
 
 	public void setTotalCount(Long totalCount) {
 		this.totalCount = totalCount;
+	}
+
+	public Long getTotalOccurrenceRecords() {
+		return totalOccurrenceRecords;
+	}
+
+	public void setTotalOccurrenceRecords(Long totalOccurrenceRecords) {
+		this.totalOccurrenceRecords = totalOccurrenceRecords;
 	}
 
 	public Integer getOffset() {
