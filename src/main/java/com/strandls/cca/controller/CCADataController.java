@@ -41,8 +41,12 @@ import com.strandls.cca.pojo.Follower;
 import com.strandls.cca.pojo.Permission;
 import com.strandls.cca.pojo.UsergroupCCA;
 import com.strandls.cca.pojo.response.AggregationResponse;
+import com.strandls.cca.pojo.response.GBIFObservationResponse;
+import com.strandls.cca.pojo.response.IUCNAggregationResponse;
+import com.strandls.cca.pojo.response.SpeciesGroupAggregationResponse;
 import com.strandls.cca.pojo.response.SubsetCCADataList;
 import com.strandls.cca.service.CCADataService;
+import com.strandls.cca.service.GBIFObservationService;
 import com.strandls.cca.util.AuthorizationUtil;
 import com.strandls.cca.util.Permissions;
 
@@ -58,6 +62,9 @@ public class CCADataController {
 
 	@Inject
 	private CCADataService ccaDataService;
+
+	@Inject
+	private GBIFObservationService gbifObservationService;
 
 	@GET
 	@Path("/ping")
@@ -88,6 +95,52 @@ public class CCADataController {
 			if (ccaData == null)
 				throw new ObjectNotFoundException(id, id.toString());
 			return Response.status(Status.OK).entity(ccaData).build();
+		} catch (Exception e) {
+			throw new CCAException(e);
+		}
+	}
+
+	@GET
+	@Path("/{id}/gbif-observations")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get GBIF observations for CCA", notes = "Returns paginated GBIF observations based on CCA geometry", response = GBIFObservationResponse.class)
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
+	public Response getGBIFObservations(@Context HttpServletRequest request, @PathParam("id") Long id,
+			@QueryParam("offset") Integer offset, @QueryParam("limit") Integer limit,
+			@QueryParam("speciesGroup") String speciesGroup, @QueryParam("iucnCategory") String iucnCategory) throws CCAException {
+		try {
+			GBIFObservationResponse response = gbifObservationService.getObservationsForCCA(id, offset, limit, speciesGroup, iucnCategory);
+			return Response.status(Status.OK).entity(response).build();
+		} catch (Exception e) {
+			throw new CCAException(e);
+		}
+	}
+
+	@GET
+	@Path("/{id}/species-group-aggregation")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get species group aggregation for CCA", notes = "Returns aggregated counts by species group based on CCA geometry", response = SpeciesGroupAggregationResponse.class)
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
+	public Response getSpeciesGroupAggregation(@Context HttpServletRequest request, @PathParam("id") Long id)
+			throws CCAException {
+		try {
+			SpeciesGroupAggregationResponse response = gbifObservationService.getSpeciesGroupAggregationForCCA(id);
+			return Response.status(Status.OK).entity(response).build();
+		} catch (Exception e) {
+			throw new CCAException(e);
+		}
+	}
+
+	@GET
+	@Path("/{id}/iucn-aggregation")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get IUCN Red List Category aggregation for CCA", notes = "Returns aggregated counts by IUCN Red List Category based on CCA geometry", response = IUCNAggregationResponse.class)
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
+	public Response getIUCNAggregation(@Context HttpServletRequest request, @PathParam("id") Long id)
+			throws CCAException {
+		try {
+			IUCNAggregationResponse response = gbifObservationService.getIUCNAggregationForCCA(id);
+			return Response.status(Status.OK).entity(response).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
 		}
