@@ -5,13 +5,13 @@ public class SpeciesAggregation {
 	private Long count;
 	private String iucnRedListCategory;
 	private String speciesGroup;
-	private Long taxonKey;
+	private String taxonKey;
 	private String iucnLink;
 
 	public SpeciesAggregation() {
 	}
 
-	public SpeciesAggregation(String scientificName, Long count, String iucnRedListCategory, String speciesGroup, Long taxonKey, String iucnLink) {
+	public SpeciesAggregation(String scientificName, Long count, String iucnRedListCategory, String speciesGroup, String taxonKey, String iucnLink) {
 		this.scientificName = scientificName;
 		this.count = count;
 		this.iucnRedListCategory = iucnRedListCategory;
@@ -52,11 +52,11 @@ public class SpeciesAggregation {
 		this.speciesGroup = speciesGroup;
 	}
 
-	public Long getTaxonKey() {
+	public String getTaxonKey() {
 		return taxonKey;
 	}
 
-	public void setTaxonKey(Long taxonKey) {
+	public void setTaxonKey(String taxonKey) {
 		this.taxonKey = taxonKey;
 	}
 
