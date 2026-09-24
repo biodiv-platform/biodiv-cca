@@ -317,7 +317,7 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 							agg.setCount(rs.getLong("count"));
 							agg.setIucnRedListCategory(rs.getString("iucnRedListCategory"));
 							agg.setSpeciesGroup(rs.getString("speciesGroup"));
-							agg.setTaxonKey(rs.getLong("taxonKey"));
+							agg.setTaxonKey(rs.getString("taxonKey"));
 							agg.setIucnLink(rs.getString("iucnLink"));
 							aggregations.add(agg);
 						}
