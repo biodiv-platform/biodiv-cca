@@ -1,8 +1,8 @@
 package com.strandls.cca.service;
 
-import com.strandls.cca.pojo.response.GBIFObservationResponse;
-import com.strandls.cca.pojo.response.IUCNAggregationResponse;
-import com.strandls.cca.pojo.response.SpeciesGroupAggregationResponse;
+import com.strandls.externalOccurrences.pojo.GBIFObservationResponse;
+import com.strandls.externalOccurrences.pojo.IUCNAggregationResponse;
+import com.strandls.externalOccurrences.pojo.SpeciesGroupAggregationResponse;
 
 public interface GBIFObservationService {
 
