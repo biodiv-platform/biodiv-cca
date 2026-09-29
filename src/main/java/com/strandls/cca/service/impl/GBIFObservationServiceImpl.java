@@ -20,6 +20,7 @@ import com.strandls.cca.service.GBIFObservationService;
 import com.strandls.externalOccurrences.controllers.GbifObservationsApi;
 import com.strandls.externalOccurrences.pojo.GBIFObservationResponse;
 import com.strandls.externalOccurrences.pojo.IUCNAggregationResponse;
+import com.strandls.externalOccurrences.pojo.OccurrenceLocationResponse;
 import com.strandls.externalOccurrences.pojo.SpeciesGroupAggregationResponse;
 
 /**
@@ -111,6 +112,28 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 		}
 	}
 
+	@Override
+	public OccurrenceLocationResponse getOccurrenceLocationsForCCA(Long ccaId, Integer limit, String speciesGroup, String iucnCategory) {
+		try {
+			String geoJson = getGeoJson(ccaId);
+			if (geoJson == null) {
+				return emptyOccurrenceLocationResponse();
+			}
+
+			OccurrenceLocationResponse response = gbifObservationsApi.getOccurrenceLocations(limit, speciesGroup, iucnCategory, geoJson);
+
+			logger.info("Found {} occurrence locations (total records: {}, inside records: {}) for CCA id: {} with speciesGroup filter: {}, iucnCategory filter: {}",
+					response.getTotalLocations(), response.getTotalRecords(), response.getInsideRecords(), ccaId,
+					speciesGroup, iucnCategory);
+
+			return response;
+
+		} catch (Exception e) {
+			logger.error("Error querying GBIF occurrence locations for CCA id: {}", ccaId, e);
+			return emptyOccurrenceLocationResponse();
+		}
+	}
+
 	/**
 	 * @return the CCA's geometry as a GeoJSON FeatureCollection string, or null if
 	 *         the CCA or its geometry doesn't exist
@@ -151,5 +174,10 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 	private static GBIFObservationResponse emptyObservationResponse(Integer offset, Integer limit) {
 		return new GBIFObservationResponse().totalCount(0L).totalOccurrenceRecords(0L).offset(offset).limit(limit)
 				.aggregations(new ArrayList<>());
+	}
+
+	private static OccurrenceLocationResponse emptyOccurrenceLocationResponse() {
+		return new OccurrenceLocationResponse().totalRecords(0L).insideRecords(0L).totalLocations(0L).truncated(false)
+				.locations(new ArrayList<>());
 	}
 }

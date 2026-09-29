@@ -2,6 +2,7 @@ package com.strandls.cca.service;
 
 import com.strandls.externalOccurrences.pojo.GBIFObservationResponse;
 import com.strandls.externalOccurrences.pojo.IUCNAggregationResponse;
+import com.strandls.externalOccurrences.pojo.OccurrenceLocationResponse;
 import com.strandls.externalOccurrences.pojo.SpeciesGroupAggregationResponse;
 
 public interface GBIFObservationService {
@@ -33,4 +34,16 @@ public interface GBIFObservationService {
 	 * @return Response containing IUCN category aggregations with total and unique counts
 	 */
 	IUCNAggregationResponse getIUCNAggregationForCCA(Long ccaId);
+
+	/**
+	 * Query GBIF occurrences for a CCA grouped by location, flagging locations
+	 * that fall inside the CCA geometry
+	 *
+	 * @param ccaId The CCA data ID
+	 * @param limit Max number of locations to return
+	 * @param speciesGroup Optional species group filter
+	 * @param iucnCategory Optional IUCN Red List Category filter
+	 * @return Response containing occurrence locations, record totals and search bbox
+	 */
+	OccurrenceLocationResponse getOccurrenceLocationsForCCA(Long ccaId, Integer limit, String speciesGroup, String iucnCategory);
 }

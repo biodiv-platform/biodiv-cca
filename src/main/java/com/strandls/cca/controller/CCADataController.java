@@ -43,6 +43,7 @@ import com.strandls.cca.pojo.UsergroupCCA;
 import com.strandls.cca.pojo.response.AggregationResponse;
 import com.strandls.externalOccurrences.pojo.GBIFObservationResponse;
 import com.strandls.externalOccurrences.pojo.IUCNAggregationResponse;
+import com.strandls.externalOccurrences.pojo.OccurrenceLocationResponse;
 import com.strandls.externalOccurrences.pojo.SpeciesGroupAggregationResponse;
 import com.strandls.cca.pojo.response.SubsetCCADataList;
 import com.strandls.cca.service.CCADataService;
@@ -140,6 +141,22 @@ public class CCADataController {
 			throws CCAException {
 		try {
 			IUCNAggregationResponse response = gbifObservationService.getIUCNAggregationForCCA(id);
+			return Response.status(Status.OK).entity(response).build();
+		} catch (Exception e) {
+			throw new CCAException(e);
+		}
+	}
+
+	@GET
+	@Path("/{id}/gbif-occurrence-locations")
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get GBIF occurrence locations for CCA", notes = "Returns GBIF occurrences grouped by location, flagging those inside the CCA geometry", response = OccurrenceLocationResponse.class)
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
+	public Response getGBIFOccurrenceLocations(@Context HttpServletRequest request, @PathParam("id") Long id,
+			@QueryParam("limit") Integer limit, @QueryParam("speciesGroup") String speciesGroup,
+			@QueryParam("iucnCategory") String iucnCategory) throws CCAException {
+		try {
+			OccurrenceLocationResponse response = gbifObservationService.getOccurrenceLocationsForCCA(id, limit, speciesGroup, iucnCategory);
 			return Response.status(Status.OK).entity(response).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
