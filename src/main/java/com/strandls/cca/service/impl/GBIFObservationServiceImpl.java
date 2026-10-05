@@ -180,7 +180,7 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 	}
 
 	private static OccurrenceLocationResponse emptyOccurrenceLocationResponse() {
-		return new OccurrenceLocationResponse().totalRecords(0L).insideRecords(0L).totalLocations(0L).truncated(false)
-				.locations(new ArrayList<>());
+		return new OccurrenceLocationResponse().searchArea(null).totalRecords(0L).insideRecords(0L).polygonRecords(0L)
+				.totalLocations(0L).truncated(false).locations(new ArrayList<>());
 	}
 }
