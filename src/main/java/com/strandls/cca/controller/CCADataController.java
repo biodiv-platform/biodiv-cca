@@ -61,6 +61,11 @@ import io.swagger.annotations.ApiResponses;
 @Path(ApiConstants.V1 + ApiConstants.DATA)
 public class CCADataController {
 
+	private static final String POINT_BUFFER_KM_DESCRIPTION = "GBIF search distance in km around the CCA's point locations. "
+			+ "Defaults to the externalOccurrences default (10 km), max 100";
+	private static final String BUFFER_KM_DESCRIPTION = "GBIF search distance in km around the CCA's lines and polygons. "
+			+ "Defaults to the externalOccurrences default (1 km), max 100";
+
 	@Inject
 	private CCADataService ccaDataService;
 
@@ -108,9 +113,12 @@ public class CCADataController {
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
 	public Response getGBIFObservations(@Context HttpServletRequest request, @PathParam("id") Long id,
 			@QueryParam("offset") Integer offset, @QueryParam("limit") Integer limit,
-			@QueryParam("speciesGroup") String speciesGroup, @QueryParam("iucnCategory") String iucnCategory) throws CCAException {
+			@QueryParam("speciesGroup") String speciesGroup, @QueryParam("iucnCategory") String iucnCategory,
+			@ApiParam(value = POINT_BUFFER_KM_DESCRIPTION) @QueryParam("pointBufferKm") Double pointBufferKm,
+			@ApiParam(value = BUFFER_KM_DESCRIPTION) @QueryParam("bufferKm") Double bufferKm) throws CCAException {
 		try {
-			GBIFObservationResponse response = gbifObservationService.getObservationsForCCA(id, offset, limit, speciesGroup, iucnCategory);
+			GBIFObservationResponse response = gbifObservationService.getObservationsForCCA(id, offset, limit, speciesGroup,
+					iucnCategory, pointBufferKm, bufferKm);
 			return Response.status(Status.OK).entity(response).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
@@ -122,10 +130,12 @@ public class CCADataController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get species group aggregation for CCA", notes = "Returns aggregated counts by species group based on CCA geometry", response = SpeciesGroupAggregationResponse.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
-	public Response getSpeciesGroupAggregation(@Context HttpServletRequest request, @PathParam("id") Long id)
-			throws CCAException {
+	public Response getSpeciesGroupAggregation(@Context HttpServletRequest request, @PathParam("id") Long id,
+			@ApiParam(value = POINT_BUFFER_KM_DESCRIPTION) @QueryParam("pointBufferKm") Double pointBufferKm,
+			@ApiParam(value = BUFFER_KM_DESCRIPTION) @QueryParam("bufferKm") Double bufferKm) throws CCAException {
 		try {
-			SpeciesGroupAggregationResponse response = gbifObservationService.getSpeciesGroupAggregationForCCA(id);
+			SpeciesGroupAggregationResponse response = gbifObservationService.getSpeciesGroupAggregationForCCA(id,
+					pointBufferKm, bufferKm);
 			return Response.status(Status.OK).entity(response).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
@@ -137,10 +147,12 @@ public class CCADataController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Get IUCN Red List Category aggregation for CCA", notes = "Returns aggregated counts by IUCN Red List Category based on CCA geometry", response = IUCNAggregationResponse.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
-	public Response getIUCNAggregation(@Context HttpServletRequest request, @PathParam("id") Long id)
-			throws CCAException {
+	public Response getIUCNAggregation(@Context HttpServletRequest request, @PathParam("id") Long id,
+			@ApiParam(value = POINT_BUFFER_KM_DESCRIPTION) @QueryParam("pointBufferKm") Double pointBufferKm,
+			@ApiParam(value = BUFFER_KM_DESCRIPTION) @QueryParam("bufferKm") Double bufferKm) throws CCAException {
 		try {
-			IUCNAggregationResponse response = gbifObservationService.getIUCNAggregationForCCA(id);
+			IUCNAggregationResponse response = gbifObservationService.getIUCNAggregationForCCA(id, pointBufferKm,
+					bufferKm);
 			return Response.status(Status.OK).entity(response).build();
 		} catch (Exception e) {
 			throw new CCAException(e);
@@ -154,9 +166,12 @@ public class CCADataController {
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Could not get the data", response = String.class) })
 	public Response getGBIFOccurrenceLocations(@Context HttpServletRequest request, @PathParam("id") Long id,
 			@QueryParam("limit") Integer limit, @QueryParam("speciesGroup") String speciesGroup,
-			@QueryParam("iucnCategory") String iucnCategory) throws CCAException {
+			@QueryParam("iucnCategory") String iucnCategory,
+			@ApiParam(value = POINT_BUFFER_KM_DESCRIPTION) @QueryParam("pointBufferKm") Double pointBufferKm,
+			@ApiParam(value = BUFFER_KM_DESCRIPTION) @QueryParam("bufferKm") Double bufferKm) throws CCAException {
 		try {
-			OccurrenceLocationResponse response = gbifObservationService.getOccurrenceLocationsForCCA(id, limit, speciesGroup, iucnCategory);
+			OccurrenceLocationResponse response = gbifObservationService.getOccurrenceLocationsForCCA(id, limit,
+					speciesGroup, iucnCategory, pointBufferKm, bufferKm);
 			return Response.status(Status.OK).entity(response).build();
 		} catch (Exception e) {
 			throw new CCAException(e);

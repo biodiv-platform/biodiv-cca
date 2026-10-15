@@ -31,12 +31,6 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 
 	private final Logger logger = LoggerFactory.getLogger(GBIFObservationServiceImpl.class);
 
-	/** Buffer around point locations; null uses the externalOccurrences default (gbif_point_buffer_km) */
-	private static final Double POINT_BUFFER_KM = null;
-
-	/** Buffer around lines and polygons; null uses the externalOccurrences default (gbif_buffer_km) */
-	private static final Double BUFFER_KM = null;
-
 	@Inject
 	private ObjectMapper objectMapper;
 
@@ -47,7 +41,8 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 	private GbifObservationsApi gbifObservationsApi;
 
 	@Override
-	public GBIFObservationResponse getObservationsForCCA(Long ccaId, Integer offset, Integer limit, String speciesGroup, String iucnCategory) {
+	public GBIFObservationResponse getObservationsForCCA(Long ccaId, Integer offset, Integer limit, String speciesGroup, String iucnCategory,
+			Double pointBufferKm, Double bufferKm) {
 		// Set default values
 		if (offset == null || offset < 0) {
 			offset = 0;
@@ -62,7 +57,7 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 				return emptyObservationResponse(offset, limit);
 			}
 
-			GBIFObservationResponse response = gbifObservationsApi.getGBIFObservations(offset, limit, speciesGroup, iucnCategory, POINT_BUFFER_KM, BUFFER_KM, geoJson);
+			GBIFObservationResponse response = gbifObservationsApi.getGBIFObservations(offset, limit, speciesGroup, iucnCategory, pointBufferKm, bufferKm, geoJson);
 
 			logger.info("Found {} species aggregations (total species: {}, total occurrence records: {}) for CCA id: {} with speciesGroup filter: {}, iucnCategory filter: {}",
 					response.getAggregations() == null ? 0 : response.getAggregations().size(), response.getTotalCount(),
@@ -77,14 +72,14 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 	}
 
 	@Override
-	public SpeciesGroupAggregationResponse getSpeciesGroupAggregationForCCA(Long ccaId) {
+	public SpeciesGroupAggregationResponse getSpeciesGroupAggregationForCCA(Long ccaId, Double pointBufferKm, Double bufferKm) {
 		try {
 			String geoJson = getGeoJson(ccaId);
 			if (geoJson == null) {
 				return new SpeciesGroupAggregationResponse().aggregations(new ArrayList<>());
 			}
 
-			SpeciesGroupAggregationResponse response = gbifObservationsApi.getSpeciesGroupAggregation(POINT_BUFFER_KM, BUFFER_KM, geoJson);
+			SpeciesGroupAggregationResponse response = gbifObservationsApi.getSpeciesGroupAggregation(pointBufferKm, bufferKm, geoJson);
 
 			logger.info("Found {} species group aggregations for CCA id: {}",
 					response.getAggregations() == null ? 0 : response.getAggregations().size(), ccaId);
@@ -98,14 +93,14 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 	}
 
 	@Override
-	public IUCNAggregationResponse getIUCNAggregationForCCA(Long ccaId) {
+	public IUCNAggregationResponse getIUCNAggregationForCCA(Long ccaId, Double pointBufferKm, Double bufferKm) {
 		try {
 			String geoJson = getGeoJson(ccaId);
 			if (geoJson == null) {
 				return new IUCNAggregationResponse().aggregations(new ArrayList<>());
 			}
 
-			IUCNAggregationResponse response = gbifObservationsApi.getIUCNAggregation(POINT_BUFFER_KM, BUFFER_KM, geoJson);
+			IUCNAggregationResponse response = gbifObservationsApi.getIUCNAggregation(pointBufferKm, bufferKm, geoJson);
 
 			logger.info("Found {} IUCN category aggregations for CCA id: {}",
 					response.getAggregations() == null ? 0 : response.getAggregations().size(), ccaId);
@@ -119,14 +114,15 @@ public class GBIFObservationServiceImpl implements GBIFObservationService {
 	}
 
 	@Override
-	public OccurrenceLocationResponse getOccurrenceLocationsForCCA(Long ccaId, Integer limit, String speciesGroup, String iucnCategory) {
+	public OccurrenceLocationResponse getOccurrenceLocationsForCCA(Long ccaId, Integer limit, String speciesGroup, String iucnCategory,
+			Double pointBufferKm, Double bufferKm) {
 		try {
 			String geoJson = getGeoJson(ccaId);
 			if (geoJson == null) {
 				return emptyOccurrenceLocationResponse();
 			}
 
-			OccurrenceLocationResponse response = gbifObservationsApi.getOccurrenceLocations(limit, speciesGroup, iucnCategory, POINT_BUFFER_KM, BUFFER_KM, geoJson);
+			OccurrenceLocationResponse response = gbifObservationsApi.getOccurrenceLocations(limit, speciesGroup, iucnCategory, pointBufferKm, bufferKm, geoJson);
 
 			logger.info("Found {} occurrence locations (total records: {}, inside records: {}) for CCA id: {} with speciesGroup filter: {}, iucnCategory filter: {}",
 					response.getTotalLocations(), response.getTotalRecords(), response.getInsideRecords(), ccaId,
