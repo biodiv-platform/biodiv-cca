@@ -226,18 +226,11 @@
 			<version>1.0.0</version>
 		</dependency>
 
-		<!-- DuckDB for querying parquet files -->
+		<!-- GBIF observations are served by biodiv-externalOccurrences -->
 		<dependency>
-			<groupId>org.duckdb</groupId>
-			<artifactId>duckdb_jdbc</artifactId>
-			<version>1.5.4.0</version>
-		</dependency>
-
-		<!-- HikariCP for DuckDB connection pooling -->
-		<dependency>
-			<groupId>com.zaxxer</groupId>
-			<artifactId>HikariCP</artifactId>
-			<version>5.0.1</version>
+			<groupId>com.strandls.externalOccurrences</groupId>
+			<artifactId>externalOccurrences-client</artifactId>
+			<version>1.0.0</version>
 		</dependency>
 
 	</dependencies>

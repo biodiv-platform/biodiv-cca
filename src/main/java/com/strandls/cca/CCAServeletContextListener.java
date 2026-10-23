@@ -29,7 +29,6 @@ import com.mongodb.client.MongoDatabase;
 import com.strandls.cca.controller.CCAControllerModule;
 import com.strandls.cca.dao.CCADaoModule;
 import com.strandls.cca.service.impl.CCAServiceModule;
-import com.strandls.cca.util.DuckDBUtil;
 
 /**
  * Class to make initial configuration
@@ -87,9 +86,6 @@ public class CCAServeletContextListener extends GuiceServletContextListener {
 		MongoClient mongoClient = injector.getInstance(MongoClient.class);
 		mongoClient.close();
 		logger.info("MongoDB connection closed");
-
-		// Close DuckDB connection pool
-		DuckDBUtil.shutdown();
 
 		logger.info("Application shutdown complete");
 	}
